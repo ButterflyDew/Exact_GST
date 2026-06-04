@@ -1,0 +1,11 @@
+# Run started=2026-06-01 17:14:06 graph=Toronto method=PrunedDP mode=weight data_root=data graph_folder=data_new/Toronto query_file=query_g10_nonuniform.txt run_subdir=query_g10_nonuniform query_count=10 result_dir=result\weight\Toronto\PrunedDP\query_g10_nonuniform
+12.523658 1.1736660157
+14.420290 1.4690561927
+12.388408 0.7128206883
+12.154412 0.8042230511
+12.918144 1.6277686542
+12.561239 0.8124375890
+13.585894 1.5017245876
+12.577009 1.0709840828
+13.417332 1.4137710601
+12.030589 0.7300249962

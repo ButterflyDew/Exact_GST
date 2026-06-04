@@ -1,0 +1,2 @@
+query=1 BestQ=11.0000000000 total_valid=0 k2=0/6
+query=1 BestQ=11.0000000000 valid_total=26 k=2 valid=26 total=66

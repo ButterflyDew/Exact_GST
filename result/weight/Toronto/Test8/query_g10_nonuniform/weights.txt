@@ -1,0 +1,11 @@
+# Run started=2026-06-01 17:12:27 graph=Toronto method=Test8 mode=weight data_root=data graph_folder=data_new/Toronto query_file=query_g10_nonuniform.txt run_subdir=query_g10_nonuniform query_count=10 result_dir=result\weight\Toronto\Test8\query_g10_nonuniform
+8.020043 1.1736660157
+5.530000 1.4690561927
+1.710552 0.7128206883
+5.043064 0.8042230511
+2.805869 1.6277686542
+4.100129 0.8124375890
+13.183620 1.5017245876
+4.398803 1.0709840828
+10.221130 1.4137710601
+1.433101 0.7300249962

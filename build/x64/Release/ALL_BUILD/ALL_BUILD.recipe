@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\x64\Release\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_dpbf_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_half_dpbf_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_pruned_dp_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test1_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test2_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test3_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test4_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test5_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test6_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test7_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test8_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\x64\Release\ALL_BUILD</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

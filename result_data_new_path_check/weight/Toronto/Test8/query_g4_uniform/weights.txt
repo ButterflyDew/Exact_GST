@@ -1,0 +1,11 @@
+# Run started=2026-06-01 16:42:03 graph=Toronto method=Test8 mode=weight data_root=data graph_folder=data_new/Toronto query_file=query_g4_uniform.txt run_subdir=query_g4_uniform query_count=10 result_dir=result_data_new_path_check\weight\Toronto\Test8\query_g4_uniform
+0.090293 6.2077413198
+0.054133 0.5017914139
+0.058110 1.6618271146
+0.065848 3.4306878097
+0.062354 2.1460985503
+0.059829 0.3993960104
+0.051686 3.7163243022
+0.065596 3.7958366446
+0.059000 2.9902827841
+0.094086 6.6188625242

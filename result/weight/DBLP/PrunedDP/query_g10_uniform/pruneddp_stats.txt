@@ -1,0 +1,1 @@
+# Run started=2026-06-01 17:25:37 graph=DBLP method=PrunedDP mode=weight data_root=data graph_folder=data_new/DBLP query_file=query_g10_uniform.txt run_subdir=query_g10_uniform query_count=10 result_dir=result\weight\DBLP\PrunedDP\query_g10_uniform

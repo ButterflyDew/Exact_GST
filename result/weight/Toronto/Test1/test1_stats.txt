@@ -1,0 +1,320 @@
+query=1 BestQ=0.2582152999 total_valid=0
+query=2 BestQ=0.3209028605 total_valid=0
+query=3 BestQ=0.3207338254 total_valid=0
+query=4 BestQ=0.2842622865 total_valid=0
+query=5 BestQ=0.2501471485 total_valid=0
+query=6 BestQ=0.2506975205 total_valid=0
+query=7 BestQ=0.1718753988 total_valid=0
+query=8 BestQ=0.2372146746 total_valid=0
+query=9 BestQ=0.3010823803 total_valid=0
+query=10 BestQ=0.2670728840 total_valid=0
+query=11 BestQ=0.1783130045 total_valid=0
+query=12 BestQ=0.2005114323 total_valid=0
+query=13 BestQ=0.1023549699 total_valid=0
+query=14 BestQ=0.1369391765 total_valid=0
+query=15 BestQ=0.1828427712 total_valid=0
+query=16 BestQ=0.0813748469 total_valid=0
+query=17 BestQ=0.2003449170 total_valid=0
+query=18 BestQ=0.0798674596 total_valid=0
+query=19 BestQ=0.1516007317 total_valid=0
+query=20 BestQ=0.0726480949 total_valid=0
+query=21 BestQ=0.0489293074 total_valid=0
+query=22 BestQ=0.0545303684 total_valid=0
+query=23 BestQ=0.0781585437 total_valid=0
+query=24 BestQ=0.0449481800 total_valid=0
+query=25 BestQ=0.0633787352 total_valid=0
+query=26 BestQ=0.0714209080 total_valid=0
+query=27 BestQ=0.0511472451 total_valid=0
+query=28 BestQ=0.0504006725 total_valid=0
+query=29 BestQ=0.0473020273 total_valid=0
+query=30 BestQ=0.0973723379 total_valid=0
+query=31 BestQ=0.0193932512 total_valid=0
+query=32 BestQ=0.0174620587 total_valid=0
+query=33 BestQ=0.0132615198 total_valid=0
+query=34 BestQ=0.0180950427 total_valid=0
+query=35 BestQ=0.0207806680 total_valid=0
+query=36 BestQ=0.0098715503 total_valid=0
+query=37 BestQ=0.0318150783 total_valid=0
+query=38 BestQ=0.0289218925 total_valid=0
+query=39 BestQ=0.0267651083 total_valid=0
+query=40 BestQ=0.0269502934 total_valid=0
+query=41 BestQ=0.4773639649 total_valid=0 k3=0/20
+query=42 BestQ=0.3626370660 total_valid=0 k3=0/20
+query=43 BestQ=0.3290640323 total_valid=0 k3=0/20
+query=44 BestQ=0.3539133252 total_valid=0 k3=0/20
+query=45 BestQ=0.3154434249 total_valid=0 k3=0/20
+query=46 BestQ=0.3711402498 total_valid=0 k3=0/20
+query=47 BestQ=0.1985151137 total_valid=0 k3=0/20
+query=48 BestQ=0.4144706050 total_valid=0 k3=0/20
+query=49 BestQ=0.4194849984 total_valid=0 k3=0/20
+query=50 BestQ=0.4437276028 total_valid=0 k3=0/20
+query=51 BestQ=0.2311309297 total_valid=0 k3=0/20
+query=52 BestQ=0.2310481045 total_valid=0 k3=0/20
+query=53 BestQ=0.1993575349 total_valid=0 k3=0/20
+query=54 BestQ=0.0519970394 total_valid=0 k3=0/20
+query=55 BestQ=0.2212466317 total_valid=0 k3=0/20
+query=56 BestQ=0.1706815201 total_valid=0 k3=0/20
+query=57 BestQ=0.2538122556 total_valid=0 k3=0/20
+query=58 BestQ=0.2008200981 total_valid=0 k3=0/20
+query=59 BestQ=0.1327673546 total_valid=0 k3=0/20
+query=60 BestQ=0.1780658135 total_valid=0 k3=0/20
+query=61 BestQ=0.0368065233 total_valid=0 k3=0/20
+query=62 BestQ=0.0846169992 total_valid=0 k3=0/20
+query=63 BestQ=0.1375969823 total_valid=0 k3=0/20
+query=64 BestQ=0.0581575404 total_valid=0 k3=0/20
+query=65 BestQ=0.0933513213 total_valid=0 k3=0/20
+query=66 BestQ=0.0519438010 total_valid=0 k3=0/20
+query=67 BestQ=0.0910568391 total_valid=0 k3=0/20
+query=68 BestQ=0.0499323752 total_valid=0 k3=0/20
+query=69 BestQ=0.0258052635 total_valid=0 k3=0/20
+query=70 BestQ=0.0729964447 total_valid=0 k3=0/20
+query=71 BestQ=0.0173596329 total_valid=0 k3=0/20
+query=72 BestQ=0.0257968268 total_valid=0 k3=0/20
+query=73 BestQ=0.0324425477 total_valid=0 k3=0/20
+query=74 BestQ=0.0463726619 total_valid=0 k3=0/20
+query=75 BestQ=0.0394142518 total_valid=0 k3=0/20
+query=76 BestQ=0.0425118888 total_valid=0 k3=0/20
+query=77 BestQ=0.0341260232 total_valid=0 k3=0/20
+query=78 BestQ=0.0099798569 total_valid=0 k3=0/20
+query=79 BestQ=0.0146614485 total_valid=0 k3=0/20
+query=80 BestQ=0.0183359643 total_valid=0 k3=0/20
+query=81 BestQ=0.5306139247 total_valid=0 k3=0/35
+query=82 BestQ=0.4217395522 total_valid=0 k3=0/35
+query=83 BestQ=0.4934305688 total_valid=0 k3=0/35
+query=84 BestQ=0.4540763419 total_valid=0 k3=0/35
+query=85 BestQ=0.4243922672 total_valid=0 k3=0/35
+query=86 BestQ=0.4361046644 total_valid=0 k3=0/35
+query=87 BestQ=0.6186763936 total_valid=0 k3=0/35
+query=88 BestQ=0.3493254874 total_valid=0 k3=0/35
+query=89 BestQ=0.3813599520 total_valid=0 k3=0/35
+query=90 BestQ=0.5777373513 total_valid=0 k3=0/35
+query=91 BestQ=0.2722507645 total_valid=0 k3=0/35
+query=92 BestQ=0.1039184927 total_valid=0 k3=0/35
+query=93 BestQ=0.2557088038 total_valid=0 k3=0/35
+query=94 BestQ=0.2882143979 total_valid=0 k3=0/35
+query=95 BestQ=0.3770767770 total_valid=0 k3=0/35
+query=96 BestQ=0.2626187042 total_valid=0 k3=0/35
+query=97 BestQ=0.1038725872 total_valid=0 k3=0/35
+query=98 BestQ=0.2529237418 total_valid=0 k3=0/35
+query=99 BestQ=0.2507887582 total_valid=0 k3=0/35
+query=100 BestQ=0.3179331887 total_valid=0 k3=0/35
+query=101 BestQ=0.1271502466 total_valid=0 k3=0/35
+query=102 BestQ=0.0610887056 total_valid=0 k3=0/35
+query=103 BestQ=0.1196796209 total_valid=0 k3=0/35
+query=104 BestQ=0.1191661414 total_valid=0 k3=0/35
+query=105 BestQ=0.1842956311 total_valid=0 k3=0/35
+query=106 BestQ=0.1103434088 total_valid=0 k3=0/35
+query=107 BestQ=0.1931761054 total_valid=0 k3=0/35
+query=108 BestQ=0.1002484323 total_valid=0 k3=0/35
+query=109 BestQ=0.1529951344 total_valid=0 k3=0/35
+query=110 BestQ=0.0997477503 total_valid=0 k3=0/35
+query=111 BestQ=0.0253150784 total_valid=0 k3=0/35
+query=112 BestQ=0.0492577895 total_valid=0 k3=0/35
+query=113 BestQ=0.0212462263 total_valid=0 k3=0/35
+query=114 BestQ=0.0392157666 total_valid=0 k3=0/35
+query=115 BestQ=0.0161494806 total_valid=0 k3=0/35
+query=116 BestQ=0.0559757616 total_valid=0 k3=0/35
+query=117 BestQ=0.0459667967 total_valid=0 k3=0/35
+query=118 BestQ=0.0480393588 total_valid=0 k3=0/35
+query=119 BestQ=0.0328916544 total_valid=0 k3=0/35
+query=120 BestQ=0.0276228774 total_valid=0 k3=0/35
+query=121 BestQ=0.5393402607 total_valid=0 k3=0/56 k4=0/70
+query=122 BestQ=0.6466523888 total_valid=0 k3=0/56 k4=0/70
+query=123 BestQ=0.7175601356 total_valid=0 k3=0/56 k4=0/70
+query=124 BestQ=0.6496910626 total_valid=0 k3=0/56 k4=0/70
+query=125 BestQ=0.7080244590 total_valid=0 k3=0/56 k4=0/70
+query=126 BestQ=0.5547592174 total_valid=0 k3=0/56 k4=0/70
+query=127 BestQ=0.6296367124 total_valid=0 k3=0/56 k4=0/70
+query=128 BestQ=0.6764821246 total_valid=0 k3=0/56 k4=0/70
+query=129 BestQ=0.6280701826 total_valid=0 k3=0/56 k4=0/70
+query=130 BestQ=0.5866914423 total_valid=0 k3=0/56 k4=0/70
+query=131 BestQ=0.2481367180 total_valid=0 k3=0/56 k4=0/70
+query=132 BestQ=0.3125521727 total_valid=0 k3=0/56 k4=0/70
+query=133 BestQ=0.3995148619 total_valid=0 k3=0/56 k4=0/70
+query=134 BestQ=0.3928901147 total_valid=0 k3=0/56 k4=0/70
+query=135 BestQ=0.2959443225 total_valid=0 k3=0/56 k4=0/70
+query=136 BestQ=0.3757580516 total_valid=0 k3=0/56 k4=0/70
+query=137 BestQ=0.3736046996 total_valid=0 k3=0/56 k4=0/70
+query=138 BestQ=0.4010080695 total_valid=0 k3=0/56 k4=0/70
+query=139 BestQ=0.1952138768 total_valid=0 k3=0/56 k4=0/70
+query=140 BestQ=0.3271257738 total_valid=0 k3=0/56 k4=0/70
+query=141 BestQ=0.1547136175 total_valid=0 k3=0/56 k4=0/70
+query=142 BestQ=0.0592924181 total_valid=0 k3=0/56 k4=0/70
+query=143 BestQ=0.1204362933 total_valid=0 k3=0/56 k4=0/70
+query=144 BestQ=0.1555920330 total_valid=0 k3=0/56 k4=0/70
+query=145 BestQ=0.1513331364 total_valid=0 k3=0/56 k4=0/70
+query=146 BestQ=0.0292376876 total_valid=0 k3=0/56 k4=0/70
+query=147 BestQ=0.1434210982 total_valid=0 k3=0/56 k4=0/70
+query=148 BestQ=0.0568292082 total_valid=0 k3=0/56 k4=0/70
+query=149 BestQ=0.1231267026 total_valid=0 k3=0/56 k4=0/70
+query=150 BestQ=0.1121187617 total_valid=0 k3=0/56 k4=0/70
+query=151 BestQ=0.0418113675 total_valid=0 k3=0/56 k4=0/70
+query=152 BestQ=0.0336004879 total_valid=0 k3=0/56 k4=0/70
+query=153 BestQ=0.0661990401 total_valid=0 k3=0/56 k4=0/70
+query=154 BestQ=0.0565862290 total_valid=0 k3=0/56 k4=0/70
+query=155 BestQ=0.0592321104 total_valid=0 k3=0/56 k4=0/70
+query=156 BestQ=0.0236785556 total_valid=0 k3=0/56 k4=0/70
+query=157 BestQ=0.0364902873 total_valid=0 k3=0/56 k4=0/70
+query=158 BestQ=0.0881882159 total_valid=0 k3=0/56 k4=0/70
+query=159 BestQ=0.0390572098 total_valid=0 k3=0/56 k4=0/70
+query=160 BestQ=0.0648405405 total_valid=0 k3=0/56 k4=0/70
+query=1 BestQ=0.2582152999 valid_total=0
+query=2 BestQ=0.3209028605 valid_total=0
+query=3 BestQ=0.3207338254 valid_total=0
+query=4 BestQ=0.2842622865 valid_total=0
+query=5 BestQ=0.2501471485 valid_total=0
+query=6 BestQ=0.2506975205 valid_total=0
+query=7 BestQ=0.1718753988 valid_total=0
+query=8 BestQ=0.2372146746 valid_total=0
+query=9 BestQ=0.3010823803 valid_total=0
+query=10 BestQ=0.2670728840 valid_total=0
+query=11 BestQ=0.1783130045 valid_total=0
+query=12 BestQ=0.2005114323 valid_total=0
+query=13 BestQ=0.1023549699 valid_total=0
+query=14 BestQ=0.1369391765 valid_total=0
+query=15 BestQ=0.1828427712 valid_total=0
+query=16 BestQ=0.0813748469 valid_total=0
+query=17 BestQ=0.2003449170 valid_total=0
+query=18 BestQ=0.0798674596 valid_total=0
+query=19 BestQ=0.1516007317 valid_total=0
+query=20 BestQ=0.0726480949 valid_total=0
+query=21 BestQ=0.0489293074 valid_total=0
+query=22 BestQ=0.0545303684 valid_total=0
+query=23 BestQ=0.0781585437 valid_total=0
+query=24 BestQ=0.0449481800 valid_total=0
+query=25 BestQ=0.0633787352 valid_total=0
+query=26 BestQ=0.0714209080 valid_total=0
+query=27 BestQ=0.0511472451 valid_total=0
+query=28 BestQ=0.0504006725 valid_total=0
+query=29 BestQ=0.0473020273 valid_total=0
+query=30 BestQ=0.0973723379 valid_total=0
+query=31 BestQ=0.0193932512 valid_total=0
+query=32 BestQ=0.0174620587 valid_total=0
+query=33 BestQ=0.0132615198 valid_total=0
+query=34 BestQ=0.0180950427 valid_total=0
+query=35 BestQ=0.0207806680 valid_total=0
+query=36 BestQ=0.0098715503 valid_total=0
+query=37 BestQ=0.0318150783 valid_total=0
+query=38 BestQ=0.0289218925 valid_total=0
+query=39 BestQ=0.0267651083 valid_total=0
+query=40 BestQ=0.0269502934 valid_total=0
+query=41 BestQ=0.4773639649 valid_total=614 k=3 valid=614 total=921460
+query=42 BestQ=0.3626370660 valid_total=196 k=3 valid=196 total=921460
+query=43 BestQ=0.3290640323 valid_total=144 k=3 valid=144 total=921460
+query=44 BestQ=0.3539133252 valid_total=40 k=3 valid=40 total=921460
+query=45 BestQ=0.3154434249 valid_total=132 k=3 valid=132 total=921460
+query=46 BestQ=0.3711402498 valid_total=28 k=3 valid=28 total=921460
+query=47 BestQ=0.1985151137 valid_total=18 k=3 valid=18 total=921460
+query=48 BestQ=0.4144706050 valid_total=262 k=3 valid=262 total=921460
+query=49 BestQ=0.4194849984 valid_total=20 k=3 valid=20 total=921460
+query=50 BestQ=0.4437276028 valid_total=344 k=3 valid=344 total=921460
+query=51 BestQ=0.2311309297 valid_total=18 k=3 valid=18 total=921460
+query=52 BestQ=0.2310481045 valid_total=16 k=3 valid=16 total=921460
+query=53 BestQ=0.1993575349 valid_total=12 k=3 valid=12 total=921460
+query=54 BestQ=0.0519970394 valid_total=44 k=3 valid=44 total=921460
+query=55 BestQ=0.2212466317 valid_total=30 k=3 valid=30 total=921460
+query=56 BestQ=0.1706815201 valid_total=136 k=3 valid=136 total=921460
+query=57 BestQ=0.2538122556 valid_total=188 k=3 valid=188 total=921460
+query=58 BestQ=0.2008200981 valid_total=14 k=3 valid=14 total=921460
+query=59 BestQ=0.1327673546 valid_total=102 k=3 valid=102 total=921460
+query=60 BestQ=0.1780658135 valid_total=16 k=3 valid=16 total=921460
+query=61 BestQ=0.0368065233 valid_total=0 k=3 valid=0 total=921460
+query=62 BestQ=0.0846169992 valid_total=40 k=3 valid=40 total=921460
+query=63 BestQ=0.1375969823 valid_total=6 k=3 valid=6 total=921460
+query=64 BestQ=0.0581575404 valid_total=54 k=3 valid=54 total=921460
+query=65 BestQ=0.0933513213 valid_total=4 k=3 valid=4 total=921460
+query=66 BestQ=0.0519438010 valid_total=48 k=3 valid=48 total=921460
+query=67 BestQ=0.0910568391 valid_total=20 k=3 valid=20 total=921460
+query=68 BestQ=0.0499323752 valid_total=10 k=3 valid=10 total=921460
+query=69 BestQ=0.0258052635 valid_total=0 k=3 valid=0 total=921460
+query=70 BestQ=0.0729964447 valid_total=32 k=3 valid=32 total=921460
+query=71 BestQ=0.0173596329 valid_total=0 k=3 valid=0 total=921460
+query=72 BestQ=0.0257968268 valid_total=6 k=3 valid=6 total=921460
+query=73 BestQ=0.0324425477 valid_total=0 k=3 valid=0 total=921460
+query=74 BestQ=0.0463726619 valid_total=16 k=3 valid=16 total=921460
+query=75 BestQ=0.0394142518 valid_total=10 k=3 valid=10 total=921460
+query=76 BestQ=0.0425118888 valid_total=0 k=3 valid=0 total=921460
+query=77 BestQ=0.0341260232 valid_total=24 k=3 valid=24 total=921460
+query=78 BestQ=0.0099798569 valid_total=4 k=3 valid=4 total=921460
+query=79 BestQ=0.0146614485 valid_total=8 k=3 valid=8 total=921460
+query=80 BestQ=0.0183359643 valid_total=14 k=3 valid=14 total=921460
+query=81 BestQ=0.5306139247 valid_total=533 k=3 valid=533 total=1612555
+query=82 BestQ=0.4217395522 valid_total=42 k=3 valid=42 total=1612555
+query=83 BestQ=0.4934305688 valid_total=185 k=3 valid=185 total=1612555
+query=84 BestQ=0.4540763419 valid_total=260 k=3 valid=260 total=1612555
+query=85 BestQ=0.4243922672 valid_total=284 k=3 valid=284 total=1612555
+query=86 BestQ=0.4361046644 valid_total=185 k=3 valid=185 total=1612555
+query=87 BestQ=0.6186763936 valid_total=918 k=3 valid=918 total=1612555
+query=88 BestQ=0.3493254874 valid_total=104 k=3 valid=104 total=1612555
+query=89 BestQ=0.3813599520 valid_total=12 k=3 valid=12 total=1612555
+query=90 BestQ=0.5777373513 valid_total=511 k=3 valid=511 total=1612555
+query=91 BestQ=0.2722507645 valid_total=111 k=3 valid=111 total=1612555
+query=92 BestQ=0.1039184927 valid_total=8 k=3 valid=8 total=1612555
+query=93 BestQ=0.2557088038 valid_total=77 k=3 valid=77 total=1612555
+query=94 BestQ=0.2882143979 valid_total=150 k=3 valid=150 total=1612555
+query=95 BestQ=0.3770767770 valid_total=284 k=3 valid=284 total=1612555
+query=96 BestQ=0.2626187042 valid_total=221 k=3 valid=221 total=1612555
+query=97 BestQ=0.1038725872 valid_total=48 k=3 valid=48 total=1612555
+query=98 BestQ=0.2529237418 valid_total=44 k=3 valid=44 total=1612555
+query=99 BestQ=0.2507887582 valid_total=180 k=3 valid=180 total=1612555
+query=100 BestQ=0.3179331887 valid_total=76 k=3 valid=76 total=1612555
+query=101 BestQ=0.1271502466 valid_total=244 k=3 valid=244 total=1612555
+query=102 BestQ=0.0610887056 valid_total=63 k=3 valid=63 total=1612555
+query=103 BestQ=0.1196796209 valid_total=42 k=3 valid=42 total=1612555
+query=104 BestQ=0.1191661414 valid_total=169 k=3 valid=169 total=1612555
+query=105 BestQ=0.1842956311 valid_total=76 k=3 valid=76 total=1612555
+query=106 BestQ=0.1103434088 valid_total=66 k=3 valid=66 total=1612555
+query=107 BestQ=0.1931761054 valid_total=152 k=3 valid=152 total=1612555
+query=108 BestQ=0.1002484323 valid_total=463 k=3 valid=463 total=1612555
+query=109 BestQ=0.1529951344 valid_total=222 k=3 valid=222 total=1612555
+query=110 BestQ=0.0997477503 valid_total=6 k=3 valid=6 total=1612555
+query=111 BestQ=0.0253150784 valid_total=48 k=3 valid=48 total=1612555
+query=112 BestQ=0.0492577895 valid_total=77 k=3 valid=77 total=1612555
+query=113 BestQ=0.0212462263 valid_total=16 k=3 valid=16 total=1612555
+query=114 BestQ=0.0392157666 valid_total=61 k=3 valid=61 total=1612555
+query=115 BestQ=0.0161494806 valid_total=20 k=3 valid=20 total=1612555
+query=116 BestQ=0.0559757616 valid_total=34 k=3 valid=34 total=1612555
+query=117 BestQ=0.0459667967 valid_total=27 k=3 valid=27 total=1612555
+query=118 BestQ=0.0480393588 valid_total=66 k=3 valid=66 total=1612555
+query=119 BestQ=0.0328916544 valid_total=14 k=3 valid=14 total=1612555
+query=120 BestQ=0.0276228774 valid_total=57 k=3 valid=57 total=1612555
+query=121 BestQ=0.5393402607 valid_total=5611 k=3 valid=1625 total=2580088 k=4 valid=3986 total=3225110
+query=122 BestQ=0.6466523888 valid_total=10545 k=3 valid=2521 total=2580088 k=4 valid=8024 total=3225110
+query=123 BestQ=0.7175601356 valid_total=33437 k=3 valid=8543 total=2580088 k=4 valid=24894 total=3225110
+query=124 BestQ=0.6496910626 valid_total=17265 k=3 valid=4863 total=2580088 k=4 valid=12402 total=3225110
+query=125 BestQ=0.7080244590 valid_total=13653 k=3 valid=3885 total=2580088 k=4 valid=9768 total=3225110
+query=126 BestQ=0.5547592174 valid_total=3407 k=3 valid=1019 total=2580088 k=4 valid=2388 total=3225110
+query=127 BestQ=0.6296367124 valid_total=8894 k=3 valid=2674 total=2580088 k=4 valid=6220 total=3225110
+query=128 BestQ=0.6764821246 valid_total=17524 k=3 valid=4596 total=2580088 k=4 valid=12928 total=3225110
+query=129 BestQ=0.6280701826 valid_total=9218 k=3 valid=2450 total=2580088 k=4 valid=6768 total=3225110
+query=130 BestQ=0.5866914423 valid_total=1790 k=3 valid=570 total=2580088 k=4 valid=1220 total=3225110
+query=131 BestQ=0.2481367180 valid_total=4412 k=3 valid=1586 total=2580088 k=4 valid=2826 total=3225110
+query=132 BestQ=0.3125521727 valid_total=1849 k=3 valid=655 total=2580088 k=4 valid=1194 total=3225110
+query=133 BestQ=0.3995148619 valid_total=3729 k=3 valid=1139 total=2580088 k=4 valid=2590 total=3225110
+query=134 BestQ=0.3928901147 valid_total=9456 k=3 valid=3246 total=2580088 k=4 valid=6210 total=3225110
+query=135 BestQ=0.2959443225 valid_total=622 k=3 valid=274 total=2580088 k=4 valid=348 total=3225110
+query=136 BestQ=0.3757580516 valid_total=1336 k=3 valid=346 total=2580088 k=4 valid=990 total=3225110
+query=137 BestQ=0.3736046996 valid_total=8354 k=3 valid=2490 total=2580088 k=4 valid=5864 total=3225110
+query=138 BestQ=0.4010080695 valid_total=5938 k=3 valid=2070 total=2580088 k=4 valid=3868 total=3225110
+query=139 BestQ=0.1952138768 valid_total=3018 k=3 valid=1198 total=2580088 k=4 valid=1820 total=3225110
+query=140 BestQ=0.3271257738 valid_total=1390 k=3 valid=540 total=2580088 k=4 valid=850 total=3225110
+query=141 BestQ=0.1547136175 valid_total=3608 k=3 valid=1278 total=2580088 k=4 valid=2330 total=3225110
+query=142 BestQ=0.0592924181 valid_total=1021 k=3 valid=387 total=2580088 k=4 valid=634 total=3225110
+query=143 BestQ=0.1204362933 valid_total=686 k=3 valid=232 total=2580088 k=4 valid=454 total=3225110
+query=144 BestQ=0.1555920330 valid_total=932 k=3 valid=296 total=2580088 k=4 valid=636 total=3225110
+query=145 BestQ=0.1513331364 valid_total=1384 k=3 valid=548 total=2580088 k=4 valid=836 total=3225110
+query=146 BestQ=0.0292376876 valid_total=422 k=3 valid=172 total=2580088 k=4 valid=250 total=3225110
+query=147 BestQ=0.1434210982 valid_total=1224 k=3 valid=444 total=2580088 k=4 valid=780 total=3225110
+query=148 BestQ=0.0568292082 valid_total=783 k=3 valid=243 total=2580088 k=4 valid=540 total=3225110
+query=149 BestQ=0.1231267026 valid_total=365 k=3 valid=137 total=2580088 k=4 valid=228 total=3225110
+query=150 BestQ=0.1121187617 valid_total=2138 k=3 valid=746 total=2580088 k=4 valid=1392 total=3225110
+query=151 BestQ=0.0418113675 valid_total=53 k=3 valid=21 total=2580088 k=4 valid=32 total=3225110
+query=152 BestQ=0.0336004879 valid_total=152 k=3 valid=42 total=2580088 k=4 valid=110 total=3225110
+query=153 BestQ=0.0661990401 valid_total=520 k=3 valid=190 total=2580088 k=4 valid=330 total=3225110
+query=154 BestQ=0.0565862290 valid_total=1033 k=3 valid=387 total=2580088 k=4 valid=646 total=3225110
+query=155 BestQ=0.0592321104 valid_total=1677 k=3 valid=483 total=2580088 k=4 valid=1194 total=3225110
+query=156 BestQ=0.0236785556 valid_total=492 k=3 valid=190 total=2580088 k=4 valid=302 total=3225110
+query=157 BestQ=0.0364902873 valid_total=79 k=3 valid=37 total=2580088 k=4 valid=42 total=3225110
+query=158 BestQ=0.0881882159 valid_total=980 k=3 valid=360 total=2580088 k=4 valid=620 total=3225110
+query=159 BestQ=0.0390572098 valid_total=262 k=3 valid=70 total=2580088 k=4 valid=192 total=3225110
+query=160 BestQ=0.0648405405 valid_total=1168 k=3 valid=422 total=2580088 k=4 valid=746 total=3225110

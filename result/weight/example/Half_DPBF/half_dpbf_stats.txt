@@ -1,0 +1,2 @@
+query=1 V=8.0000000000 ltV=83 ltV2=34 ltV4=11 ltV8=8
+query=1 V=8.0000000000 stage1_total=110 ltV=83 ltV2=34 ltV4=11 ltV8=8

@@ -1,0 +1,1 @@
+query=1 best=7.0000000000 valid_total=0 k=1 valid=0 total=44 k=2 valid=0 total=66

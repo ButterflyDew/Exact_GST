@@ -1,0 +1,19 @@
+total_weight 0.277652
+virtual_node_count 8
+virtual_edge_count 7
+root_id 0 original_vertex 1395
+node 0 ov 1395 parent -1 depth 0 leaf_count 6
+node 1 ov 9553 parent 7 depth 2 leaf_count 1
+node 2 ov 14231 parent 7 depth 2 leaf_count 2
+node 3 ov 15598 parent 4 depth 2 leaf_count 1
+node 4 ov 25186 parent 0 depth 1 leaf_count 2
+node 5 ov 26836 parent 0 depth 1 leaf_count 1
+node 6 ov 31184 parent 2 depth 3 leaf_count 1
+node 7 ov 43427 parent 0 depth 1 leaf_count 3
+edge 0 5 0.0190175
+edge 0 7 0.0483418
+edge 7 1 0.0104499
+edge 7 2 0.0242857
+edge 2 6 0.0756787
+edge 0 4 0.0344425
+edge 4 3 0.0654354
