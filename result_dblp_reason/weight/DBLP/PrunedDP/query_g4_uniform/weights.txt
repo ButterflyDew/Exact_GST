@@ -1,0 +1,2 @@
+# Run started=2026-06-17 20:46:25 graph=DBLP method=PrunedDP mode=weight data_root=data_new graph_folder=data_new\DBLP query_file=query_g4_uniform.txt run_subdir=query_g4_uniform original_query_count=10 query_begin=1 query_limit=1 query_count=1 result_dir=result_dblp_reason\weight\DBLP\PrunedDP\query_g4_uniform
+10.309170 4.7633664017

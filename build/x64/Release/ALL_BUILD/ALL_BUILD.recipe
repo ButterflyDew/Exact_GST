@@ -17,6 +17,12 @@
       <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_pruned_dp_main.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test10_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test11_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test1_main.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
@@ -39,6 +45,9 @@
     </ProjectOutput>
     <ProjectOutput>
       <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test8_main.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test9_main.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
       <FullPath>D:\Dew\26-SPRING\GST_Framework\build\x64\Release\ALL_BUILD</FullPath>

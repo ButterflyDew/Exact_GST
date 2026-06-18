@@ -342,6 +342,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test6.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test7.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test8.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test9.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test10.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test11.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test12.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

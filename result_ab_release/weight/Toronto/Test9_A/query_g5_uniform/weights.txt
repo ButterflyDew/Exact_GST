@@ -1,0 +1,11 @@
+# Run started=2026-06-12 14:06:33 graph=Toronto method=Test9_A mode=weight data_root=data_new graph_folder=data_new\Toronto query_file=query_g5_uniform.txt run_subdir=query_g5_uniform original_query_count=10 query_begin=1 query_limit=-1 query_count=10 result_dir=result_ab_release\weight\Toronto\Test9_A\query_g5_uniform
+0.087042 1.8215794340
+0.056831 2.1638533531
+0.068413 0.7122107485
+0.057510 1.3429723549
+0.097467 1.5662892414
+0.210220 7.2419188200
+0.136130 7.0162595143
+0.131766 2.1090018933
+0.137579 2.1821862549
+0.072732 1.1728629799

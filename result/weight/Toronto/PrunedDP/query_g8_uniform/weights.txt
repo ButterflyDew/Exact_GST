@@ -1,0 +1,11 @@
+# Run started=2026-06-12 14:11:33 graph=Toronto method=PrunedDP mode=weight data_root=data_new graph_folder=data_new\Toronto query_file=query_g8_uniform.txt run_subdir=query_g8_uniform original_query_count=10 query_begin=1 query_limit=-1 query_count=10 result_dir=result\weight\Toronto\PrunedDP\query_g8_uniform
+1.457879 1.0695910172
+3.988994 4.9581025369
+1.426885 1.2913292244
+7.199371 8.9056510624
+1.378184 2.0642001299
+1.624927 3.3023162067
+13.595726 14.4372391399
+4.424110 7.2617415657
+3.850804 8.1122206430
+2.505120 6.8267854642

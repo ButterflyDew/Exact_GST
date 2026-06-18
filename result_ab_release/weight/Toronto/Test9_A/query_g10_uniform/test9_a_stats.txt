@@ -1,0 +1,1 @@
+# Run started=2026-06-12 14:05:20 graph=Toronto method=Test9_A mode=weight data_root=data_new graph_folder=data_new\Toronto query_file=query_g10_uniform.txt run_subdir=query_g10_uniform original_query_count=10 query_begin=1 query_limit=-1 query_count=10 result_dir=result_ab_release\weight\Toronto\Test9_A\query_g10_uniform

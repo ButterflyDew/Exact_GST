@@ -1,0 +1,11 @@
+# Run started=2026-06-18 05:55:08 graph=DBLP method=PrunedDP mode=weight data_root=data_new graph_folder=data_new\DBLP query_file=query_g10_nonuniform.txt run_subdir=query_g10_nonuniform original_query_count=10 query_begin=1 query_limit=10 query_count=10 result_dir=result_large_g_compare\weight\DBLP\PrunedDP\query_g10_nonuniform
+785.135167 0.9421907050
+825.933270 1.9426217015
+808.343791 1.9330022088
+823.760954 0.0000000000
+839.046200 0.0000000000
+875.762798 0.9620753651
+872.446602 1.8245523664
+990.632497 1.9450801895
+1119.303058 0.9530295243
+1145.319457 0.9717219850

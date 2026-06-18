@@ -1,0 +1,4 @@
+# Run started=2026-06-16 16:21:13 graph=Toronto method=Test9 mode=weight data_root=data graph_folder=data\Toronto query_file=query_g10.txt run_subdir=query_g10 original_query_count=40 query_begin=1 query_limit=3 query_count=3 result_dir=result_success_diag\weight\Toronto\Test9\query_g10
+1.297388 0.4475349050
+8.847745 0.6576182142
+6.878819 0.6355887077

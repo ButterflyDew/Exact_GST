@@ -9,6 +9,10 @@ D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_test5_main.dir
 D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_test6_main.dir
 D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_test7_main.dir
 D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_test8_main.dir
+D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_test9_main.dir
+D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_test10_main.dir
+D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_test11_main.dir
+D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_test12_main.dir
 D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/gst_main.dir
 D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/ALL_BUILD.dir
 D:/Dew/26-SPRING/GST_Framework/build/CMakeFiles/ZERO_CHECK.dir

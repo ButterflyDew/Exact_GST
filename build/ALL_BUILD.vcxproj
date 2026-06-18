@@ -190,6 +190,18 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{C8934617-6E73-3439-BA85-8C92D7E29B02}</Project>
       <Name>gst_pruned_dp_main</Name>
     </ProjectReference>
+    <ProjectReference Include="D:\Dew\26-SPRING\GST_Framework\build\gst_test10_main.vcxproj">
+      <Project>{A991656A-90A4-31DE-BD87-8972F6108DC2}</Project>
+      <Name>gst_test10_main</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dew\26-SPRING\GST_Framework\build\gst_test11_main.vcxproj">
+      <Project>{C4B07904-87D2-39F0-89F0-7F5A63EC964C}</Project>
+      <Name>gst_test11_main</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dew\26-SPRING\GST_Framework\build\gst_test12_main.vcxproj">
+      <Project>{5354F5BE-AE4D-3563-A846-05F9506C069F}</Project>
+      <Name>gst_test12_main</Name>
+    </ProjectReference>
     <ProjectReference Include="D:\Dew\26-SPRING\GST_Framework\build\gst_test1_main.vcxproj">
       <Project>{BC883B3C-8F70-336A-A634-105C9B2BE204}</Project>
       <Name>gst_test1_main</Name>
@@ -221,6 +233,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="D:\Dew\26-SPRING\GST_Framework\build\gst_test8_main.vcxproj">
       <Project>{DF39367E-7FA7-3165-9F90-8D3F39B43156}</Project>
       <Name>gst_test8_main</Name>
+    </ProjectReference>
+    <ProjectReference Include="D:\Dew\26-SPRING\GST_Framework\build\gst_test9_main.vcxproj">
+      <Project>{1EFFB451-22F6-3164-9813-45E441127A20}</Project>
+      <Name>gst_test9_main</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

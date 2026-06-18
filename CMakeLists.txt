@@ -28,6 +28,10 @@ set(GST_COMMON_SOURCES
     methods/Test/test6.cpp
     methods/Test/test7.cpp
     methods/Test/test8.cpp
+    methods/Test/test9.cpp
+    methods/Test/test10.cpp
+    methods/Test/test11.cpp
+    methods/Test/test12.cpp
 )
 
 add_executable(gst_dpbf_main ${GST_COMMON_SOURCES})
@@ -62,6 +66,18 @@ target_compile_definitions(gst_test7_main PRIVATE GST_DEFAULT_METHOD="Test7")
 
 add_executable(gst_test8_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_test8_main PRIVATE GST_DEFAULT_METHOD="Test8")
+
+add_executable(gst_test9_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test9_main PRIVATE GST_DEFAULT_METHOD="Test9")
+
+add_executable(gst_test10_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test10_main PRIVATE GST_DEFAULT_METHOD="Test10")
+
+add_executable(gst_test11_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test11_main PRIVATE GST_DEFAULT_METHOD="Test11")
+
+add_executable(gst_test12_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test12_main PRIVATE GST_DEFAULT_METHOD="Test12")
 
 # 兼容旧命名：默认仍指向 DPBF。
 add_executable(gst_main ${GST_COMMON_SOURCES})

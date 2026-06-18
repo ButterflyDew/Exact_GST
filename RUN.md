@@ -33,13 +33,13 @@ cmake --build build
 - `gst_pruned_dp_main.exe`（baseline：PrunedDP）
 - `gst_test1_main.exe`（测试方法：Test1）
 - `gst_test2_main.exe`（测试方法：Test2）
-- `gst_test3_main.exe` ... `gst_test8_main.exe`（测试方法：Test3-Test8）
+- `gst_test3_main.exe` ... `gst_test12_main.exe`（测试方法：Test3-Test12）
 - `gst_main.exe`（兼容旧命名，等价于 DPBF）
 
 参数格式：
 
 ```text
-<exe> [graph_selector] [output_mode] [result_root] [debug_root] [root_policy] [query_selector] [data_root]
+<exe> [graph_selector] [output_mode] [result_root] [debug_root] [root_policy] [query_selector] [data_root] [query_begin] [query_limit]
 ```
 
 - `graph_selector`：选择跑哪个图  
@@ -65,6 +65,8 @@ cmake --build build
 - `data_root`：数据根目录（默认 `data`）
   - 旧数据：不传该参数，默认读取 `data`
   - 新数据：传 `data_new`
+- `query_begin`：可选，1-based 起始查询编号（默认 `1`）
+- `query_limit`：可选，最多运行多少条查询（默认 `-1`，表示从 `query_begin` 跑到文件末尾）
 
 ## 4. 运行示例
 
@@ -119,6 +121,40 @@ cmake --build build
 .\build\Release\gst_pruned_dp_main.exe DBLP weight result debug child_first g12_nonuniform data_new
 ```
 
+只测试部分查询时，例如从第 8 条开始只跑 1 条：
+
+```powershell
+.\build\Release\gst_test9_main.exe Toronto weight result_test9 debug child_first g10 data 8 1
+```
+
+### 4.8 Test9 空间诊断运行
+
+`Test9` 是 `Test8` 的空间诊断副本，用于研究 `O(n2^g)` 表空间是否可以改成“只保留需求状态”。它输出 `test9_stats.txt`，包含 dense 表规模、实际 finite 状态、`h` 有效项、按层窗口保留峰值等字段。
+
+```powershell
+.\build\Release\gst_test9_main.exe example weight result_test9 debug child_first
+.\build\Release\gst_test9_main.exe DBLP weight result_test9 debug child_first g10 data 1 3
+.\build\Release\gst_test9_main.exe DBLP weight result_test9 debug child_first g4_uniform data_new 1 5
+```
+
+`Test10` 使用 dense `dp/h`，只部署三类同根枚举器，不做 sparse `dp/h`：
+
+```powershell
+.\build\Release\gst_test10_main.exe MovieLens weight result_test10 debug child_first g8_uniform data_new 1 1
+```
+
+`Test11` 从 `Test10` 派生，额外在 live-dp 枚举器中加入 `cand>=best` 与 `cand+far(v,U^nxt)>=best` 剪枝：
+
+```powershell
+.\build\Release\gst_test11_main.exe MovieLens weight result_test11 debug child_first g8_uniform data_new 1 1
+```
+
+`Test12` 从 `Test11` 派生，用于研究 Dijkstra 前缀节点入堆：非目标前缀节点只有 `dp+LB<=best` 时才入堆，并输出 target 传播统计。
+
+```powershell
+.\build\Release\gst_test12_main.exe MovieLens weight result_test12 debug child_first g8_uniform data_new 1 1
+```
+
 也可以把图目录直接写在第一个参数中：
 
 ```powershell
@@ -150,7 +186,7 @@ cmake --build build
   - 文件不会在新运行开始时清空；若文件已有内容，会先空两行并写入本次运行信息（含 `run_subdir`、`query_file`），再追加结果
 - 终端输出：每个查询结束后打印用时与边权；结束时打印 `weights.txt` 与统计文件路径
 - 当 `output_mode` 为 `tree` 或 `virtual` 且有解时，树结构写在同一 `<查询子目录>/` 下
-- Half_DPBF / Test1–Test8 的统计文件（每个查询结束立即追加一行）：
+- Half_DPBF / Test1–Test12 的统计文件（每个查询结束立即追加一行）：
   - `.../<查询子目录>/<方法名小写>_stats.txt`（如 `test8_stats.txt`、`half_dpbf_stats.txt`）
   - 每行含：`valid_total`，以及 `k=g/4+1..g/2` 的 `valid/total`
 - Test2 统计示例：`.../Test2/query_g10/test2_stats.txt`

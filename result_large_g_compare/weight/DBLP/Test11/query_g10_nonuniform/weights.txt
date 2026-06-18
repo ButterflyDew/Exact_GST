@@ -1,0 +1,11 @@
+# Run started=2026-06-18 08:27:10 graph=DBLP method=Test11 mode=weight data_root=data_new graph_folder=data_new\DBLP query_file=query_g10_nonuniform.txt run_subdir=query_g10_nonuniform original_query_count=10 query_begin=1 query_limit=10 query_count=10 result_dir=result_large_g_compare\weight\DBLP\Test11\query_g10_nonuniform
+33.223311 0.9421907050
+37.503973 1.9426217015
+43.600927 1.9330022088
+35.033542 0.0000000000
+34.034638 0.0000000000
+34.648310 0.9620753651
+40.206000 1.8245523664
+39.128518 1.9450801895
+33.512010 0.9530295243
+36.294918 0.9717219850

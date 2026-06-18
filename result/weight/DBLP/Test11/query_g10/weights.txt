@@ -1,0 +1,8 @@
+# Run started=2026-06-17 12:09:41 graph=DBLP method=Test11 mode=weight data_root=data graph_folder=data\DBLP query_file=query_g10.txt run_subdir=query_g10 original_query_count=40 query_begin=1 query_limit=-1 query_count=40 result_dir=result\weight\DBLP\Test11\query_g10
+916.795039 10.3957778763
+3610.109819 11.1085592213
+2453.262940 11.5720099225
+1731.953371 9.6507687202
+1927.946180 11.3781597175
+3781.126424 11.0606157271
+3323.816887 12.7417640686

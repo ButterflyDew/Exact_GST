@@ -1,0 +1,9 @@
+# Run started=2026-06-16 20:39:07 graph=MovieLens method=PrunedDP mode=weight data_root=data graph_folder=data\MovieLens query_file=query_g10.txt run_subdir=query_g10 original_query_count=40 query_begin=1 query_limit=-1 query_count=40 result_dir=result\weight\MovieLens\PrunedDP\query_g10
+183.835480 0.0118587834
+98.090090 0.0073361564
+115.758930 0.0068633495
+152.755913 0.0086460702
+110.518525 0.0078813598
+178.649609 0.0139476047
+194.269723 0.0118700158
+80.582663 0.0056921081

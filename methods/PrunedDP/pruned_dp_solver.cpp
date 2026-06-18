@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <limits>
 #include <queue>
@@ -67,7 +68,19 @@ struct SolverContext
     std::vector<std::vector<db>> predict;
 
     db best = kInf;
+    PrunedDpStats stats;
 };
+
+int CountBits(int x)
+{
+    int count = 0;
+    while (x != 0)
+    {
+        x &= (x - 1);
+        ++count;
+    }
+    return count;
+}
 
 namespace all_paths
 {
@@ -229,47 +242,79 @@ db LowerBound(const SolverContext& ctx, int v, int X, db cost)
 
 void Update(SolverContext& ctx, int v, int X, db cost, db lower_bound)
 {
+    ctx.stats.update_calls++;
     if (ctx.dp_state[v][X].first)
     {
+        ctx.stats.update_finalized_skip++;
         return;
     }
     lower_bound = std::max(LowerBound(ctx, v, X, cost), lower_bound);
     if (lower_bound >= ctx.best)
     {
+        ctx.stats.update_bound_pruned++;
         return;
     }
     if (X == ctx.mask)
     {
-        ctx.best = std::min(ctx.best, cost);
+        if (cost < ctx.best)
+        {
+            ctx.best = cost;
+            ctx.stats.best_full_updates++;
+        }
+    }
+    ctx.stats.pq_pushes++;
+    ctx.stats.update_pushes++;
+    const int bits = CountBits(X);
+    if (bits >= 0 && bits < static_cast<int>(ctx.stats.update_push_by_size.size()))
+    {
+        ctx.stats.update_push_by_size[bits]++;
     }
     ctx.pq.push(Node(v, X, cost, lower_bound));
 }
 
 db PrunedDpPlusPlus(SolverContext& ctx)
 {
+    auto phase_start = std::chrono::steady_clock::now();
     CalDist(ctx);
+    ctx.stats.dist_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - phase_start).count();
+    phase_start = std::chrono::steady_clock::now();
     all_paths::CalW(ctx);
+    ctx.stats.calw_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - phase_start).count();
 
     for (int i = 1; i <= ctx.n; ++i)
     {
         for (const int group_id : ctx.color[i])
         {
             const int X = 1 << (group_id - 1);
+            ctx.stats.initial_pushes++;
+            ctx.stats.pq_pushes++;
             ctx.pq.push(Node(i, X, 0, LowerBound(ctx, i, X, 0)));
         }
     }
 
+    phase_start = std::chrono::steady_clock::now();
     while (!ctx.pq.empty())
     {
         const Node cur = ctx.pq.top();
         ctx.pq.pop();
+        ctx.stats.pq_pops++;
         if (ctx.dp_state[cur.v][cur.X].first)
         {
+            ctx.stats.stale_pops++;
             continue;
         }
         ctx.dp_state[cur.v][cur.X] = {1, cur.cost};
+        ctx.stats.finalized_labels++;
+        const int cur_bits = CountBits(cur.X);
+        if (cur_bits >= 0 && cur_bits < static_cast<int>(ctx.stats.finalized_by_size.size()))
+        {
+            ctx.stats.finalized_by_size[cur_bits]++;
+        }
         if (cur.cost >= ctx.best)
         {
+            ctx.stats.cost_ge_best_skips++;
             continue;
         }
         if (cur.X == ctx.mask)
@@ -288,7 +333,11 @@ db PrunedDpPlusPlus(SolverContext& ctx)
                 expect_cost = std::min(expect_cost, kInf);
             }
         }
-        ctx.best = std::min(ctx.best, expect_cost);
+        if (expect_cost < ctx.best)
+        {
+            ctx.best = expect_cost;
+            ctx.stats.best_expect_updates++;
+        }
 
         if (ctx.dp_state[cur.v][inv_x].first)
         {
@@ -300,23 +349,29 @@ db PrunedDpPlusPlus(SolverContext& ctx)
             for (const auto& [u, val] : ctx.adj[cur.v])
             {
                 assert(u <= ctx.n);
+                ctx.stats.edge_relax_attempts++;
                 const db new_cost = cur.cost + val;
                 Update(ctx, u, cur.X, new_cost, cur.lower_bound);
             }
             for (int i = inv_x; i >= 1; i = (i - 1) & inv_x)
             {
+                ctx.stats.merge_submask_attempts++;
                 if (!ctx.dp_state[cur.v][i].first)
                 {
                     continue;
                 }
+                ctx.stats.merge_state_hits++;
                 const db new_cost = cur.cost + ctx.dp_state[cur.v][i].second;
                 if (new_cost <= 2.0 / 3 * ctx.best + kEps)
                 {
+                    ctx.stats.merge_cost_gate_pass++;
                     Update(ctx, cur.v, i | cur.X, new_cost, cur.lower_bound);
                 }
             }
         }
     }
+    ctx.stats.search_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - phase_start).count();
 
     return ctx.best;
 }
@@ -348,17 +403,27 @@ void ClearState(SolverContext& ctx)
 
     ctx.dist.assign(ctx.group_count + 1, std::vector<db>(ctx.new_n + 1, kInf));
     ctx.predict.assign(ctx.n + 1, std::vector<db>(ctx.mask + 1, 0));
+    ctx.stats = PrunedDpStats{};
+    ctx.stats.n = ctx.n;
+    ctx.stats.g = ctx.group_count;
+    ctx.stats.finalized_by_size.assign(ctx.group_count + 1, 0);
+    ctx.stats.update_push_by_size.assign(ctx.group_count + 1, 0);
 }
 
 void BuildAdjacency(const Graph& graph, const Query& query, SolverContext& ctx)
 {
+    const auto build_start = std::chrono::steady_clock::now();
     ctx.n = graph.n;
     ctx.group_count = static_cast<int>(query.groups.size());
     ClearState(ctx);
+    ctx.stats.m = graph.m;
 
     for (int gi = 0; gi < ctx.group_count; ++gi)
     {
         const int group_id = gi + 1;
+        ctx.stats.total_group_vertices += static_cast<int>(query.groups[gi].size());
+        ctx.stats.max_group_size =
+            std::max(ctx.stats.max_group_size, static_cast<int>(query.groups[gi].size()));
         for (const int u : query.groups[gi])
         {
             ctx.groups[group_id].push_back(u);
@@ -384,13 +449,22 @@ void BuildAdjacency(const Graph& graph, const Query& query, SolverContext& ctx)
             ctx.adj[u].push_back({virtual_vertex, 0});
         }
     }
+    ctx.stats.build_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - build_start).count();
 }
 
-double SolveWeight(const Graph& graph, const Query& query)
+double SolveWeight(const Graph& graph, const Query& query, PrunedDpStats* stats)
 {
+    const auto total_start = std::chrono::steady_clock::now();
     SolverContext ctx;
     BuildAdjacency(graph, query, ctx);
     const db ans = PrunedDpPlusPlus(ctx);
+    ctx.stats.total_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - total_start).count();
+    if (stats != nullptr)
+    {
+        *stats = std::move(ctx.stats);
+    }
     if (ans >= kInf)
     {
         return -1.0;
@@ -422,7 +496,7 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, dpbf::OutputMo
         return result;
     }
 
-    const double weight = SolveWeight(graph, query);
+    const double weight = SolveWeight(graph, query, &result.stats);
     if (weight < 0.0)
     {
         result.best_weight = -1.0;

@@ -55,6 +55,18 @@
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test9.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test10.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test12.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="D:\Dew\26-SPRING\GST_Framework\CMakeLists.txt" />

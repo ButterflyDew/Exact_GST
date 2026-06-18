@@ -1,0 +1,2 @@
+# Run started=2026-06-16 20:11:17 graph=MovieLens method=Test10 mode=weight data_root=data_new graph_folder=data_new\MovieLens query_file=query_g8_uniform.txt run_subdir=query_g8_uniform original_query_count=10 query_begin=1 query_limit=1 query_count=1 result_dir=result_test11_compare\weight\MovieLens\Test10\query_g8_uniform
+2.475283 0.0012311587
