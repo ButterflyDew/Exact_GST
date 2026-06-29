@@ -474,7 +474,7 @@ double SolveWeight(const Graph& graph, const Query& query, PrunedDpStats* stats)
 
 }  // namespace
 
-SolveResult SolveOneQuery(const Graph& graph, const Query& query, dpbf::OutputMode /*output_mode*/)
+SolveResult SolveOneQuery(const Graph& graph, const Query& query)
 {
     const int g = static_cast<int>(query.groups.size());
     SolveResult result;

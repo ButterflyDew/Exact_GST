@@ -27,11 +27,6 @@ std::string WeightsFilename()
 
 std::string StatsFilename(const std::string& method_name)
 {
-    if (method_name == "DPBF")
-    {
-        return "";
-    }
-
     std::string base = method_name;
     std::transform(base.begin(), base.end(), base.begin(),
                    [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });

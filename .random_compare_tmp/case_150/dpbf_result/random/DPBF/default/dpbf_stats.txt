@@ -1,0 +1,14 @@
+# Run started=2026-06-26 17:34:45 graph=random method=DPBF data_root=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\data graph_folder=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\data\random query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\dpbf_result\random\DPBF\default rss_mb=3.277 peak_rss_mb=3.281
+query=1 best=28.0000000000 wall_ms=0.127 rss_before_mb=3.445 rss_after_mb=3.469 peak_rss_mb=3.473
+
+
+# Run started=2026-06-26 17:35:11 graph=random method=DPBF data_root=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\data graph_folder=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\data\random query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\dpbf_result\random\DPBF\default rss_mb=3.277 peak_rss_mb=3.281
+query=1 best=12.0000000000 wall_ms=0.031 rss_before_mb=3.445 rss_after_mb=3.457 peak_rss_mb=3.461
+
+
+# Run started=2026-06-28 13:49:14 graph=random method=DPBF data_root=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\data graph_folder=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\data\random query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\dpbf_result\random\DPBF\default rss_mb=3.289 peak_rss_mb=3.293
+query=1 best=16.0000000000 wall_ms=0.218 rss_before_mb=3.461 rss_after_mb=3.496 peak_rss_mb=3.500
+
+
+# Run started=2026-06-28 13:49:47 graph=random method=DPBF data_root=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\data graph_folder=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\data\random query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_150\dpbf_result\random\DPBF\default rss_mb=3.289 peak_rss_mb=3.293
+query=1 best=35.0000000000 wall_ms=0.096 rss_before_mb=3.465 rss_after_mb=3.484 peak_rss_mb=3.488

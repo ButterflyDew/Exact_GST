@@ -1,1 +1,0 @@
-# Run started=2026-05-22 13:36:00 graph=Toronto method=PrunedDP mode=weight query_file=query_g10.txt run_subdir=query_g10 query_count=40 result_dir=result\weight\Toronto\PrunedDP\query_g10

@@ -1,3 +1,0 @@
-# Run started=2026-06-11 14:16:20 graph=DBLP method=Test9 mode=weight data_root=data_new graph_folder=data_new\DBLP query_file=query_g4_uniform.txt run_subdir=query_g4_uniform original_query_count=10 query_begin=1 query_limit=2 query_count=2 result_dir=result_test9\weight\DBLP\Test9\query_g4_uniform
-29.414623 4.7633664017
-2.011584 -1

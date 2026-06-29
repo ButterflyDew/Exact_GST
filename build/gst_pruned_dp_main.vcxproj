@@ -116,7 +116,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -162,7 +162,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -208,7 +208,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -253,7 +253,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -330,22 +330,16 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\query_feasibility.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\output_manager.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\output_naming.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\answer_tree.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\memory_usage.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\DPBF\dpbf_solver.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Half_DPBF\half_dpbf_solver.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\PrunedDP\pruned_dp_solver.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test1.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test2.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test3.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test4.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test5.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test6.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test7.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test8.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test9.cpp" />
-    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test10.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test11.cpp" />
     <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test12.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test13.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test14.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test15.cpp" />
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\methods\Test\test16.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

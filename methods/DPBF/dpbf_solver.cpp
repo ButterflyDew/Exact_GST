@@ -71,10 +71,7 @@ void RelaxByDijkstra(const Graph& graph,
 
 }  // namespace
 
-SolveResult SolveOneQuery(const Graph& graph,
-                         const Query& query,
-                         OutputMode output_mode,
-                         VirtualRootPolicy root_policy)
+SolveResult SolveOneQuery(const Graph& graph, const Query& query)
 {
     const int g = static_cast<int>(query.groups.size());
     SolveResult result;
@@ -82,16 +79,6 @@ SolveResult SolveOneQuery(const Graph& graph,
     {
         result.best_weight = 0.0;
         result.feasible = true;
-        if (output_mode == OutputMode::kConcreteTree)
-        {
-            result.answer =
-                std::make_unique<ConcreteAnswerTree>(0.0, std::vector<UndirectedEdge>{}, std::vector<int>{});
-        }
-        else if (output_mode == OutputMode::kVirtualTree)
-        {
-            ConcreteAnswerTree tmp(0.0, {}, {});
-            result.answer = std::make_unique<VirtualTreeAnswer>(VirtualTreeAnswer::FromConcrete(tmp, root_policy));
-        }
         return result;
     }
     if (g >= 31)
@@ -164,92 +151,6 @@ SolveResult SolveOneQuery(const Graph& graph,
 
     result.best_weight = best;
     result.feasible = true;
-    if (output_mode == OutputMode::kWeightOnly)
-    {
-        return result;
-    }
-
-    std::unordered_set<int> used_edge_ids;
-    std::vector<int> selected_vertex_per_group(g, -1);
-    std::unordered_set<long long> visited_state;
-
-    // 通过 parent 指针回溯：恢复被使用的边，以及每个组最终命中的点。
-    std::function<void(int, int)> rebuild = [&](int mask, int v)
-    {
-        long long key = (static_cast<long long>(mask) << 32) ^ static_cast<unsigned int>(v);
-        if (visited_state.count(key))
-        {
-            return;
-        }
-        visited_state.insert(key);
-
-        const ParentInfo& p = parent[mask][v];
-        if (p.type == ParentType::kBase)
-        {
-            int gi = p.a;
-            if (gi >= 0 && gi < g && selected_vertex_per_group[gi] == -1)
-            {
-                selected_vertex_per_group[gi] = v;
-            }
-            return;
-        }
-        if (p.type == ParentType::kMerge)
-        {
-            rebuild(p.a, v);
-            rebuild(p.b, v);
-            return;
-        }
-        if (p.type == ParentType::kPath)
-        {
-            used_edge_ids.insert(p.edge_id);
-            rebuild(mask, p.a);
-            return;
-        }
-    };
-    rebuild(full_mask, best_root);
-
-    std::vector<UndirectedEdge> tree_edges;
-    tree_edges.reserve(used_edge_ids.size());
-    for (int eid : used_edge_ids)
-    {
-        if (eid >= 0 && eid < static_cast<int>(graph.edges.size()))
-        {
-            tree_edges.push_back(graph.edges[eid]);
-        }
-    }
-
-    for (int gi = 0; gi < g; ++gi)
-    {
-        if (selected_vertex_per_group[gi] != -1)
-        {
-            continue;
-        }
-        int choose = -1;
-        for (int v : query.groups[gi])
-        {
-            if (v == best_root)
-            {
-                choose = v;
-                break;
-            }
-        }
-        if (choose == -1 && !query.groups[gi].empty())
-        {
-            choose = query.groups[gi][0];
-        }
-        selected_vertex_per_group[gi] = choose;
-    }
-
-    auto concrete =
-        std::make_unique<ConcreteAnswerTree>(best, std::move(tree_edges), std::move(selected_vertex_per_group));
-    if (output_mode == OutputMode::kConcreteTree)
-    {
-        result.answer = std::move(concrete);
-    }
-    else
-    {
-        result.answer = std::make_unique<VirtualTreeAnswer>(VirtualTreeAnswer::FromConcrete(*concrete, root_policy));
-    }
     return result;
 }
 

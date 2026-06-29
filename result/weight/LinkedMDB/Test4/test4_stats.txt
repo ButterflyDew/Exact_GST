@@ -1,9 +1,0 @@
-query=1 best=78.2390297601 valid_total=0
-query=2 best=117.2917355821 valid_total=0
-query=3 best=-1 valid_total=0
-query=4 best=75.3438613815 valid_total=0
-query=5 best=0.0000000000 valid_total=0
-query=6 best=17.5321649182 valid_total=0
-query=7 best=71.7013306954 valid_total=0
-query=8 best=109.5996953764 valid_total=0
-query=9 best=0.0000000000 valid_total=0

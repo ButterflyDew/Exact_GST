@@ -1,0 +1,14 @@
+# Run started=2026-06-26 17:34:45 graph=random method=DPBF data_root=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\data graph_folder=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\data\random query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\dpbf_result\random\DPBF\default rss_mb=3.285 peak_rss_mb=3.289
+0.000036 28.0000000000
+
+
+# Run started=2026-06-26 17:35:11 graph=random method=DPBF data_root=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\data graph_folder=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\data\random query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\dpbf_result\random\DPBF\default rss_mb=3.273 peak_rss_mb=3.277
+0.000381 42.0000000000
+
+
+# Run started=2026-06-28 13:49:14 graph=random method=DPBF data_root=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\data graph_folder=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\data\random query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\dpbf_result\random\DPBF\default rss_mb=3.277 peak_rss_mb=3.281
+0.000028 26.0000000000
+
+
+# Run started=2026-06-28 13:49:46 graph=random method=DPBF data_root=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\data graph_folder=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\data\random query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=D:\Dew\26-SPRING\GST_Framework\.random_compare_tmp\case_148\dpbf_result\random\DPBF\default rss_mb=3.277 peak_rss_mb=3.281
+0.000307 10.0000000000

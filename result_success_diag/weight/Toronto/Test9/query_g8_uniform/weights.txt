@@ -1,3 +1,0 @@
-# Run started=2026-06-16 16:21:08 graph=Toronto method=Test9 mode=weight data_root=data_new graph_folder=data_new\Toronto query_file=query_g8_uniform.txt run_subdir=query_g8_uniform original_query_count=10 query_begin=1 query_limit=2 query_count=2 result_dir=result_success_diag\weight\Toronto\Test9\query_g8_uniform
-0.444349 1.0695910172
-3.559772 4.9581025369

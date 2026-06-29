@@ -1,13 +1,10 @@
 #ifndef GST_METHODS_HALF_DPBF_SOLVER_H
 #define GST_METHODS_HALF_DPBF_SOLVER_H
 
-#include <memory>
 #include <vector>
 
-#include "../../answer_tree.h"
 #include "../../graph_io.h"
 #include "../../query_io.h"
-#include "../DPBF/dpbf_solver.h"
 
 namespace gst::methods::half_dpbf
 {
@@ -25,14 +22,10 @@ struct SolveResult
 {
     double best_weight = -1.0;
     bool feasible = false;
-    std::unique_ptr<AnswerTreeBase> answer;
     HalfDpbfStats stats;
 };
 
-SolveResult SolveOneQuery(const Graph& graph,
-                         const Query& query,
-                         dpbf::OutputMode output_mode,
-                         VirtualRootPolicy root_policy = VirtualRootPolicy::kMinMaxChildThenHeight);
+SolveResult SolveOneQuery(const Graph& graph, const Query& query);
 
 }  // namespace gst::methods::half_dpbf
 

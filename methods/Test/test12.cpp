@@ -11,7 +11,7 @@
 
 namespace gst::methods::test12
 {
-    SolveResult SolveOneQuery(const Graph& graph, const Query& query, dpbf::OutputMode /*output_mode*/)
+    SolveResult SolveOneQuery(const Graph& graph, const Query& query)
     {
         const int g = static_cast<int>(query.groups.size());
         const int n = graph.n;

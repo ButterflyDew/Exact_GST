@@ -1,13 +1,10 @@
 #ifndef GST_METHODS_TEST_TEST12_H
 #define GST_METHODS_TEST_TEST12_H
 
-#include <memory>
 #include <vector>
 
-#include "../../answer_tree.h"
 #include "../../graph_io.h"
 #include "../../query_io.h"
-#include "../DPBF/dpbf_solver.h"
 
 namespace gst::methods::test12
 {
@@ -89,11 +86,10 @@ namespace gst::methods::test12
     {
         double best_weight = -1.0;
         bool feasible = false;
-        std::unique_ptr<AnswerTreeBase> answer;
         Test12Stats stats;
     };
 
-    SolveResult SolveOneQuery(const Graph& graph, const Query& query, dpbf::OutputMode output_mode);
+SolveResult SolveOneQuery(const Graph& graph, const Query& query);
 
 }  // namespace gst::methods::test12
 

@@ -1,2 +1,0 @@
-query=1 best=0.0000000000 valid_total=0
-query=1 best=8.0000000000 valid_total=0

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Dew\26-SPRING\GST_Framework\tools\random_compare\random_compare.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Dew\26-SPRING\GST_Framework\tools\random_compare\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{3F6B1317-DDC6-3235-B0BA-C5801CEAA4C4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

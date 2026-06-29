@@ -1,2 +1,0 @@
-# Run started=2026-06-17 19:56:55 graph=example method=Test12 mode=weight data_root=data graph_folder=data\example query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=result_test12_delay_debug\weight\example\Test12\default
-0.002672 8.0000000000

@@ -1,2 +1,0 @@
-# Run started=2026-06-16 20:08:55 graph=example method=Test11 mode=weight data_root=data graph_folder=data\example query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=result_test11_debug\weight\example\Test11\default
-0.001081 8.0000000000

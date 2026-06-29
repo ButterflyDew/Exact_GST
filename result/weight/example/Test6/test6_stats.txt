@@ -1,2 +1,0 @@
-query=1 best=10000000000000000159028911097599180468360808563945281389781327557747838772170381060813469985856815104.0000000000 valid_total=8 up_subset=64 inqueue=10 k=0 valid=0 total=11  k=1 valid=8 total=44  k=2 valid=0 total=66 
-query=1 best=8.0000000000 valid_total=53 up_subset=388 inqueue=45 k=0 valid=0 total=11  k=1 valid=44 total=44  k=2 valid=9 total=66 
