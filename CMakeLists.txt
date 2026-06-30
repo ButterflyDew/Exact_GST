@@ -20,11 +20,6 @@ set(GST_COMMON_SOURCES
     methods/DPBF/dpbf_solver.cpp
     methods/Half_DPBF/half_dpbf_solver.cpp
     methods/PrunedDP/pruned_dp_solver.cpp
-    methods/Test/test11.cpp
-    methods/Test/test12.cpp
-    methods/Test/test13.cpp
-    methods/Test/test14.cpp
-    methods/Test/test15.cpp
     methods/Test/test16.cpp
 )
 
@@ -37,21 +32,6 @@ target_compile_definitions(gst_half_dpbf_main PRIVATE GST_DEFAULT_METHOD="Half_D
 add_executable(gst_pruned_dp_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_pruned_dp_main PRIVATE GST_DEFAULT_METHOD="PrunedDP")
 
-add_executable(gst_test11_main ${GST_COMMON_SOURCES})
-target_compile_definitions(gst_test11_main PRIVATE GST_DEFAULT_METHOD="Test11")
-
-add_executable(gst_test12_main ${GST_COMMON_SOURCES})
-target_compile_definitions(gst_test12_main PRIVATE GST_DEFAULT_METHOD="Test12")
-
-add_executable(gst_test13_main ${GST_COMMON_SOURCES})
-target_compile_definitions(gst_test13_main PRIVATE GST_DEFAULT_METHOD="Test13")
-
-add_executable(gst_test14_main ${GST_COMMON_SOURCES})
-target_compile_definitions(gst_test14_main PRIVATE GST_DEFAULT_METHOD="Test14")
-
-add_executable(gst_test15_main ${GST_COMMON_SOURCES})
-target_compile_definitions(gst_test15_main PRIVATE GST_DEFAULT_METHOD="Test15")
-
 add_executable(gst_test16_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_test16_main PRIVATE GST_DEFAULT_METHOD="Test16")
 
@@ -60,14 +40,10 @@ if(WIN32)
             gst_dpbf_main
             gst_half_dpbf_main
             gst_pruned_dp_main
-            gst_test11_main
-            gst_test12_main
-            gst_test13_main
-            gst_test14_main
-            gst_test15_main
             gst_test16_main)
         target_link_libraries(${target_name} PRIVATE psapi)
     endforeach()
 endif()
 
 add_subdirectory(tools/random_compare)
+add_subdirectory(tools/snapshot_benchmark)

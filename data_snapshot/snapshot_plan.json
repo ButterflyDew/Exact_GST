@@ -1,0 +1,91 @@
+{
+  "generated_root": "data_snapshot/generated_normal",
+  "result_root": "result_snapshot",
+  "groups": [9, 10, 11, 12],
+  "datasets": [
+    {
+      "name": "Toronto_data",
+      "source_root": "data",
+      "graph": "Toronto",
+      "mode": "copy",
+      "query_pattern": "query_g{g}.txt",
+      "queries_per_g": 40,
+      "seed": 1001
+    },
+    {
+      "name": "Toronto_data_new",
+      "source_root": "data_new",
+      "graph": "Toronto",
+      "mode": "copy",
+      "query_pattern": "query_g{g}_uniform.txt",
+      "queries_per_g": 40,
+      "seed": 1002
+    },
+    {
+      "name": "DBLP_data_bfs",
+      "source_root": "data",
+      "graph": "DBLP",
+      "mode": "bfs",
+      "max_vertices": 20000,
+      "query_pattern": "query_g{g}.txt",
+      "queries_per_g": 40,
+      "seed": 2001
+    },
+    {
+      "name": "DBLP_data_new_bfs",
+      "source_root": "data_new",
+      "graph": "DBLP",
+      "mode": "bfs",
+      "max_vertices": 20000,
+      "query_pattern": "query_g{g}_uniform.txt",
+      "queries_per_g": 40,
+      "seed": 2002
+    },
+    {
+      "name": "MovieLens_data_bfs",
+      "source_root": "data",
+      "graph": "MovieLens",
+      "mode": "bfs",
+      "max_vertices": 20000,
+      "query_pattern": "query_g{g}.txt",
+      "queries_per_g": 40,
+      "seed": 3001
+    }
+  ],
+  "suites": {
+    "fast": {
+      "generated_root": "data_snapshot/generated_fast",
+      "prepare_overrides": {
+        "mode": "bfs",
+        "max_vertices": 3500,
+        "queries_per_g": 8
+      },
+      "query_limit_per_g": 1,
+      "timeout_seconds_per_run": 100,
+      "target_wall_seconds": 100
+    },
+    "normal": {
+      "generated_root": "data_snapshot/generated_normal",
+      "query_limit_per_g": 5,
+      "timeout_seconds_per_run": 3600,
+      "target_wall_seconds": 3600
+    },
+    "large": {
+      "generated_root": "data_snapshot/generated_large",
+      "dataset_overrides": {
+        "DBLP_data_bfs": {
+          "max_vertices": 40000
+        },
+        "DBLP_data_new_bfs": {
+          "max_vertices": 40000
+        },
+        "MovieLens_data_bfs": {
+          "max_vertices": 40000
+        }
+      },
+      "query_limit_per_g": -1,
+      "timeout_seconds_per_run": 43200,
+      "target_wall_seconds": 43200
+    }
+  }
+}

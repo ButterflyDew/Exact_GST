@@ -1,8 +1,6 @@
 # 运行方法
 
-> 本文档已按当前工程整理：主程序输出权重与统计；随机对拍由
-> `gst_random_compare` 作为独立 tools 子工程完成，不再使用旧的
-> `gst_test13_fuzz` 白盒接口。
+当前仓库只保留一个研究中 Test 方法：`Test16`。历史 Test11--Test15 的代码、结果和单独文档已经合并/删除；研究脉络见 `readme_files/test16_algorithm.md`。
 
 ## 编译
 
@@ -11,10 +9,10 @@ cmake -S . -B build
 cmake --build build --config Release
 ```
 
-只编译单个方法：
+只编译单个入口：
 
 ```powershell
-cmake --build build --config Release --target gst_test11_main
+cmake --build build --config Release --target gst_test16_main
 ```
 
 ## 可执行文件
@@ -23,12 +21,9 @@ cmake --build build --config Release --target gst_test11_main
 gst_dpbf_main.exe
 gst_half_dpbf_main.exe
 gst_pruned_dp_main.exe
-gst_test11_main.exe
-gst_test12_main.exe
-gst_test13_main.exe
-gst_test14_main.exe
-gst_test15_main.exe
+gst_test16_main.exe
 gst_random_compare.exe
+gst_snapshot_prepare.exe
 ```
 
 ## 参数
@@ -51,13 +46,9 @@ query_limit     运行条数，默认 -1 表示跑到文件末尾
 ## 示例
 
 ```powershell
-.\build\Release\gst_test11_main.exe
-.\build\Release\gst_test11_main.exe Toronto result g10 data 1 3
-.\build\Release\gst_test12_main.exe DBLP result g10_nonuniform data_new 1 1
+.\build\Release\gst_test16_main.exe Toronto result g10 data 1 3
 .\build\Release\gst_pruned_dp_main.exe DBLP result g10_uniform data_new 1 1
-.\build\Release\gst_test13_main.exe Toronto result g10 data 1 3
-.\build\Release\gst_test14_main.exe Toronto result g10 data 1 3
-.\build\Release\gst_test15_main.exe Toronto result g10 data 1 3
+python tools\snapshot_benchmark\snapshot.py --method Test16 --suite fast --build
 ```
 
 ## 输出
@@ -67,7 +58,7 @@ query_limit     运行条数，默认 -1 表示跑到文件末尾
 <result_root>/<graph>/<method>/<query_subdir>/<method_lower>_stats.txt
 ```
 
-从当前版本开始，DPBF 也会输出 `dpbf_stats.txt`。所有 stats 行都会追加：
+所有 stats 行都会追加：
 
 ```text
 wall_ms rss_before_mb rss_after_mb peak_rss_mb
@@ -97,9 +88,9 @@ query_g10_uniform.txt  -> query_g10_uniform
 
 ```powershell
 .\build\Release\gst_random_compare.exe `
-  .\build\Release\gst_test15_main.exe `
+  .\build\Release\gst_test16_main.exe `
   .\build\Release\gst_dpbf_main.exe `
-  Test15 1 1000 4 10 2 8
+  Test16 271828 100 4 10 2 8
 ```
 
 参数：

@@ -1,0 +1,1 @@
+add_executable(gst_snapshot_prepare snapshot_prepare.cpp)

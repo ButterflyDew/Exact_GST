@@ -1,8 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"D:/Dew/26-SPRING/GST_Framework/build/cmake_install.cmake",
-		"D:/Dew/26-SPRING/GST_Framework/build/tools/random_compare/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

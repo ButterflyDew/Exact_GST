@@ -1,2 +1,7 @@
 /data/
 /data_new/
+/build/
+/data_snapshot/generated*/
+/result_snapshot/
+/result_validate*/
+/gst_main.exe
