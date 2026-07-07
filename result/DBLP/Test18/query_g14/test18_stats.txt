@@ -1,0 +1,4 @@
+# Run started=2026-07-05 20:44:12 graph=DBLP method=Test18 data_root=data graph_folder=data\DBLP query_file=query_g14.txt run_subdir=query_g14 original_query_count=40 query_begin=1 query_limit=-1 query_count=40 result_dir=result\DBLP\Test18\query_g14 rss_mb=869.883 peak_rss_mb=869.887
+
+
+# Run started=2026-07-06 19:23:14 graph=DBLP method=Test18 data_root=data graph_folder=data\DBLP query_file=query_g14.txt run_subdir=query_g14 original_query_count=40 query_begin=1 query_limit=-1 query_count=40 result_dir=result\DBLP\Test18\query_g14 rss_mb=870.031 peak_rss_mb=870.035

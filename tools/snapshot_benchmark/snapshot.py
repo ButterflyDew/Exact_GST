@@ -31,8 +31,8 @@ def method_exe_name(method: str) -> str:
     }
     if method in table:
         base = table[method]
-    elif method == "Test16":
-        base = "gst_test16_main"
+    elif method in {"Test16", "Test17", "Test18"}:
+        base = f"gst_{method.lower()}_main"
     else:
         raise SystemExit(f"Unknown method name: {method}")
     return base + (".exe" if os.name == "nt" else "")
@@ -46,8 +46,8 @@ def method_stats_name(method: str) -> str:
     }
     if method in table:
         return table[method]
-    if method == "Test16":
-        return "test16_stats.txt"
+    if method in {"Test16", "Test17", "Test18"}:
+        return f"{method.lower()}_stats.txt"
     raise SystemExit(f"Unknown method name: {method}")
 
 

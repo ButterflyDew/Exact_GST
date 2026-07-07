@@ -21,6 +21,8 @@ set(GST_COMMON_SOURCES
     methods/Half_DPBF/half_dpbf_solver.cpp
     methods/PrunedDP/pruned_dp_solver.cpp
     methods/Test/test16.cpp
+    methods/Test/test17.cpp
+    methods/Test/test18.cpp
 )
 
 add_executable(gst_dpbf_main ${GST_COMMON_SOURCES})
@@ -35,12 +37,20 @@ target_compile_definitions(gst_pruned_dp_main PRIVATE GST_DEFAULT_METHOD="Pruned
 add_executable(gst_test16_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_test16_main PRIVATE GST_DEFAULT_METHOD="Test16")
 
+add_executable(gst_test17_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test17_main PRIVATE GST_DEFAULT_METHOD="Test17")
+
+add_executable(gst_test18_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test18_main PRIVATE GST_DEFAULT_METHOD="Test18")
+
 if(WIN32)
     foreach(target_name
             gst_dpbf_main
             gst_half_dpbf_main
             gst_pruned_dp_main
-            gst_test16_main)
+            gst_test16_main
+            gst_test17_main
+            gst_test18_main)
         target_link_libraries(${target_name} PRIVATE psapi)
     endforeach()
 endif()

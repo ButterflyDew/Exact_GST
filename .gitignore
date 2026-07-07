@@ -4,4 +4,5 @@
 /data_snapshot/generated*/
 /result_snapshot/
 /result_validate*/
+/.random_compare_tmp/
 /gst_main.exe

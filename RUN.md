@@ -1,6 +1,15 @@
 # 运行方法
 
-当前仓库只保留一个研究中 Test 方法：`Test16`。历史 Test11--Test15 的代码、结果和单独文档已经合并/删除；研究脉络见 `readme_files/test16_algorithm.md`。
+当前仓库保留稳定版 `Test16`，以及在其上增量实验的 `Test17`、`Test18`。历史 Test11--Test15 的代码、结果和单独文档已经合并/删除。
+
+文档入口：
+
+```text
+readme_files/test_series_overview.md  Test 系列总览和历史脉络
+readme_files/test16_algorithm.md      Test16 稳定版
+readme_files/test17_algorithm.md      Test17 增量优化
+readme_files/test18_algorithm.md      Test18 状态削减主线
+```
 
 ## 编译
 
@@ -13,6 +22,8 @@ cmake --build build --config Release
 
 ```powershell
 cmake --build build --config Release --target gst_test16_main
+cmake --build build --config Release --target gst_test17_main
+cmake --build build --config Release --target gst_test18_main
 ```
 
 ## 可执行文件
@@ -22,6 +33,8 @@ gst_dpbf_main.exe
 gst_half_dpbf_main.exe
 gst_pruned_dp_main.exe
 gst_test16_main.exe
+gst_test17_main.exe
+gst_test18_main.exe
 gst_random_compare.exe
 gst_snapshot_prepare.exe
 ```
@@ -47,6 +60,8 @@ query_limit     运行条数，默认 -1 表示跑到文件末尾
 
 ```powershell
 .\build\Release\gst_test16_main.exe Toronto result g10 data 1 3
+.\build\Release\gst_test17_main.exe Toronto result g10 data 1 3
+.\build\Release\gst_test18_main.exe DBLP result g15 data 1 1
 .\build\Release\gst_pruned_dp_main.exe DBLP result g10_uniform data_new 1 1
 python tools\snapshot_benchmark\snapshot.py --method Test16 --suite fast --build
 ```
