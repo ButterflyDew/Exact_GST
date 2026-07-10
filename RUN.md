@@ -1,17 +1,25 @@
 # 运行方法
 
-当前仓库保留稳定版 `Test16`，以及在其上增量实验的 `Test17`、`Test18`。历史 Test11--Test15 的代码、结果和单独文档已经合并/删除。
+当前仓库提供可审查发行版 `ReleaseV1`，并保留 `Test16`--`Test19` 研究序列。历史 Test11--Test15 的代码、结果和单独文档已经合并/删除。
 
 文档入口：
 
 ```text
-readme_files/test_series_overview.md  Test 系列总览和历史脉络
+readme_files/test_series_overview.md  当前文档入口、共同理论和运行纪律
+readme_files/release_v1.md           ReleaseV1 算法、证明、边界与性能基线
 readme_files/test16_algorithm.md      Test16 稳定版
 readme_files/test17_algorithm.md      Test17 增量优化
-readme_files/test18_algorithm.md      Test18 状态削减主线
+readme_files/test18_algorithm.md      Test18 合规主线快照
+readme_files/test18_effect_report.md  Test18 效果报告：O2 后关键结果与 DBLP g13 状态
+readme_files/test19_algorithm.md      Test19 当前算法与实现边界
+readme_files/test19_effect_report.md  Test19 当前 Release/O2 效果基线
+readme_files/test19_research_directions.md  下一理论问题
+readme_files/test19_maintenance.md    代码维护与拆分计划
 ```
 
 ## 编译
+
+Release 构建用于计时；`CMakeLists.txt` 已显式保证 Release/RelWithDebInfo 开启 O2（MSVC Release 为 `/O2 /Ob2`）。
 
 ```powershell
 cmake -S . -B build
@@ -24,6 +32,11 @@ cmake --build build --config Release
 cmake --build build --config Release --target gst_test16_main
 cmake --build build --config Release --target gst_test17_main
 cmake --build build --config Release --target gst_test18_main
+cmake --build build --config Release --target gst_test19_main
+cmake --build build --config Release --target gst_release_v1_main
+cmake --build build --config Release --target gst_future_lb_probe
+cmake --build build --config Release --target gst_group_separator_probe
+cmake --build build --config Release --target gst_global_half_probe
 ```
 
 ## 可执行文件
@@ -32,11 +45,20 @@ cmake --build build --config Release --target gst_test18_main
 gst_dpbf_main.exe
 gst_half_dpbf_main.exe
 gst_pruned_dp_main.exe
+gst_release_v1_main.exe
 gst_test16_main.exe
 gst_test17_main.exe
 gst_test18_main.exe
+gst_test19_main.exe
 gst_random_compare.exe
 gst_snapshot_prepare.exe
+```
+
+probe 工具通常在对应 tools 子目录下：
+
+```text
+gst_future_lb_probe.exe
+gst_group_separator_probe.exe
 ```
 
 ## 参数
@@ -62,8 +84,13 @@ query_limit     运行条数，默认 -1 表示跑到文件末尾
 .\build\Release\gst_test16_main.exe Toronto result g10 data 1 3
 .\build\Release\gst_test17_main.exe Toronto result g10 data 1 3
 .\build\Release\gst_test18_main.exe DBLP result g15 data 1 1
+.\build\Release\gst_test19_main.exe Toronto result query.txt data 1 1
 .\build\Release\gst_pruned_dp_main.exe DBLP result g10_uniform data_new 1 1
+.\build\Release\gst_release_v1_main.exe Toronto result g10 data 1 1
+.\build\tools\future_lb_probe\Release\gst_future_lb_probe.exe
+.\build\tools\group_separator_probe\Release\gst_group_separator_probe.exe data DBLP query_g13.txt 1 1 64
 python tools\snapshot_benchmark\snapshot.py --method Test16 --suite fast --build
+python tools\snapshot_benchmark\snapshot.py --method ReleaseV1 --suite small --build
 ```
 
 ## 输出

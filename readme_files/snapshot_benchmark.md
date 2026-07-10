@@ -24,6 +24,7 @@
 
 | suite | 生成目录 | 图规模 | 每个 g 准备查询数 | 每个 g 实际执行数 | 总执行查询数 | 目标 |
 | --- | --- | --- | ---: | ---: | ---: | --- |
+| `small` | `data_snapshot/generated_small` | 5 个版本均为 3500 点 BFS 子图，`g=2..8` | 8 | 1 | 35 | 小组数预处理与退化检查，目标约 60s |
 | `fast` | `data_snapshot/generated_fast` | 5 个版本均为 3500 点 BFS 子图 | 8 | 1 | 20 | 快速诊断，目标约 100s，可小幅超时 |
 | `normal` | `data_snapshot/generated_normal` | Toronto 两版完整图；DBLP/MovieLens 三版为 20000 点 BFS 子图 | 40 | 5 | 100 | 常规回归，目标约 1 小时 |
 | `large` | `data_snapshot/generated_large` | Toronto 两版完整图；DBLP/MovieLens 三版为 40000 点 BFS 子图 | 40 | 全部 | 800 | 大量测试，目标约 12 小时 |
@@ -45,8 +46,8 @@ python tools/snapshot_benchmark/snapshot.py --method Test16 --suite fast --build
 常用选项：
 
 ```text
---method Test16        方法名：DPBF / Half_DPBF / PrunedDP / Test16 / Test17 / Test18
---suite fast           fast / normal / large
+--method Test16        方法名：DPBF / Half_DPBF / PrunedDP / ReleaseV1 / Test16 / Test17 / Test18 / Test19
+--suite fast           small / fast / normal / large
 --build                先 configure/build 目标方法与 snapshot prepare 工具
 --prepare-only         只生成当前 suite 对应的 snapshot 数据
 --no-prepare           复用当前 suite 已有 snapshot 数据，直接跑测试

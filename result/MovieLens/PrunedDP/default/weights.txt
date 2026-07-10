@@ -1,0 +1,9 @@
+# Run started=2026-07-09 22:31:44 graph=MovieLens method=PrunedDP data_root=data graph_folder=data\MovieLens query_file=query.txt run_subdir=default original_query_count=160 query_begin=1 query_limit=-1 query_count=160 result_dir=result\MovieLens\PrunedDP\default rss_mb=2227.340 peak_rss_mb=2227.344
+3.616938 0.0032922542
+4.501949 0.0050377631
+4.768332 0.0073800657
+4.675374 0.0082491959
+4.687608 0.0064245457
+4.171508 0.0041712474
+4.425087 0.0053717951
+4.169796 0.0053743134

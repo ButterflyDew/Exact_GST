@@ -1,0 +1,4 @@
+# Run started=2026-07-10 12:14:16 graph=MovieLens method=Test19 data_root=data graph_folder=data\MovieLens query_file=query.txt run_subdir=default original_query_count=160 query_begin=1 query_limit=-1 query_count=160 result_dir=result\MovieLens\Test19\default rss_mb=2227.250 peak_rss_mb=2227.254
+12.311777 0.0032922542
+12.730588 0.0050377631
+13.067360 0.0073800657

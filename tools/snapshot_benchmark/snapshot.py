@@ -28,10 +28,11 @@ def method_exe_name(method: str) -> str:
         "DPBF": "gst_dpbf_main",
         "Half_DPBF": "gst_half_dpbf_main",
         "PrunedDP": "gst_pruned_dp_main",
+        "ReleaseV1": "gst_release_v1_main",
     }
     if method in table:
         base = table[method]
-    elif method in {"Test16", "Test17", "Test18"}:
+    elif method in {"Test16", "Test17", "Test18", "Test19"}:
         base = f"gst_{method.lower()}_main"
     else:
         raise SystemExit(f"Unknown method name: {method}")
@@ -43,10 +44,11 @@ def method_stats_name(method: str) -> str:
         "DPBF": "dpbf_stats.txt",
         "Half_DPBF": "half_dpbf_stats.txt",
         "PrunedDP": "pruneddp_stats.txt",
+        "ReleaseV1": "releasev1_stats.txt",
     }
     if method in table:
         return table[method]
-    if method in {"Test16", "Test17", "Test18"}:
+    if method in {"Test16", "Test17", "Test18", "Test19"}:
         return f"{method.lower()}_stats.txt"
     raise SystemExit(f"Unknown method name: {method}")
 
@@ -254,7 +256,7 @@ def run_suite(plan: dict, method: str, suite_name: str, generated_root: Path) ->
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--method", default="Test16")
-    parser.add_argument("--suite", choices=["fast", "normal", "large"], default="fast")
+    parser.add_argument("--suite", choices=["small", "fast", "normal", "large"], default="fast")
     parser.add_argument("--plan", type=Path, default=DEFAULT_PLAN)
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--prepare-only", action="store_true")

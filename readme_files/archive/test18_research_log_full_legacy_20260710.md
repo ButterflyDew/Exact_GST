@@ -12,18 +12,26 @@ Test18 仍遵守 Test16 后的核心安全原则：
 
 ## 1. 与 Test17 的差异
 
-Test18 主要增加六个机制：
+Test18 当前主线主要保留这些机制：
 
 1. 虚拟 singleton；
 2. 全根 `full_lb` corridor；
 3. `need[S,v]` stale 状态识别与 compact；
 4. 稠密行自适应轻量表示，pair 行是默认 light 的特例；
 5. cover-aware Complete，提前更新合法完整上界；
-6. pair 层完成后的同根 pair/single 分区上界，尝试在进入 k=3 前降低 `best`。
+6. 补侧 Complete row 物化，把同一个 `rem` 的普通 Complete 补侧 split 结果复用到多个 popped root；
+7. pair 层完成后的同根 pair/single 分区上界，尝试在进入 k=3 前降低 `best`；
+8. 正确 DP 顺序下的保存必要条件，包括最大层 future-use、奇数最大层 forced-complete 下界和 future split 保存下界；
+9. 查询级标准 Steiner 度缩图，删除非 query terminal 叶子/无 terminal 分量，并压缩非 query terminal 度 2 链。
+10. 查询级 Voronoi exact torso：删除无 query terminal 且 portal 数 `<=1` 的单色内域枝叶组件；对 portal 数 `==2` 的无终端组件，用组件内两门户最短路桥边 exact 替换；对 portal 数 `==3` 的无终端组件，用 pair 边 + 三终端 hub gadget 保留二端/三端连接代价；对收益为正且局部 Steiner table 可行的 `portal==4` 组件，用 6 条 pair 边、4 个 triple hub 和 1 个 quad hub exact 替换。
+
+已撤出但保留证据的探针包括：`g=13, k=3` 固定 rows 三分块同根上界，以及用数据集、组数、层数或表示阈值外条件硬触发的非 dense 高阶行轻量表示。它们都能提供瓶颈定位信息，但触发条件不具备通用判据，不作为当前主线机制；当前非 dense 高阶行保持普通 sparse。
 
 当前实现还保留一个无参数初始上界增强：先从 root-star 最优根运行 greedy，再把这次 greedy 命中的组顶点作为候选根各运行一次 greedy。所有结果都只是合法完整上界，取最小值更新 `best`。
 
 此外，Test18 不再预处理半掩码 Far 表；Far 改为当前 mask 内的 lazy cache。
+
+2026-07-09 新增补侧 Complete row 物化：对固定 `rem=U-S`，用已保存 half-DP row 懒构造 `complete_row[v]=min_x dp[x][v]+dp[rem-x][v]`。触发采用直接查询与物化 row 的 rent/buy 成本比较，不含数据集、`g`、层数或时间点特判。随机对拍 `seed=303033` 80 组、Toronto query 1 和 40k g12 三组 A/B 已通过；详细结果集中维护在 `test18_effect_report.md` 7.2。
 
 ## 2. 虚拟 singleton
 
@@ -136,7 +144,7 @@ saved_count * (sizeof(int)+sizeof(double)) > n * sizeof(double)
 
 则转为 dense-light 行；否则保存为 `v,d` 两个稀疏数组。这个判定只是表示成本比较，不是调参。
 
-进一步地，Test18 把这个策略推广到任意 `|S|>2` 的稠密行，但更保守：高阶行只有在上述 dense 成本判定成立时才转为 `light+dense`；否则仍保留原来的 `v,d,cover,need`。这样做的含义是：
+进一步地，Test18 把这个策略推广到任意 `|S|>2` 的稠密行，但更保守：高阶行只有在上述 dense 成本判定成立时才转为 `light+dense`；否则一律保留原来的 `v,d,cover,need`。这样做的含义是：
 
 - 中等稀疏行继续保留 `cover/need`，不损失 stale 跳过和 cover-aware 上界更新；
 - 足够稠密的高阶行保存精确 `dp[S][v]`，避免在 DBLP 这类大图上为每个状态持久保存 `cover/need`；
@@ -157,6 +165,50 @@ packed dense = bitset[n] + prefix-per-word + dense_values[saved_count]
 - 不保存 actual-cover 时，后续 cover 只使用保守的 `S | color[v]`。这可能错过一些 early upper update，但不会构造非法上界，也不会影响 DP 精确性。
 
 复杂度上，dense 行的 join 是按点扫描，仍计入 `O(3^g n)`；空间上，DBLP g15 的 105 个 pair 行若全 full dense，约为 `105*n*sizeof(double)≈2.1GB`，明显小于保存 `v,d,cover,need` 的通用稀疏表示。packed dense 进一步处理“超过 dense 阈值但远未接近全图”的行：例如有限点约为 `0.7n` 时，`bitset+values` 比 `double[n]` 少约 25% 空间，并且 dense join 也少扫无穷点；但实测不是正优化，因此不进入主线。
+
+### 4.5.1 best 下降后的 light/dense-light compact
+
+best 下降后，light / dense-light 行也可以用同一个必要条件做 compact：
+
+```text
+dp[S][v] + LowerBound(v,U-S) <= best
+```
+
+不满足该条件的 `(S,v)` 不可能再作为当前侧拼出更优完整解。普通行复用持久 `need`；light 行不存 `need`，只在 compact 点现场重算；dense-light 行顺着 dense 数组扫描，把失效 root 置为 `INF`。单独测试这条 compact 时没有引入新下界，只补回了轻量表示原本漏掉的 stale 删除；加入 4.5.2 后，当前主线会在 light/dense-light compact 点复用同一套保存下界。
+
+fast snapshot A/B（`data_snapshot/generated_fast`，5 个 dataset version，`g=9..12` 各 1 条；当前版 `result_snapshot/fast/20260708_121239` vs 临时关闭 light/dense-light compact `result_snapshot/fast/20260708_121613`；20 条权重全部一致）：
+
+| dataset version | baseline live | current live | live 下降 | light removed | dense removed | pull_hits 下降 | tryset_calls 下降 | wall 变化 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `Toronto_data` | `901,189` | `883,504` | `1.96%` | `17,685` | `0` | `2.05%` | `1.97%` | `-0.83%` |
+| `Toronto_data_new` | `4,038,026` | `3,940,978` | `2.40%` | `97,048` | `67,709` | `5.44%` | `5.46%` | `+0.47%` |
+| `DBLP_data_bfs` | `2,575,905` | `2,573,944` | `0.08%` | `1,961` | `1,875` | `0.11%` | `0.11%` | `-2.92%` |
+| `DBLP_data_new_bfs` | `3,277,644` | `2,700,555` | `17.61%` | `577,089` | `575,917` | `25.16%` | `25.19%` | `-1.44%` |
+| `MovieLens_data_bfs` | `2,220,040` | `2,219,998` | `0.00%` | `42` | `0` | `0.00%` | `0.00%` | `+1.02%` |
+| **total** | `13,012,804` | `12,318,979` | `5.33%` | `693,825` | `645,501` | `10.28%` | `10.31%` | `+0.26%` |
+
+结论：fast 小图上它不是普遍 wall-time 加速项，总时间基本持平；但它稳定降低后续 join/lookup 实际触达，尤其在 `DBLP_data_new_bfs` 上把 live `(mask,v)` 减少 `17.61%`，`pull_hits/tryset_calls` 减少约 `25%`。40k DBLP snapshot g9 query 1-5 的此前 compact 记录则更强：`finite_states=10.718141M`，`compact_removed=4.426633M`，`live_states=6.291508M`，按状态数加权 compact 比例 `41.30%`。
+
+### 4.5.2 正确 DP 顺序保存必要条件（达到 fast 平均 20%）
+
+随后沿“正确 DP 顺序下的未来可用性”继续测试三类保存必要条件：
+
+- `|S|=H` 的最大层行不能再参与 join；若当前 mask 顺序下没有任何后续同层 Complete 会读取它，则当前行自己的 Complete 结束后整行不保存。
+- 奇数 `g` 的最大层行若仍有未来读者，则未来补侧只能是一个 H-mask 加一个 singleton，因此保存 root `v` 前使用 `dp[S][v] + min_b(LowerBound(v,R-{b}) + gd[b][v]) <= best`。
+- `|S|<H` 的行在自己的 Complete 后若未来还要发挥作用，则算法至少还要引入两个非空补侧块；因此保存 root `v` 前使用 `dp[S][v] + max(LowerBound(v,R), far_R(v)+near_R(v)) <= best`。这个 future split 下界只在保存和 compact 点使用，不进入 Dijkstra relax。
+
+fast snapshot A/B（当前组合版 `result_snapshot/fast/20260708_133624` vs 临时关闭 light/dense-light compact 且无 order prune 的基线 `result_snapshot/fast/20260708_121613`；20 条权重全部一致）：
+
+| dataset version | baseline live | current live | live 下降 | finite 下降 | split states | order states | forced-LB states | pull_hits 下降 | tryset_calls 下降 | wall 变化 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `Toronto_data` | `901,189` | `492,302` | `45.37%` | `41.06%` | `358,814` | `58,868` | `10,936` | `38.37%` | `38.70%` | `+10.63%` |
+| `Toronto_data_new` | `4,038,026` | `2,632,514` | `34.81%` | `30.01%` | `783,357` | `430,418` | `109,926` | `27.41%` | `27.57%` | `-4.20%` |
+| `DBLP_data_bfs` | `2,575,905` | `2,329,185` | `9.58%` | `9.49%` | `12` | `214,752` | `29,995` | `0.11%` | `0.11%` | `-2.10%` |
+| `DBLP_data_new_bfs` | `3,277,644` | `2,312,666` | `29.44%` | `11.47%` | `224,139` | `145,442` | `42,603` | `27.87%` | `27.88%` | `-1.83%` |
+| `MovieLens_data_bfs` | `2,220,040` | `1,516,825` | `31.68%` | `31.67%` | `301,618` | `358,821` | `42,768` | `20.02%` | `20.02%` | `+3.59%` |
+| **total** | `13,012,804` | `9,283,492` | `28.66%` | `22.48%` | `1,667,940` | `1,208,301` | `236,228` | `21.93%` | `21.94%` | `+1.64%` |
+
+结论：加入 future split 后，fast 总 live 降幅从上一版 `16.43%` 提升到 `28.66%`，达到平均 `20%` 目标；相对上一版 `result_snapshot/fast/20260708_124821` 的 live `10.874450M`，当前又额外下降 `14.63%`。该收益不是所有数据集均匀分布：`Toronto_data`、`Toronto_data_new`、`DBLP_data_new_bfs`、`MovieLens_data_bfs` 都超过 `20%`，但 `DBLP_data_bfs` 仍只有 `9.58%`，future split 只额外删了 12 个状态。还测试过“按 last-use 主动 clear 已保存行”的 resident-state 版本：最终 live 会变成 0，但这是算法结束释放造成的统计假象；peak resident 对只做最大层保存条件的组合版没有改善，wall time 还从 `96.812s` 变慢到约 `98.520s`，因此不保留。
 
 ## 5. cover-aware Complete
 
@@ -238,7 +290,7 @@ O(r g 2^g)
 
 其中 `r` 是上述候选根数。它不乘 `n`，只在 k=2 全部完成后运行一次；在 DBLP g15 中相对 105 个 dense pair Dijkstra 的代价很小。
 
-自然的推广是：在所有 k=3 行完成后，再允许同根分区 DP 使用 singleton/pair/triple 三类块。该上界同样安全，复杂度为 `O(r g^2 2^g)`，由于 `r<=n` 且多项式因子被 `3^g` 吸收，理论上仍不超过主复杂度。但是实测不是正优化：Toronto g10 query 1 中没有更新 best，额外约 `17ms`；Toronto g12 query 1 中没有更新 best，额外约 `428ms`；DBLP snapshot large / `DBLP_data_bfs` g9 query 1 中也没有更新 best，额外约 `1.6ms`。因此当前只保留 k=2 后的 pair/single 分区；k=3 分区作为“形式正确但代价大于收益”的失败实验记录，不进入主线。
+自然的推广是：在所有 k=3 行完成后，再允许同根分区 DP 使用 singleton/pair/triple 三类块。早期 Toronto g10/g12 和 DBLP snapshot g9 探针中，它没有更新 best 或额外耗时大于收益，因此当时没有作为普遍默认策略保留。后续 full DBLP g13 探针显示，若在 k=3 内按 rows `96/160/224/256` 增量触发，三分块上界能连续降低 `best` 并减少 k=3 后段 dense 行；但固定 rows 触发没有理论依据，违背 `agent.md` 第六条，已从当前代码撤出。完整实测表统一维护在 `test18_effect_report.md`。
 
 ## 6. Far/LowerBound 的当前 mask 在线计算
 
@@ -354,6 +406,9 @@ tryset_calls / tryset_keep
 tryset_pruned_full / tryset_pruned_ge_best / tryset_pruned_far / tryset_pruned_lb
 stale_need_skips / lookup_need_skips
 compact_calls / compact_removed / compact_ms
+compact_light_removed / compact_dense_removed
+order_pruned_rows / order_pruned_states / order_lb_pruned_states / order_split_pruned_states
+live_states
 best_updates / first_best_update_size / last_best_update_size
 root_star_upper / greedy_upper / multi_greedy_upper / multi_greedy_roots
 pair_partition_roots / pair_partition_updates / pair_partition_upper / pair_partition_ms
@@ -384,6 +439,8 @@ pair_saved_slack_count / pair_saved_slack_rel_avg / pair_saved_slack_rel_max / p
    - `4`: `<= 50%`
    - `5`: `> 50%`
 10. `finite_states`、`active_seed`、`pull_scan`：状态总量是否真的下降。
+
+2026-07-08 还补齐了 normal Complete 对 actual cover 的使用：当 `k*3>=g` 后，Complete 不再总是按名义 `rem=U-S` 补全集，而是先用当前树实际覆盖得到 `cover_rem=U-cover`。这只构造合法完整上界，不剪状态。Toronto query 1 权重一致且状态不变；DBLP snapshot g9 query 1 中 normal Complete 额外出现约 `1394` 次补集缩小，但 `finite_states=1.784423M`、`live_states=0.350298M` 不变，因此它是语义补齐和后续 g13 观察点，不是已证实的大突破。
 
 ## 10. 已验证结果
 
@@ -501,7 +558,7 @@ DBLP g15 query 1（90s 限时，前 8 个 pair mask）：
   说明 DBLP 的 pair 行确实进入 dense 表示；该改动主要降低空间常数，不直接减少状态数。
 
 DBLP snapshot large / DBLP_data_bfs g9 query 1（40k 点）：
-  高阶 dense-light 正式版：
+  通用 dense-by-cost 版本：
     weight=11.8766830000
     dense_rows=89，其中 dense_rows_k2=36, dense_rows_k3=53
     dense_states=3.367888M
@@ -642,7 +699,7 @@ DBLP g15 query 1（pair dense 后，长探针）：
     elapsed≈461.9s，finite≈304.82M
   说明 pair dense 解决的是 pair 行空间常数，不解决高阶状态规模；k=3 的 singleton+dense-pair 扫描仍会把状态继续推高。
 
-DBLP g15 query 1（高阶 dense-light 后，k=3 初段探针）：
+DBLP g15 query 1（通用 dense-by-cost 后，k=3 初段探针）：
   k=2 pair 层完成约 356.5s
   完成 105 个 pair 后：
     finite≈233.71M
@@ -689,3 +746,65 @@ DBLP 5k synthetic g15 进度观察：
 ```
 
 结论：Test18 对中等组数是明确正优化；tree-aware greedy、cover-aware Complete、稠密行自适应表示和 pair/single 同根分区上界都值得保留。pair/single 分区是目前第一条能在 full DBLP g15 上把 k=3 前 best 从 `19.3812` 降到 `17.7702` 的机制；但最新探针也说明，单靠这一步仍不足以让早期 k=3 finite 发生数量级下降。若所有 k=3 行都接近全图稠密，仅 pair+k3 的 dense 距离表就约为 `(105+455)*n*sizeof(double)`，已经是十 GiB 级；继续到 k=4 会再次放大。因此要真正跑动 DBLP g15，下一步应沿着这个方向继续寻找更强的合法上界，或找到能减少 singleton+dense-pair 扫描/保存范围的结构性必要条件。当前 `Far/LowerBound/full_lb` 都不足以产生数量级剪枝；slack 诊断也说明低成本、小幅度增强 LB 很难解决问题。
+
+## 10.1 2026-07-09 未保留：逐层同根分区上界
+
+理论动机：固定 rows 探针不能保留，但“同一 root 上把若干已 ready rooted row 粘成完整树”本身是合法上界。于是短暂测试过一个更干净的逐层版本：每完成一层 `k`，用所有 `|B|<=k` 的 ready row 和 singleton，在每个候选 root 上做一次 partition DP，得到“全部组被若干 `<=k` 分块覆盖”的同根上界。它不剪状态、不改变 DP 值，也没有固定 rows、数据集名或时间点触发；复杂度口径为每层 `O(r*3^g)`，仍不乘图边数。
+
+正确性守门：
+
+```text
+seed=808081, 80 组随机小图：ALL_OK
+seed=818283, 40 组固定 g13 小图：ALL_OK
+Toronto query 1：0.2582152999
+DBLP snapshot g9 query 1：11.8766830000
+```
+
+效果：
+
+- DBLP snapshot g9 query 1：`layer_partition_triggers=2`，`updates=0`，`layer_partition_ms=1.737`；
+- `DBLP_data_new_bfs` g12 query 1：`layer_partition_triggers=4`，`updates=0`，`layer_partition_ms=69.613`，wall `36.406s`，与已有 frontier k=3/k=4 版 `35.967s` 同量级但没有新增上界；
+- `DBLP_data_bfs` g12 query 1：`layer_partition_triggers=4`，`layer_partition_updates=1` 只出现在 k=3，k=5/k=6 均无更新；最终 `best_after_k4=17.1766480000` 不变，`layer_partition_ms=69.814`，wall `106.251s`，不优于已有 frontier k=3/k=4 版 `105.866s`。
+
+判断：这条路比固定 rows 探针干净，但在两个 g12 DBLP 快照的高层 `k=5/k=6` 没有提供新上界，也没有状态收益。当前代码已撤回该探针，只保留这条负结果，避免后续重复实现。
+
+## 11. 专题报告索引
+
+2026-07-08 之后，本轮“各数据集实际效果”和“full DBLP g13 query 1 结构探针”不继续混写在本研究日志的长段落里，统一维护到 `test18_effect_report.md`。
+
+该报告当前包含：
+
+- fast snapshot 20 条 A/B 的分数据集统计；
+- DBLP snapshot g9 补充探针；
+- full DBLP g13 query 1 的 two-portal 完整实跑与 three-portal 结构探针对比：上一完整 two-portal 代码包含标准度缩图删/压 `747777` 点、Voronoi / two-portal 阶段总缩掉 `181591` 点、pair 层 finite 降到 `121.365M`、最终权重 `12.5936282853`；three-portal exact torso 探针在此基础上把 Voronoi 内部点提高到 `220206`、pair finite 降到 `119.455M`。探针最终同样得到权重 `12.5936282853`，但它来自撤回前二进制，不能作为当前源码完整成绩；
+- 2026-07-09 当前源码 `portal==4` 收益门控版的 full DBLP g13 query 1 中止探针：不含固定 rows、`g==13` 或非 dense 高阶 light 特判；k=5 masks `1316` 到达 `best=12.9949`，masks `1625` 手动停止，无最终 weights 行，只作为撤回特判后的关键路径证据；
+- 上一合规主线在 full DBLP g13 query 1 上的 leaf-reduction 实跑，包含跨过 k=4、进入 k=5、以及 exact current-row cover 在 k=4 后段把 best 降到 `13.1290` 的记录；
+- full DBLP g13 query 1 的 pair 层、pair/single 分区、已撤出的 k=3 增量三分块 rows `96/160/224/256` 探针实测；
+- 已撤出的高阶轻量表示组合探针，包含跨过完整 k=4、进入 k=5、以及 k=5 时间瓶颈的实时日志摘录；
+- capacity-aware split、全终端候选根、hub pair/single 上界、k=4 quad 同根分区上界、actual-cover-aware 同根合并等已尝试但不保留的方向。
+
+## 12. 图结构诊断：Voronoi / multiway-cut 代理
+
+2026-07-08 新增 `tools/structure_probe`，只做诊断，不改 Test18 语义。它对每个组做多源 Dijkstra，用最近组给顶点染色，并把跨颜色边的端点当作 multiway-cut 代理边界。
+
+full DBLP g13 query 1 的结果：
+
+- `alive_roots_by_root_star=2,228,369 / 2,497,782 = 89.21%`；
+- `voronoi_boundary_vertices=1,517,941 = 60.77%`；
+- `boundary_edges=6,139,713 = 48.02%`；
+- `non_boundary_components=523,529`；
+- 最大非边界单色组件只有 `352` 点；
+- `component_portals_total=705,300`，平均 portal 数 `1.35`；
+- portal 分布为 `p0=139,149`、`p1=223,834`、`p2=92,310`、`p3_4=52,157`、`p5_8=13,200`、`p9_16=2,191`、`pgt16=688`；
+- 原图上单独应用 Voronoi leaf 条件时，无 query terminal 且 portal 数 `<=1` 的可删枝叶顶点为 `638,697`，占全图 `25.57%`；three-portal exact torso 探针的实际前段归因为 `747,777 + 220,206` 个内部点，其中 two-portal 收缩贡献 `79,519`，three-portal 收缩贡献 `38,615` 并添加 `12,135` 个 hub；
+- `metric_torso_vertices_est=1,520,103 = 60.86%`，`metric_torso_component_edges_est=1,422,520`。
+
+40k DBLP snapshot g9 query 1 的结果：
+
+- `alive_roots_by_root_star=40,000 / 40,000 = 100.00%`；
+- `voronoi_boundary_vertices=36,184 = 90.46%`；
+- `boundary_edges=415,639 = 63.23%`；
+- 最大非边界单色组件 `106` 点；
+- `metric_torso_vertices_est=36,203 = 90.51%`，可删枝叶顶点 `962 = 2.41%`。
+
+判断：DBLP 不像有小 multiway cut，可以先排除“小 separator 直接参数化 DP”这个幻想；full DBLP g13 的非边界内域极碎且 portal 数很小，这解释了当前两级 exact 图缩减为什么有结构收益。当前已实现的保守入口包括标准 Steiner 非终端叶删/度 2 链压缩、无 query terminal 且 portal 数 `<=1` 的 Voronoi leaf deletion、portal 数 `==2` 的最短路桥边 exact 替换、portal 数 `==3` 的三终端 hub gadget，以及收益为正且局部表可行的 `portal==4` pair/triple/quad gadget；Toronto query 1 与 DBLP snapshot g9 query 1 权重保持一致。后续不再把普通 `portal>=5` local Steiner table / mimicking torso 当作优先实现方向，因为它属于图/询问本身的通用压缩，baseline 也可使用；只有能证明 Test18 特有或原创价值时才重新打开。

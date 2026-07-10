@@ -1,0 +1,4 @@
+# Run started=2026-07-10 21:42:22 graph=DBLP method=Test19 data_root=data graph_folder=data\DBLP query_file=query.txt run_subdir=default original_query_count=160 query_begin=1 query_limit=-1 query_count=160 result_dir=result\DBLP\Test19\default rss_mb=872.281 peak_rss_mb=872.285
+18.615584 5.6765018667
+18.142501 4.9902920377
+18.033113 5.9622085153

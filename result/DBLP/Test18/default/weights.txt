@@ -1,0 +1,14 @@
+# Run started=2026-07-09 21:19:34 graph=DBLP method=Test18 data_root=data graph_folder=data\DBLP query_file=query.txt run_subdir=default original_query_count=160 query_begin=1 query_limit=-1 query_count=160 result_dir=result\DBLP\Test18\default rss_mb=872.918 peak_rss_mb=872.922
+18.811182 5.6765018667
+19.040653 4.9902920377
+18.604587 5.9622085153
+19.087058 5.9300381807
+19.493441 5.9205110331
+19.417473 5.9499261823
+
+
+# Run started=2026-07-09 22:26:48 graph=DBLP method=Test18 data_root=data graph_folder=data\DBLP query_file=query.txt run_subdir=default original_query_count=160 query_begin=1 query_limit=-1 query_count=160 result_dir=result\DBLP\Test18\default rss_mb=872.789 peak_rss_mb=872.793
+17.618110 5.6765018667
+17.995430 4.9902920377
+18.170297 5.9622085153
+18.834638 5.9300381807
