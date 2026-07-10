@@ -13,7 +13,7 @@ persisted need    final row 保存时持久化同一下界，供后续 lookup / 
 
 在五个 fast 数据版本、`g=9..12` 共 20 条查询上，默认版与关闭两个接入点的基线权重全部一致；总 wall 从 `82.136s` 降到 `34.731s`（`-57.72%`），finite states 从 `9,014,442` 降到 `5,553,850`（`-38.39%`）。Toronto 两版略慢，本文不使用数据集特判掩盖该边界。
 
-Test19 默认 half-DP 路径自身没有运行 full DBLP g13 q1。2026-07-10，独立的 dual-anchored global-label 原型已经在 `1427.625s / 9.015GiB` 精确完成同一查询；该成绩与 Test19 本页基线分开记录，见 `dual_anchored_global_labels.md`。
+Test19 默认 half-DP 路径自身没有运行 full DBLP g13 q1。2026-07-10，dual-anchored global-label precursor 已在 `1427.625s / 9.015GiB` 精确完成同一查询，随后重写为 ReleaseV2；该成绩与 Test19 本页基线分开记录，见 `release_v2.md`。
 
 ## 2. 构建与模式
 
@@ -88,6 +88,6 @@ order+save 相对 order-only 再降 `9.10%`。组合中 `tsp_lb_save_pruned=0`�
 ## 6. 当前边界
 
 - exact TSP/2 预处理约为 `O(g^3 2^g)` 时间、`O(g^2 2^g)` 空间；逐状态查询约为 `O(|R|^2)`。
-- 本页现有结果只说明 Test19 fast baseline，不把独立原型数字记到 Test19 名下。
-- dual 接入前的旧 rooted-group global-label 原型曾为 `62.418s`，且一次未完成 full 子进程达到约 `23.27GB`；这是归档负结果。当前 dual-anchored + generated-star + compact 实现 fast 为 `13.742s`，full 已完成，见独立主文档。
+- 本页现有结果只说明 Test19 fast baseline，不把 ReleaseV2 数字记到 Test19 名下。
+- dual 接入前的旧 rooted-group global-label 原型曾为 `62.418s`，且一次未完成 full 子进程达到约 `23.27GB`；这是归档负结果。最终 ReleaseV2 fast 为 `12.806s`，full precursor 已完成，见 `release_v2.md`。
 - one-tree、two-edge、separator 和旧 bounded g13 输出只作归档证据，不属于当前效果基线。

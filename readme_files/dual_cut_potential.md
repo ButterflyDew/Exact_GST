@@ -2,7 +2,7 @@
 
 更新时间：2026-07-10。本文说明 directed-cut 势函数组件：把 Group Steiner Tree 的组约束写成有向组汇点 cut relaxation，从一个压缩的 dual-ascent 解中提取可加、edge-consistent、满足 subset splice 的 future potential，并从零残量子图恢复可行上界。
 
-> 状态更新：本文第 9 节冻结的是 distance-only solver 的有界结果，该 solver 自身没有完成 full g13。随后同一势函数接入 dual-anchored global labels，并在 Release/O2 下精确完成 DBLP g13 q1；当前主结果见 `dual_anchored_global_labels.md`。
+> 状态更新：本文第 9 节冻结的是 distance-only solver 的有界结果，该 solver 自身没有完成 full g13。随后同一势函数接入 dual-anchored global labels，并形成 ReleaseV2；当前主结果见 `release_v2.md`，原始逐层计数见 `release_v2_evidence.md`。
 
 实现位于：
 
@@ -12,7 +12,7 @@ tools/dual_cut_probe/dual_cut_probe.cpp
 tools/distance_epoch_solver_probe/distance_solver.cpp
 ```
 
-它尚未进入 `methods/Release` 或 Test19。本文的 distance solver 是从 ReleaseV1 分离的单路径验证器，组合了 distance-only rows、TSP/2、dual-cut potential、零残量 primal 和统一工作量门控；global-label 使用同一 potential API，但 recurrence、状态表示和实测单独维护。
+本文的 distance solver 尚未进入 `methods/Release` 或 Test19。ReleaseV2 已把同一数学势函数重新实现为发行内私有组件，但不复制本工具的动态/group dual 模式；row solver、global-label recurrence 和各自实测仍分开维护。
 
 ## 1. 有向组汇点模型
 
@@ -228,7 +228,7 @@ peak RSS      9231.500MiB
 settled       57,198,969 / 10,228,417,290 possible labels
 ```
 
-该结果证明 dual 的价值不只在旧 pair 层减常数；与不物化整层 row 的 recurrence 结合后，实际只定型 `0.5592%` 的理论 labels。完整证明、small 反噬边界与复现命令见 `dual_anchored_global_labels.md`。
+该结果证明 dual 的价值不只在旧 pair 层减常数；与不物化整层 row 的 recurrence 结合后，实际只定型 `0.5592%` 的理论 labels。完整证明、small 反噬边界与复现命令见 `release_v2.md`。
 
 ## 10. 已停止的扩展
 

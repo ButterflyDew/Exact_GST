@@ -1,11 +1,12 @@
 # Dual-Anchored Global Labels Probe
 
-这是独立的精确 Group Steiner Tree 原型，不是 `ReleaseV1` 或 `Test19` 的默认路径。当前主模式固定任意一个组为 anchor，只为其余 `g-1` 个组建立全局 Dijkstra-Steiner labels，并把 GST directed-cut dual 用作一致势函数。
+这是形成 ReleaseV2 的历史精确原型，不是当前发行入口。它保留 half/anchored/dual-anchored 模式和完整诊断，供复核原始实验；干净单路径实现位于 `methods/Release/release_v2.cpp`。
 
 完整算法、证明、复杂度、small/fast 边界与 DBLP g13 结果见：
 
 ```text
-readme_files/dual_anchored_global_labels.md
+readme_files/release_v2.md
+readme_files/release_v2_evidence.md
 ```
 
 ## Build

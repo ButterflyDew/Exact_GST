@@ -2,7 +2,7 @@
 
 更新时间：2026-07-10。本文说明独立探针 `tools/distance_epoch_solver_probe`，它从 ReleaseV1 复制出一条无开关执行路径，用于验证两个相互配合但逻辑独立的机制：
 
-> 状态更新：本文记录 dual-cut 之前的表示层基底。其后 distance solver 加入 directed-cut potential，但 900 秒仍未完成；最终 full g13 由另一条 dual-anchored global-label recurrence 完成。本文中的 `30.749s` fast 与 900 秒 full 结果只代表冻结阶段，当前结论见 `dual_anchored_global_labels.md`。
+> 状态更新：本文记录 dual-cut 之前的表示层基底。其后 distance solver 加入 directed-cut potential，但 900 秒仍未完成；最终 full g13 由 ReleaseV2 的 dual-anchored global-label recurrence 完成。本文中的 `30.749s` fast 与 900 秒 full 结果只代表冻结阶段，当前结论见 `release_v2.md`。
 
 1. DP row 只持久化精确 `distance`，不持久化 `need=distance+h`；
 2. pair 层结束后，用同根 singleton/pair 分块构造一次可行上界。

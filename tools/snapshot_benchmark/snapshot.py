@@ -29,6 +29,7 @@ def method_exe_name(method: str) -> str:
         "Half_DPBF": "gst_half_dpbf_main",
         "PrunedDP": "gst_pruned_dp_main",
         "ReleaseV1": "gst_release_v1_main",
+        "ReleaseV2": "gst_release_v2_main",
     }
     if method in table:
         base = table[method]
@@ -45,6 +46,7 @@ def method_stats_name(method: str) -> str:
         "Half_DPBF": "half_dpbf_stats.txt",
         "PrunedDP": "pruneddp_stats.txt",
         "ReleaseV1": "releasev1_stats.txt",
+        "ReleaseV2": "releasev2_stats.txt",
     }
     if method in table:
         return table[method]

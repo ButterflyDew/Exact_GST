@@ -14,6 +14,7 @@
 #include "methods/Half_DPBF/half_dpbf_solver.h"
 #include "methods/PrunedDP/pruned_dp_solver.h"
 #include "methods/Release/release_v1.h"
+#include "methods/Release/release_v2.h"
 #include "methods/Test/test16.h"
 #include "methods/Test/test17.h"
 #include "methods/Test/test18.h"
@@ -415,11 +416,12 @@ int main(int argc, char** argv)
         const bool is_half = (method_name == "Half_DPBF");
         const bool is_pruned = (method_name == "PrunedDP");
         const bool is_release_v1 = (method_name == "ReleaseV1");
+        const bool is_release_v2 = (method_name == "ReleaseV2");
         const bool is_test16 = (method_name == "Test16");
         const bool is_test17 = (method_name == "Test17");
         const bool is_test18 = (method_name == "Test18");
         const bool is_test19 = (method_name == "Test19");
-        if (!is_dpbf && !is_half && !is_pruned && !is_release_v1 &&
+        if (!is_dpbf && !is_half && !is_pruned && !is_release_v1 && !is_release_v2 &&
             !is_test16 && !is_test17 && !is_test18 && !is_test19)
         {
             throw std::runtime_error("Unknown GST method: " + method_name);
@@ -436,6 +438,7 @@ int main(int argc, char** argv)
             gst::methods::half_dpbf::HalfDpbfStats half_stats;
             gst::methods::pruned_dp::PrunedDpStats pruned_stats;
             gst::methods::release_v1::ReleaseStats release_stats;
+            gst::methods::release_v2::ReleaseStats release_v2_stats;
             gst::methods::test16::Test16Stats test16_stats;
             gst::methods::test17::Test17Stats test17_stats;
             gst::methods::test18::Test18Stats test18_stats;
@@ -467,6 +470,13 @@ int main(int argc, char** argv)
                 feasible = result.feasible;
                 best_weight = result.best_weight;
                 release_stats = std::move(result.stats);
+            }
+            else if (is_release_v2)
+            {
+                auto result = gst::methods::release_v2::SolveOneQuery(graph, queries[qi]);
+                feasible = result.feasible;
+                best_weight = result.best_weight;
+                release_v2_stats = std::move(result.stats);
             }
             else if (is_test16)
             {
@@ -571,6 +581,25 @@ int main(int argc, char** argv)
                      << " upper_ms=" << FormatDouble(release_stats.upper_bound_ms, 3)
                      << " dp_ms=" << FormatDouble(release_stats.dp_ms, 3)
                      << " total_ms=" << FormatDouble(release_stats.total_ms, 3);
+                AppendRuntimeStats(line, sec, memory_before, memory_after);
+                output_manager.AppendResultLine(stats_filename, line.str());
+            }
+            else if (is_release_v2)
+            {
+                std::ostringstream line;
+                line << "query=" << query_id << " best=" << weight_str
+                     << " n=" << release_v2_stats.n
+                     << " m=" << release_v2_stats.m
+                     << " g=" << release_v2_stats.g
+                     << " settled_labels=" << release_v2_stats.settled_labels
+                     << " created_labels=" << release_v2_stats.created_labels
+                     << " peak_open_labels=" << release_v2_stats.peak_open_labels
+                     << " group_dist_ms=" << FormatDouble(release_v2_stats.group_distance_ms, 3)
+                     << " lower_ms=" << FormatDouble(release_v2_stats.lower_bound_ms, 3)
+                     << " upper_ms=" << FormatDouble(release_v2_stats.upper_bound_ms, 3)
+                     << " dual_ms=" << FormatDouble(release_v2_stats.dual_ms, 3)
+                     << " search_ms=" << FormatDouble(release_v2_stats.search_ms, 3)
+                     << " total_ms=" << FormatDouble(release_v2_stats.total_ms, 3);
                 AppendRuntimeStats(line, sec, memory_before, memory_after);
                 output_manager.AppendResultLine(stats_filename, line.str());
             }

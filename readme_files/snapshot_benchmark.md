@@ -3,8 +3,7 @@
 快照测试用于避免优化只贴合单个数据集。一次命令会对同一个方法跑完
 `data_snapshot/snapshot_plan.json` 中配置的 5 个 dataset version，并按 suite 选择图规模与查询数量。
 
-默认测试的组数是 `g in {9,10,11,12}`。runner 也支持在某个 suite 中单独配置 `groups`；
-如果以后 fast 超时太多，可以只在 `snapshot_plan.json` 的 `fast` 中去掉 `9`。
+默认 fast 测试的组数是 `g in {9,10,11,12}`；small 使用 `g=2..8` 检查重预处理反噬。runner 也支持在 suite 中显式配置 `groups`，修改计划时必须把新旧 suite 视为不同实验口径。
 
 ## Dataset version
 
@@ -46,7 +45,7 @@ python tools/snapshot_benchmark/snapshot.py --method Test16 --suite fast --build
 常用选项：
 
 ```text
---method Test16        方法名：DPBF / Half_DPBF / PrunedDP / ReleaseV1 / Test16 / Test17 / Test18 / Test19
+--method Test16        方法名：DPBF / Half_DPBF / PrunedDP / ReleaseV1 / ReleaseV2 / Test16 / Test17 / Test18 / Test19
 --suite fast           small / fast / normal / large
 --build                先 configure/build 目标方法与 snapshot prepare 工具
 --prepare-only         只生成当前 suite 对应的 snapshot 数据

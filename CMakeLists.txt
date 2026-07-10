@@ -41,6 +41,7 @@ set(GST_COMMON_SOURCES
     methods/Half_DPBF/half_dpbf_solver.cpp
     methods/PrunedDP/pruned_dp_solver.cpp
     methods/Release/release_v1.cpp
+    methods/Release/release_v2.cpp
     methods/Test/test16.cpp
     methods/Test/test17.cpp
     methods/Test/test18.cpp
@@ -60,6 +61,9 @@ target_compile_definitions(gst_pruned_dp_main PRIVATE GST_DEFAULT_METHOD="Pruned
 add_executable(gst_release_v1_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_release_v1_main PRIVATE GST_DEFAULT_METHOD="ReleaseV1")
 
+add_executable(gst_release_v2_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_release_v2_main PRIVATE GST_DEFAULT_METHOD="ReleaseV2")
+
 add_executable(gst_test16_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_test16_main PRIVATE GST_DEFAULT_METHOD="Test16")
 
@@ -78,6 +82,7 @@ if(WIN32)
             gst_half_dpbf_main
             gst_pruned_dp_main
             gst_release_v1_main
+            gst_release_v2_main
             gst_test16_main
             gst_test17_main
             gst_test18_main

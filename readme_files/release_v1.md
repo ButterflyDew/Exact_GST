@@ -2,7 +2,7 @@
 
 更新时间：2026-07-10。
 
-ReleaseV1 是当前稳定算法的独立实现。它只有一条执行路径，不包装 Test18/Test19，也不接入正在研究的 dual-cut、distance-row 等探针。发行目标是：在跨数据集平均口径上，运行时间与 solver 增量空间均优于 PrunedDP 约一个数量级，同时不让较重预处理在小 `g` 上反噬。
+ReleaseV1 是 small `g` 更稳健的独立发行实现。它只有一条执行路径，不包装 Test18/Test19，也不接入 ReleaseV2 的 dual-anchored global labels。其冻结目标是：在跨数据集平均口径上，运行时间与 solver 增量空间均优于 PrunedDP 约一个数量级，同时不让较重预处理在小 `g` 上反噬。当前大 `g` 发行版见 `release_v2.md`。
 
 ## 1. 发行文件
 
