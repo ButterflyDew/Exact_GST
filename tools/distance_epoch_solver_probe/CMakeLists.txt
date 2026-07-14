@@ -7,5 +7,6 @@ add_executable(gst_distance_epoch_solver_probe
     ${CMAKE_SOURCE_DIR}/memory_usage.cpp
     ${CMAKE_SOURCE_DIR}/methods/DPBF/dpbf_solver.cpp
     ${CMAKE_SOURCE_DIR}/methods/Release/release_v1.cpp
+    ${CMAKE_SOURCE_DIR}/methods/Release/release_v2.cpp
 )
 target_include_directories(gst_distance_epoch_solver_probe PRIVATE ${CMAKE_SOURCE_DIR})

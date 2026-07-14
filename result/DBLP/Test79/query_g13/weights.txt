@@ -1,0 +1,6 @@
+# Run started=2026-07-13 16:03:32 graph=DBLP method=Test79 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=1 query_count=1 result_dir=result\DBLP\Test79\query_g13 rss_mb=868.770 peak_rss_mb=868.773
+547.477727 12.5936282853
+
+
+# Run started=2026-07-13 16:18:14 graph=DBLP method=Test79 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=1 query_count=1 result_dir=result\DBLP\Test79\query_g13 rss_mb=868.805 peak_rss_mb=868.809
+521.054840 12.5936282853

@@ -45,7 +45,7 @@ python tools/snapshot_benchmark/snapshot.py --method Test16 --suite fast --build
 常用选项：
 
 ```text
---method Test16        方法名：DPBF / Half_DPBF / PrunedDP / ReleaseV1 / ReleaseV2 / Test16 / Test17 / Test18 / Test19
+--method Test16        方法名：DPBF / Half_DPBF / PrunedDP / ReleaseV1 / ReleaseV2 / ReleaseV3 / ReleaseV4 / Test16 / Test17 / Test18 / Test19 / Test21 / Test80
 --suite fast           small / fast / normal / large
 --build                先 configure/build 目标方法与 snapshot prepare 工具
 --prepare-only         只生成当前 suite 对应的 snapshot 数据

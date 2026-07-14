@@ -14,6 +14,7 @@
 #include "graph_io.h"
 #include "methods/DPBF/dpbf_solver.h"
 #include "methods/Release/release_v1.h"
+#include "methods/Release/release_v2.h"
 #include "memory_usage.h"
 #include "query_io.h"
 #include "distance_solver.h"
@@ -112,8 +113,26 @@ int SelfCheck(std::uint64_t seed,
             RandomInstance(random, min_group_count, max_group_count, max_vertex_count);
         const auto exact = gst::methods::dpbf::SolveOneQuery(graph, query);
         const auto distance = gst::tools::distance_epoch::SolveOneQuery(graph, query);
+        const auto dynamic =
+            gst::tools::distance_epoch::SolveOneQuery(
+                graph, query, false, gst::tools::distance_epoch::ProbeMode::DynamicDual);
+        const auto hybrid = gst::tools::distance_epoch::SolveOneQuery(
+            graph, query, false, gst::tools::distance_epoch::ProbeMode::Hybrid);
+        const auto delayed = gst::tools::distance_epoch::SolveOneQuery(
+            graph, query, false, gst::tools::distance_epoch::ProbeMode::DelayedUpperHybrid);
+        const auto early = gst::tools::distance_epoch::SolveOneQuery(
+            graph, query, false, gst::tools::distance_epoch::ProbeMode::EarlyDelayedHybrid);
         if (exact.feasible != distance.feasible ||
-            (exact.feasible && std::fabs(exact.best_weight - distance.best_weight) > 1e-6))
+            exact.feasible != dynamic.feasible ||
+            exact.feasible != hybrid.feasible ||
+            exact.feasible != delayed.feasible ||
+            exact.feasible != early.feasible ||
+            (exact.feasible &&
+             (std::fabs(exact.best_weight - distance.best_weight) > 1e-6 ||
+              std::fabs(exact.best_weight - dynamic.best_weight) > 1e-6 ||
+              std::fabs(exact.best_weight - hybrid.best_weight) > 1e-6 ||
+              std::fabs(exact.best_weight - delayed.best_weight) > 1e-6 ||
+              std::fabs(exact.best_weight - early.best_weight) > 1e-6)))
         {
             std::cout << std::setprecision(17)
                       << "MISMATCH seed=" << seed
@@ -121,7 +140,11 @@ int SelfCheck(std::uint64_t seed,
                       << " n=" << graph.n
                       << " g=" << query.groups.size()
                       << " exact=" << exact.best_weight
-                      << " distance=" << distance.best_weight << '\n';
+                      << " distance=" << distance.best_weight
+                      << " dynamic=" << dynamic.best_weight
+                      << " hybrid=" << hybrid.best_weight
+                      << " delayed=" << delayed.best_weight
+                      << " early=" << early.best_weight << '\n';
             return 1;
         }
         if (iteration % 1000 == 0)
@@ -223,6 +246,191 @@ void DistanceOnly(const gst::Graph& graph,
                   << " peak_rss_mb=" << gst::BytesToMiB(after.peak_rss_bytes) << '\n';
     }
 }
+
+void BudgetOnly(const gst::Graph& graph,
+                const std::vector<gst::Query>& queries,
+                int query_begin,
+                int query_limit)
+{
+    const int end = query_limit < 0
+                        ? static_cast<int>(queries.size())
+                        : std::min<int>(queries.size(), query_begin - 1 + query_limit);
+    for (int index = query_begin - 1; index < end; ++index)
+    {
+        const auto result =
+            gst::tools::distance_epoch::SolveOneQuery(
+                graph, queries[index], false, gst::tools::distance_epoch::ProbeMode::StopAtDual);
+        std::cout << std::fixed << std::setprecision(6)
+                  << "budget_probe query=" << index + 1
+                  << " completed=" << (!result.stats.budget_exhausted)
+                  << " best_at_stop=" << result.best_weight
+                  << " total_ms=" << result.stats.total_ms
+                  << " row_work=" << result.stats.row_work
+                  << " buy_work=" << result.stats.dual_cut_build_work
+                  << " work_ratio="
+                  << (result.stats.dual_cut_build_work
+                          ? static_cast<double>(result.stats.row_work) /
+                                result.stats.dual_cut_build_work
+                          : 0.0)
+                  << " stop_size=" << result.stats.budget_stop_size
+                  << " stop_masks_in_size=" << result.stats.budget_stop_masks_in_size
+                  << " saved_states=" << result.stats.saved_states
+                  << " peak_live_states=" << result.stats.peak_live_states << '\n';
+    }
+}
+
+void DynamicDual(const gst::Graph& graph,
+                 const std::vector<gst::Query>& queries,
+                 int query_begin,
+                 int query_limit)
+{
+    const int end = query_limit < 0
+                        ? static_cast<int>(queries.size())
+                        : std::min<int>(queries.size(), query_begin - 1 + query_limit);
+    for (int index = query_begin - 1; index < end; ++index)
+    {
+        const auto result =
+            gst::tools::distance_epoch::SolveOneQuery(
+                graph, queries[index], false, gst::tools::distance_epoch::ProbeMode::DynamicDual);
+        std::cout << std::fixed << std::setprecision(6)
+                  << "dynamic_dual query=" << index + 1
+                  << " feasible=" << result.feasible
+                  << " weight=" << result.best_weight
+                  << " total_ms=" << result.stats.total_ms
+                  << " dp_ms=" << result.stats.dp_ms
+                  << " dual_ms=" << result.stats.dual_cut_ms
+                  << " dual_enabled=" << result.stats.dual_cut_enabled
+                  << " activation_size=" << result.stats.dual_activation_size
+                  << " activation_masks_in_size="
+                  << result.stats.dual_activation_masks_in_size
+                  << " activation_work=" << result.stats.dual_activation_work
+                  << " buy_work=" << result.stats.dual_cut_build_work
+                  << " row_work=" << result.stats.row_work
+                  << " saved_states=" << result.stats.saved_states
+                  << " peak_live_states=" << result.stats.peak_live_states << '\n';
+    }
+}
+
+void DualBudget(const gst::Graph& graph,
+                const std::vector<gst::Query>& queries,
+                int query_begin,
+                int query_limit)
+{
+    const int end = query_limit < 0
+                        ? static_cast<int>(queries.size())
+                        : std::min<int>(queries.size(), query_begin - 1 + query_limit);
+    for (int index = query_begin - 1; index < end; ++index)
+    {
+        const auto result = gst::tools::distance_epoch::SolveOneQuery(
+            graph, queries[index], false, gst::tools::distance_epoch::ProbeMode::StopAtGlobal);
+        std::cout << std::fixed << std::setprecision(6)
+                  << "dual_budget query=" << index + 1
+                  << " completed=" << (!result.stats.budget_exhausted)
+                  << " best_at_stop=" << result.best_weight
+                  << " total_ms=" << result.stats.total_ms
+                  << " dual_ms=" << result.stats.dual_cut_ms
+                  << " activation_size=" << result.stats.dual_activation_size
+                  << " activation_masks_in_size="
+                  << result.stats.dual_activation_masks_in_size
+                  << " stop_size=" << result.stats.budget_stop_size
+                  << " stop_masks_in_size=" << result.stats.budget_stop_masks_in_size
+                  << " activation_work=" << result.stats.dual_activation_work
+                  << " row_work=" << result.stats.row_work
+                  << " buy_work=" << result.stats.dual_cut_build_work
+                  << " peak_live_states=" << result.stats.peak_live_states << '\n';
+    }
+}
+
+void Hybrid(const gst::Graph& graph,
+            const std::vector<gst::Query>& queries,
+            int query_begin,
+            int query_limit,
+            gst::tools::distance_epoch::ProbeMode mode,
+            const char* label,
+            bool verbose = false)
+{
+    const int end = query_limit < 0
+                        ? static_cast<int>(queries.size())
+                        : std::min<int>(queries.size(), query_begin - 1 + query_limit);
+    for (int index = query_begin - 1; index < end; ++index)
+    {
+        const auto memory_before = gst::GetProcessMemoryUsage();
+        const auto result = gst::tools::distance_epoch::SolveOneQuery(
+            graph, queries[index], verbose, mode);
+        const auto memory_after = gst::GetProcessMemoryUsage();
+        std::cout << std::fixed << std::setprecision(6)
+                  << label << " query=" << index + 1
+                  << " feasible=" << result.feasible
+                  << " weight=" << result.best_weight
+                  << " total_ms=" << result.stats.total_ms
+                  << " group_distance_ms=" << result.stats.group_distance_ms
+                  << " upper_ms=" << result.stats.upper_bound_ms
+                  << " tsp_ms=" << result.stats.tsp_ms
+                  << " offline_ms=" << result.stats.dp_ms
+                  << " dual_ms=" << result.stats.dual_cut_ms
+                  << " global_ms=" << result.stats.global_ms
+                  << " global_used=" << result.stats.global_used
+                  << " global_start_best=" << result.stats.global_start_best
+                  << " switch_size=" << result.stats.budget_stop_size
+                  << " switch_masks_in_size=" << result.stats.budget_stop_masks_in_size
+                  << " row_work=" << result.stats.row_work
+                  << " buy_work=" << result.stats.dual_cut_build_work
+                  << " released_row_bytes=" << result.stats.released_row_bytes
+                  << " global_created=" << result.stats.global_created_labels
+                  << " global_settled=" << result.stats.global_settled_labels
+                  << " global_peak_open=" << result.stats.global_peak_open_labels
+                  << " anchor_group=" << result.stats.global_anchor_group
+                  << " anchor_distance=" << result.stats.global_anchor_distance
+                  << " goal_root_used=" << result.stats.goal_root_used
+                  << " goal_root_settled=" << result.stats.goal_root_settled
+                  << " goal_root_relax=" << result.stats.goal_root_edge_relaxations
+                  << " greedy_delayed=" << result.stats.greedy_upper_delayed
+                  << " greedy_activated=" << result.stats.greedy_upper_activated
+                  << " greedy_activation_size=" << result.stats.greedy_upper_activation_size
+                  << " greedy_activation_work=" << result.stats.greedy_upper_activation_work
+                  << " greedy_buy_work=" << result.stats.greedy_upper_build_work
+                  << " rss_before_mb=" << gst::BytesToMiB(memory_before.current_rss_bytes)
+                  << " rss_after_mb=" << gst::BytesToMiB(memory_after.current_rss_bytes)
+                  << " peak_rss_mb=" << gst::BytesToMiB(memory_after.peak_rss_bytes) << '\n';
+    }
+}
+
+void Paired(const gst::Graph& graph,
+            const std::vector<gst::Query>& queries,
+            int query_begin,
+            int query_limit,
+            gst::tools::distance_epoch::ProbeMode mode,
+            const char* label)
+{
+    const int end = query_limit < 0
+                        ? static_cast<int>(queries.size())
+                        : std::min<int>(queries.size(), query_begin - 1 + query_limit);
+    for (int index = query_begin - 1; index < end; ++index)
+    {
+        const auto release = gst::methods::release_v2::SolveOneQuery(graph, queries[index]);
+        const auto hybrid = gst::tools::distance_epoch::SolveOneQuery(
+            graph, queries[index], false, mode);
+        const bool equal = release.feasible == hybrid.feasible &&
+                           (!release.feasible ||
+                            std::fabs(release.best_weight - hybrid.best_weight) <= 1e-6);
+        std::cout << std::fixed << std::setprecision(6)
+                  << label << " query=" << index + 1
+                  << " equal=" << equal
+                  << " weight=" << hybrid.best_weight
+                  << " release_v2_ms=" << release.stats.total_ms
+                  << " hybrid_ms=" << hybrid.stats.total_ms
+                  << " ratio="
+                  << (release.stats.total_ms > 0.0
+                          ? hybrid.stats.total_ms / release.stats.total_ms
+                          : 0.0)
+                  << " global_used=" << hybrid.stats.global_used
+                  << " goal_root_used=" << hybrid.stats.goal_root_used
+                  << " global_settled=" << hybrid.stats.global_settled_labels
+                  << " global_peak_open=" << hybrid.stats.global_peak_open_labels << '\n';
+        if (!equal)
+            throw std::runtime_error("hybrid differs from ReleaseV2");
+    }
+}
 }  // namespace
 
 int main(int argc, char** argv)
@@ -240,11 +448,58 @@ int main(int argc, char** argv)
                 seed, iterations, min_group_count, max_group_count, max_vertex_count);
         }
         const bool distance_only = argc >= 2 && std::string(argv[1]) == "--distance";
-        const int offset = distance_only ? 1 : 0;
+        const bool budget_only = argc >= 2 && std::string(argv[1]) == "--budget";
+        const bool dynamic_dual = argc >= 2 && std::string(argv[1]) == "--dynamic-dual";
+        const bool dual_budget = argc >= 2 && std::string(argv[1]) == "--dual-budget";
+        const bool hybrid = argc >= 2 && std::string(argv[1]) == "--hybrid";
+        const bool delayed = argc >= 2 && std::string(argv[1]) == "--delayed-upper";
+        const bool delayed_verbose =
+            argc >= 2 && std::string(argv[1]) == "--delayed-upper-verbose";
+        const bool early_delayed = argc >= 2 && std::string(argv[1]) == "--early-delayed";
+        const bool early_delayed_verbose =
+            argc >= 2 && std::string(argv[1]) == "--early-delayed-verbose";
+        const bool paired = argc >= 2 && std::string(argv[1]) == "--paired";
+        const bool paired_delayed = argc >= 2 && std::string(argv[1]) == "--paired-delayed";
+        const int offset =
+            distance_only || budget_only || dynamic_dual || dual_budget || hybrid || delayed ||
+                    delayed_verbose ||
+                    early_delayed || early_delayed_verbose || paired || paired_delayed
+                ? 1
+                : 0;
         if (argc < 4 + offset || argc > 6 + offset)
         {
             std::cerr << "usage: " << argv[0]
                       << " <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --budget <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --dynamic-dual <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --dual-budget <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --hybrid <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --delayed-upper <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --delayed-upper-verbose <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --early-delayed <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --early-delayed-verbose <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --paired <data_root> <graph_selector> <query_selector>"
+                      << " [query_begin_1based=1] [query_limit=1]\n"
+                      << "   or: " << argv[0]
+                      << " --paired-delayed <data_root> <graph_selector> <query_selector>"
                       << " [query_begin_1based=1] [query_limit=1]\n"
                       << "   or: " << argv[0]
                       << " --self-check [seed=1] [iterations=1000]"
@@ -260,7 +515,45 @@ int main(int argc, char** argv)
         const int query_limit = argc >= 6 + offset ? std::stoi(argv[5 + offset]) : 1;
         if (query_begin < 1 || query_begin > static_cast<int>(queries.size()))
             throw std::runtime_error("query_begin out of range");
-        if (distance_only)
+        if (paired || paired_delayed)
+            Paired(graph,
+                   queries,
+                   query_begin,
+                   query_limit,
+                   paired_delayed
+                       ? gst::tools::distance_epoch::ProbeMode::DelayedUpperHybrid
+                       : gst::tools::distance_epoch::ProbeMode::Hybrid,
+                   paired_delayed ? "paired_delayed" : "paired");
+        else if (delayed || delayed_verbose)
+            Hybrid(graph,
+                   queries,
+                   query_begin,
+                   query_limit,
+                   gst::tools::distance_epoch::ProbeMode::DelayedUpperHybrid,
+                   "delayed_upper",
+                   delayed_verbose);
+        else if (early_delayed || early_delayed_verbose)
+            Hybrid(graph,
+                   queries,
+                   query_begin,
+                   query_limit,
+                   gst::tools::distance_epoch::ProbeMode::EarlyDelayedHybrid,
+                   "early_delayed",
+                   early_delayed_verbose);
+        else if (hybrid)
+            Hybrid(graph,
+                   queries,
+                   query_begin,
+                   query_limit,
+                   gst::tools::distance_epoch::ProbeMode::Hybrid,
+                   "hybrid");
+        else if (dual_budget)
+            DualBudget(graph, queries, query_begin, query_limit);
+        else if (dynamic_dual)
+            DynamicDual(graph, queries, query_begin, query_limit);
+        else if (budget_only)
+            BudgetOnly(graph, queries, query_begin, query_limit);
+        else if (distance_only)
             DistanceOnly(graph, queries, query_begin, query_limit);
         else
             DatasetProbe(graph, queries, query_begin, query_limit);

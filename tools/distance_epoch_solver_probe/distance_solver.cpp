@@ -2,15 +2,21 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <iostream>
+#include <memory>
 #include <queue>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 
+#if defined(_MSC_VER)
+#include <intrin.h>
+#endif
+
 #include "float_compare.h"
 #include "query_feasibility.h"
-#include "../dual_cut_probe/dual_cut_potential.h"
+#include "methods/Common/dual_cut_potential.h"
 
 namespace gst::tools::distance_epoch
 {
@@ -46,12 +52,135 @@ struct QueueGreater
     }
 };
 
+int FirstBit(int mask);
+
+struct GlobalHeapNode
+{
+    double key = 0.0;
+    int root = 0;
+    int mask = 0;
+
+    bool operator>(const GlobalHeapNode& other) const
+    {
+        if (key != other.key)
+            return key > other.key;
+        if (mask != other.mask)
+            return mask > other.mask;
+        return root > other.root;
+    }
+};
+
+struct GlobalLabel
+{
+    double cost = fp::kInf;
+    double lower = 0.0;
+    int mask = 0;
+    bool settled = false;
+};
+
+class GlobalLabelMap
+{
+public:
+    GlobalLabel* Find(int mask)
+    {
+        if (table_.empty())
+            return nullptr;
+        std::size_t slot = Hash(mask) & (table_.size() - 1);
+        while (table_[slot].mask)
+        {
+            if (table_[slot].mask == mask)
+                return &table_[slot];
+            slot = (slot + 1) & (table_.size() - 1);
+        }
+        return nullptr;
+    }
+
+    GlobalLabel* Insert(int mask)
+    {
+        if (table_.empty())
+            Rehash(8);
+        else if ((size_ + 1) * 2 > table_.size())
+            Rehash(table_.size() * 2);
+
+        std::size_t slot = Hash(mask) & (table_.size() - 1);
+        while (table_[slot].mask)
+            slot = (slot + 1) & (table_.size() - 1);
+        table_[slot].mask = mask;
+        ++size_;
+        return &table_[slot];
+    }
+
+private:
+    static std::uint32_t Hash(int mask)
+    {
+        std::uint32_t value = static_cast<std::uint32_t>(mask);
+        value ^= value >> 16;
+        value *= 0x7feb352dU;
+        value ^= value >> 15;
+        value *= 0x846ca68bU;
+        return value ^ (value >> 16);
+    }
+
+    void Rehash(std::size_t capacity)
+    {
+        std::vector<GlobalLabel> old = std::move(table_);
+        table_.assign(capacity, GlobalLabel{});
+        for (const GlobalLabel& label : old)
+        {
+            if (!label.mask)
+                continue;
+            std::size_t slot = Hash(label.mask) & (table_.size() - 1);
+            while (table_[slot].mask)
+                slot = (slot + 1) & (table_.size() - 1);
+            table_[slot] = label;
+        }
+    }
+
+    std::vector<GlobalLabel> table_;
+    std::size_t size_ = 0;
+};
+
+struct GlobalDisjointIndex
+{
+    std::vector<int> masks;
+    std::vector<double> costs;
+    std::vector<std::uint64_t> contains;
+
+    void Insert(int mask, double cost, int group_count)
+    {
+        const std::size_t id = masks.size();
+        const std::size_t word = id / 64;
+        const std::size_t required = (word + 1) * static_cast<std::size_t>(group_count);
+        if (contains.size() < required)
+            contains.resize(required);
+        masks.push_back(mask);
+        costs.push_back(cost);
+        const std::uint64_t id_bit = std::uint64_t{1} << (id % 64);
+        for (int bits = mask; bits; bits &= bits - 1)
+            contains[word * static_cast<std::size_t>(group_count) + FirstBit(bits)] |= id_bit;
+    }
+};
+
 int FirstBit(int mask)
 {
-    int bit = 0;
-    while (!((mask >> bit) & 1))
-        ++bit;
-    return bit;
+#if defined(_MSC_VER)
+    unsigned long index = 0;
+    _BitScanForward(&index, static_cast<unsigned long>(mask));
+    return static_cast<int>(index);
+#else
+    return __builtin_ctz(static_cast<unsigned int>(mask));
+#endif
+}
+
+int FirstBit64(std::uint64_t bits)
+{
+#if defined(_MSC_VER)
+    unsigned long index = 0;
+    _BitScanForward64(&index, bits);
+    return static_cast<int>(index);
+#else
+    return __builtin_ctzll(bits);
+#endif
 }
 
 long long BinarySearchCost(size_t size)
@@ -250,6 +379,223 @@ private:
     std::vector<std::vector<Endpoint>> endpoints_;
 };
 
+std::vector<double> GroupMstHalf(const std::vector<std::vector<double>>& metric,
+                                 const std::vector<int>& popcount)
+{
+    const int g = static_cast<int>(metric.size());
+    const int subset_count = 1 << g;
+    std::vector<double> result(subset_count);
+    for (int mask = 1; mask < subset_count; ++mask)
+    {
+        if (popcount[mask] <= 1)
+            continue;
+        std::vector<double> distance(g, fp::kInf);
+        std::vector<char> used(g);
+        distance[FirstBit(mask)] = 0.0;
+        double sum = 0.0;
+        for (int iteration = 0; iteration < popcount[mask]; ++iteration)
+        {
+            int next = -1;
+            for (int group = 0; group < g; ++group)
+                if ((mask & (1 << group)) && !used[group] &&
+                    (next < 0 || distance[group] < distance[next]))
+                    next = group;
+            used[next] = 1;
+            sum += distance[next];
+            for (int group = 0; group < g; ++group)
+                if ((mask & (1 << group)) && !used[group])
+                    distance[group] = std::min(distance[group], metric[next][group]);
+        }
+        result[mask] = sum * 0.5;
+    }
+    return result;
+}
+
+double ContinueAnchoredGlobal(const Graph& graph,
+                              const Query& query,
+                              const std::vector<std::vector<double>>& group_distance,
+                              const std::vector<std::vector<double>>& metric,
+                              const std::vector<int>& popcount,
+                              const std::vector<int>& color,
+                              const TourLowerBound& tour,
+                              const gst::methods::dual_cut::DualCutPotential& dual,
+                              int anchor_group,
+                              double best,
+                              ReleaseStats& stats)
+{
+    const auto begin = Clock::now();
+    const int g = static_cast<int>(query.groups.size());
+    const int full_mask = (1 << g) - 1;
+    const int anchor_bit = 1 << anchor_group;
+    const int label_full = full_mask ^ anchor_bit;
+    const std::vector<double> mst_half = GroupMstHalf(metric, popcount);
+    stats.global_used = true;
+    stats.global_start_best = best;
+
+    std::priority_queue<GlobalHeapNode,
+                        std::vector<GlobalHeapNode>,
+                        std::greater<GlobalHeapNode>> heap;
+    std::vector<GlobalLabelMap> labels_at_root(graph.n + 1);
+    std::vector<std::unique_ptr<GlobalDisjointIndex>> disjoint_at_root(graph.n + 1);
+    long long open_labels = 0;
+
+    auto StarExtension = [&](int root, int remaining)
+    {
+        double answer = 0.0;
+        for (int bits = remaining; bits; bits &= bits - 1)
+            answer += group_distance[FirstBit(bits)][root];
+        return answer;
+    };
+
+    auto CheapLower = [&](int root, int remaining, double& star_extension)
+    {
+        star_extension = 0.0;
+        if (!remaining)
+            return 0.0;
+        double farthest = 0.0;
+        double first = fp::kInf;
+        double second = fp::kInf;
+        for (int bits = remaining; bits; bits &= bits - 1)
+        {
+            const double distance = group_distance[FirstBit(bits)][root];
+            star_extension += distance;
+            farthest = std::max(farthest, distance);
+            if (distance < first)
+            {
+                second = first;
+                first = distance;
+            }
+            else if (distance < second)
+            {
+                second = distance;
+            }
+        }
+        if (popcount[remaining] == 1)
+            return farthest;
+        return std::max(farthest, mst_half[remaining] + (first + second) * 0.5);
+    };
+
+    auto Relax = [&](int root, int mask, double cost)
+    {
+        if (!mask || (mask & ~label_full))
+            return;
+        const int remaining = full_mask ^ mask;
+        double prehash_lower = mst_half[remaining];
+        if (remaining)
+            prehash_lower = std::max(
+                prehash_lower, group_distance[FirstBit(remaining)][root]);
+        if (cost + prehash_lower + fp::kEps >= best)
+            return;
+
+        GlobalLabelMap& labels = labels_at_root[root];
+        GlobalLabel* label = labels.Find(mask);
+        if (label && (label->settled || cost >= label->cost))
+            return;
+
+        double lower = label ? label->lower : 0.0;
+        if (!label)
+        {
+            double star_extension = 0.0;
+            const double cheap = CheapLower(root, remaining, star_extension);
+            best = std::min(best, cost + star_extension);
+            if (cost + cheap + fp::kEps >= best)
+                return;
+            lower = std::max(cheap, tour.At(root, remaining, group_distance));
+            lower = std::max(lower, dual.At(root, remaining));
+        }
+        if (cost + lower + fp::kEps >= best)
+            return;
+
+        if (!label)
+        {
+            label = labels.Insert(mask);
+            label->lower = lower;
+            ++open_labels;
+            ++stats.global_created_labels;
+            stats.global_peak_open_labels =
+                std::max(stats.global_peak_open_labels, open_labels);
+        }
+        label->cost = cost;
+        heap.push({cost + lower, root, mask});
+    };
+
+    for (int group = 0; group < g; ++group)
+        if (group != anchor_group)
+            for (int root : query.groups[group])
+                Relax(root, 1 << group, 0.0);
+
+    while (!heap.empty())
+    {
+        const GlobalHeapNode node = heap.top();
+        heap.pop();
+        if (node.key + fp::kEps >= best)
+            break;
+        GlobalLabel* label = labels_at_root[node.root].Find(node.mask);
+        if (!label || label->settled || node.key != label->cost + label->lower)
+            continue;
+
+        const double cost = label->cost;
+        label->settled = true;
+        --open_labels;
+        ++stats.global_settled_labels;
+        best = std::min(best, cost + StarExtension(node.root, full_mask ^ node.mask));
+        if (node.mask == label_full && (color[node.root] & anchor_bit))
+            best = std::min(best, cost);
+
+        if (!disjoint_at_root[node.root])
+            disjoint_at_root[node.root] = std::make_unique<GlobalDisjointIndex>();
+        GlobalDisjointIndex& index = *disjoint_at_root[node.root];
+        index.Insert(node.mask, cost, g);
+
+        for (const auto& edge : graph.adj[node.root])
+            Relax(edge.to, node.mask, cost + edge.w);
+
+        auto Merge = [&](int other_mask, double other_cost)
+        {
+            Relax(node.root, node.mask | other_mask, cost + other_cost);
+        };
+        const int available = label_full ^ node.mask;
+        const long long submask_work = (1LL << popcount[available]) - 1;
+        const std::size_t word_count = (index.masks.size() + 63) / 64;
+        const long long bitmap_work =
+            static_cast<long long>(word_count) * popcount[node.mask];
+        if (bitmap_work <= submask_work)
+        {
+            for (std::size_t word = 0; word < word_count; ++word)
+            {
+                std::uint64_t blocked = 0;
+                for (int bits = node.mask; bits; bits &= bits - 1)
+                    blocked |= index.contains[word * static_cast<std::size_t>(g) +
+                                              FirstBit(bits)];
+                std::uint64_t candidates = ~blocked;
+                if (word + 1 == word_count && index.masks.size() % 64)
+                    candidates &=
+                        (std::uint64_t{1} << (index.masks.size() % 64)) - 1;
+                while (candidates)
+                {
+                    const int offset = FirstBit64(candidates);
+                    const std::size_t id = word * 64 + static_cast<std::size_t>(offset);
+                    Merge(index.masks[id], index.costs[id]);
+                    candidates &= candidates - 1;
+                }
+            }
+        }
+        else
+        {
+            for (int other = available; other; other = (other - 1) & available)
+            {
+                GlobalLabel* candidate = labels_at_root[node.root].Find(other);
+                if (candidate && candidate->settled)
+                    Merge(other, candidate->cost);
+            }
+        }
+    }
+
+    stats.global_ms =
+        std::chrono::duration<double, std::milli>(Clock::now() - begin).count();
+    return best;
+}
+
 double RootStarUpper(const std::vector<std::vector<double>>& group_distance, int n, int& root)
 {
     double best = fp::kInf;
@@ -271,7 +617,8 @@ double GreedyUpper(const Graph& graph,
                    const std::vector<int>& color,
                    int full_mask,
                    int root,
-                   double limit)
+                   double limit,
+                   std::vector<int>* covering_vertices = nullptr)
 {
     using Item = std::pair<double, int>;
     using Heap = std::priority_queue<Item, std::vector<Item>, std::greater<Item>>;
@@ -283,6 +630,12 @@ double GreedyUpper(const Graph& graph,
     in_tree[root] = 1;
     int covered = color[root];
     double cost = 0.0;
+    if (covering_vertices)
+    {
+        covering_vertices->clear();
+        if (covered)
+            covering_vertices->push_back(root);
+    }
 
     while (covered != full_mask && cost < limit)
     {
@@ -325,16 +678,161 @@ double GreedyUpper(const Graph& graph,
             return fp::kInf;
         for (int v = found; v && !in_tree[v]; v = parent[v])
         {
+            const int newly_covered = color[v] & (full_mask ^ covered);
             in_tree[v] = 1;
             covered |= color[v];
+            if (covering_vertices && newly_covered)
+                covering_vertices->push_back(v);
         }
     }
     return cost;
 }
+
+double GoalRootStar(const Graph& graph, const Query& query, ReleaseStats& stats)
+{
+    using Item = std::pair<double, int>;
+    using Heap = std::priority_queue<Item, std::vector<Item>, std::greater<Item>>;
+    const int g = static_cast<int>(query.groups.size());
+    if (g == 1)
+        return 0.0;
+    const int full = (1 << g) - 1;
+    std::vector<std::vector<double>> distance(
+        g, std::vector<double>(graph.n + 1, fp::kInf));
+    std::vector<Heap> frontier(g);
+    for (int group = 0; group < g; ++group)
+        for (int vertex : query.groups[group])
+            if (distance[group][vertex] != 0.0)
+            {
+                distance[group][vertex] = 0.0;
+                frontier[group].push({0.0, vertex});
+            }
+
+    std::vector<int> settled_mask(graph.n + 1);
+    std::vector<double> settled_sum(graph.n + 1);
+    std::vector<int> mask_count(1 << g);
+    mask_count[0] = graph.n;
+    std::vector<Heap> base_by_mask(1 << g);
+    std::vector<int> terminal_mask(graph.n + 1);
+    for (int group = 0; group < g; ++group)
+        for (int vertex : query.groups[group])
+            terminal_mask[vertex] |= 1 << group;
+
+    double best = fp::kInf;
+    for (int vertex = 1; vertex <= graph.n; ++vertex)
+        if (terminal_mask[vertex] == full)
+            best = 0.0;
+
+    auto CleanFrontier = [&](int group)
+    {
+        while (!frontier[group].empty())
+        {
+            const auto [value, vertex] = frontier[group].top();
+            if (value == distance[group][vertex] &&
+                !(settled_mask[vertex] & (1 << group)))
+                break;
+            frontier[group].pop();
+        }
+    };
+    auto MinBase = [&](int mask)
+    {
+        if (!mask_count[mask])
+            return fp::kInf;
+        if (!mask)
+            return 0.0;
+        Heap& heap = base_by_mask[mask];
+        while (!heap.empty())
+        {
+            const auto [value, vertex] = heap.top();
+            if (settled_mask[vertex] == mask && value == settled_sum[vertex])
+                return value;
+            heap.pop();
+        }
+        return fp::kInf;
+    };
+
+    while (true)
+    {
+        std::vector<double> minimum(g, fp::kInf);
+        int next_group = -1;
+        for (int group = 0; group < g; ++group)
+        {
+            CleanFrontier(group);
+            if (frontier[group].empty())
+                continue;
+            minimum[group] = frontier[group].top().first;
+            if (next_group < 0 || minimum[group] < minimum[next_group])
+                next_group = group;
+        }
+        if (next_group < 0)
+            break;
+
+        if (best < fp::kInf / 4)
+        {
+            double global_lower = fp::kInf;
+            for (int mask = 0; mask <= full; ++mask)
+            {
+                double lower = MinBase(mask);
+                if (lower >= fp::kInf / 4)
+                    continue;
+                for (int group = 0; group < g; ++group)
+                    if (!(mask & (1 << group)))
+                        lower += minimum[group];
+                global_lower = std::min(global_lower, lower);
+            }
+            if (global_lower + fp::kEps >= best)
+                break;
+        }
+
+        const auto [value, vertex] = frontier[next_group].top();
+        frontier[next_group].pop();
+        if (value != distance[next_group][vertex] ||
+            (settled_mask[vertex] & (1 << next_group)))
+            continue;
+        const int old_mask = settled_mask[vertex];
+        --mask_count[old_mask];
+        settled_mask[vertex] |= 1 << next_group;
+        settled_sum[vertex] += value;
+        const int new_mask = settled_mask[vertex];
+        ++mask_count[new_mask];
+        base_by_mask[new_mask].push({settled_sum[vertex], vertex});
+        ++stats.goal_root_settled;
+        if (new_mask == full)
+            best = std::min(best, settled_sum[vertex]);
+
+        for (const auto& edge : graph.adj[vertex])
+        {
+            ++stats.goal_root_edge_relaxations;
+            const double next = value + edge.w;
+            if (next < distance[next_group][edge.to])
+            {
+                distance[next_group][edge.to] = next;
+                frontier[next_group].push({next, edge.to});
+            }
+        }
+    }
+    stats.goal_root_used = true;
+    return best;
+}
 }  // namespace
 
-SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
+SolveResult SolveOneQuery(const Graph& graph,
+                          const Query& query,
+                          bool verbose,
+                          ProbeMode mode)
 {
+    const bool stop_at_buy = mode == ProbeMode::StopAtDual;
+    const bool activate_dual_at_buy = mode == ProbeMode::DynamicDual ||
+                                      mode == ProbeMode::StopAtGlobal ||
+                                      mode == ProbeMode::Hybrid ||
+                                      mode == ProbeMode::DelayedUpperHybrid ||
+                                      mode == ProbeMode::EarlyDelayedHybrid;
+    const bool stop_after_dual_buy = mode == ProbeMode::StopAtGlobal;
+    const bool continue_global_after_dual_buy = mode == ProbeMode::Hybrid ||
+                                                mode == ProbeMode::DelayedUpperHybrid ||
+                                                mode == ProbeMode::EarlyDelayedHybrid;
+    const bool early_global_at_dual_buy = mode == ProbeMode::EarlyDelayedHybrid;
+    const bool delay_greedy_upper = mode == ProbeMode::DelayedUpperHybrid ||
+                                    mode == ProbeMode::EarlyDelayedHybrid;
     SolveResult result;
     ReleaseStats& stats = result.stats;
     stats.n = graph.n;
@@ -355,9 +853,41 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
     const auto total_start = Clock::now();
     const int n = graph.n;
     const int g = stats.g;
+    if ((mode == ProbeMode::Hybrid || mode == ProbeMode::DelayedUpperHybrid ||
+         mode == ProbeMode::EarlyDelayedHybrid) &&
+        g <= 3)
+    {
+        const double best = GoalRootStar(graph, query, stats);
+        stats.total_ms =
+            std::chrono::duration<double, std::milli>(Clock::now() - total_start).count();
+        result.best_weight = best;
+        result.feasible = best < fp::kInf / 4;
+        return result;
+    }
     const int subset_count = 1 << g;
     const int full_mask = subset_count - 1;
     const int half = g / 2;
+
+    long long masks_in_layer = g;
+    long long splits_in_mask = 0;
+    for (int size = 1; size <= half; ++size)
+    {
+        if (size >= 2)
+            stats.dense_join_work +=
+                static_cast<long long>(n) * masks_in_layer * splits_in_mask;
+        if (size < half)
+        {
+            masks_in_layer = masks_in_layer * (g - size) / (size + 1);
+            splits_in_mask = 2 * splits_in_mask + 1;
+        }
+    }
+    int heap_cost = 0;
+    for (long long span = 1; span < n; span *= 2)
+        ++heap_cost;
+    stats.dual_cut_build_work =
+        2LL * g * (static_cast<long long>(graph.m) +
+                   static_cast<long long>(n) * std::max(1, heap_cost));
+    stats.greedy_upper_build_work = stats.dual_cut_build_work / 2;
 
     const auto distance_start = Clock::now();
     std::vector<std::vector<double>> group_distance = GroupDistances(graph, query);
@@ -372,6 +902,7 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
     const auto upper_start = Clock::now();
     int root = 1;
     double best = RootStarUpper(group_distance, n, root);
+    std::vector<int> greedy_roots;
     if (g <= 3)
     {
         stats.upper_bound_ms =
@@ -382,7 +913,11 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
         result.feasible = true;
         return result;
     }
-    best = std::min(best, GreedyUpper(graph, color, full_mask, root, best));
+    bool greedy_upper_built = !delay_greedy_upper;
+    stats.greedy_upper_delayed = delay_greedy_upper;
+    if (greedy_upper_built)
+        best = std::min(best,
+                        GreedyUpper(graph, color, full_mask, root, best, &greedy_roots));
     stats.upper_bound_ms =
         std::chrono::duration<double, std::milli>(Clock::now() - upper_start).count();
 
@@ -397,40 +932,23 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
     lower_bound.Build(group_metric);
     stats.tsp_ms = std::chrono::duration<double, std::milli>(Clock::now() - tsp_start).count();
 
-    long long masks_in_layer = g;
-    long long splits_in_mask = 0;
-    for (int size = 1; size <= half; ++size)
-    {
-        if (size >= 2)
-        {
-            stats.dense_join_work +=
-                static_cast<long long>(n) * masks_in_layer * splits_in_mask;
-        }
-        if (size < half)
-        {
-            masks_in_layer = masks_in_layer * (g - size) / (size + 1);
-            splits_in_mask = 2 * splits_in_mask + 1;
-        }
-    }
-    int heap_cost = 0;
-    for (long long span = 1; span < n; span *= 2)
-        ++heap_cost;
-    stats.dual_cut_build_work =
-        2LL * g * (static_cast<long long>(graph.m) +
-                   static_cast<long long>(n) * std::max(1, heap_cost));
-    stats.dual_cut_enabled = stats.dense_join_work >= stats.dual_cut_build_work;
+    stats.dual_cut_enabled = !stop_at_buy && !activate_dual_at_buy &&
+                             stats.dense_join_work >= stats.dual_cut_build_work;
 
-    dual_cut::DualCutPotential dual_cut;
-    if (stats.dual_cut_enabled)
+    gst::methods::dual_cut::DualCutPotential dual_cut;
+    auto BuildDual = [&]()
     {
         const auto dual_cut_start = Clock::now();
         dual_cut.Build(graph, query, group_distance, root);
-        stats.dual_cut_ms =
+        stats.dual_cut_ms +=
             std::chrono::duration<double, std::milli>(Clock::now() - dual_cut_start).count();
         stats.dual_cut_objective = dual_cut.Objective();
         stats.dual_cut_primal_upper = dual_cut.PrimalUpper();
         best = std::min(best, stats.dual_cut_primal_upper);
-    }
+        stats.dual_cut_enabled = true;
+    };
+    if (stats.dual_cut_enabled)
+        BuildDual();
     auto FutureBound = [&](int vertex, int mask)
     {
         const double tsp = lower_bound.At(vertex, mask, group_distance);
@@ -680,6 +1198,60 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
         compacted_at_best = best;
     };
 
+    auto FinishWithGlobal = [&](int size, int masks_in_current_size)
+    {
+        int anchor_group = 0;
+        for (int group = 1; group < g; ++group)
+            if (group_distance[group][root] > group_distance[anchor_group][root])
+                anchor_group = group;
+        stats.global_anchor_group = anchor_group + 1;
+        stats.global_anchor_distance = group_distance[anchor_group][root];
+        stats.budget_stop_size = size;
+        stats.budget_stop_masks_in_size = masks_in_current_size;
+        stats.dp_ms =
+            std::chrono::duration<double, std::milli>(Clock::now() - dp_start).count();
+        stats.released_row_bytes = stats.distance_bytes;
+        if (verbose)
+        {
+            std::cerr << "[distance_epoch] switch_global size=" << size
+                      << " masks_in_size=" << masks_in_current_size
+                      << " row_work=" << stats.row_work
+                      << " best=" << best
+                      << " anchor_group=" << stats.global_anchor_group
+                      << " anchor_distance=" << stats.global_anchor_distance
+                      << " released_row_bytes=" << stats.released_row_bytes << std::endl;
+        }
+        std::vector<double>().swap(distance);
+        std::vector<double>().swap(heuristic);
+        std::vector<int>().swap(heuristic_stamp);
+        std::vector<int>().swap(predecessor_depth);
+        std::vector<int>().swap(touched);
+        std::vector<int>().swap(settled);
+        std::vector<std::pair<int, int>>().swap(complement_pairs);
+        std::vector<double>().swap(complement_row);
+        std::vector<Row>().swap(rows);
+        std::sort(greedy_roots.begin(), greedy_roots.end());
+        greedy_roots.erase(
+            std::unique(greedy_roots.begin(), greedy_roots.end()), greedy_roots.end());
+        for (int greedy_root : greedy_roots)
+            best = std::min(best, GreedyUpper(graph, color, full_mask, greedy_root, best));
+        best = ContinueAnchoredGlobal(graph,
+                                      query,
+                                      group_distance,
+                                      group_metric,
+                                      popcount,
+                                      color,
+                                      lower_bound,
+                                      dual_cut,
+                                      anchor_group,
+                                      best,
+                                      stats);
+        stats.total_ms =
+            std::chrono::duration<double, std::milli>(Clock::now() - total_start).count();
+        result.best_weight = best;
+        result.feasible = true;
+    };
+
     for (int mask : order)
     {
         const int size = popcount[mask];
@@ -716,6 +1288,9 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
                       << " row_bytes=" << stats.distance_bytes << std::endl;
         }
         const int remaining_mask = full_mask ^ mask;
+        long long mask_work = 0;
+        const long long pushes_before = stats.queue_pushes;
+        const long long pops_before = stats.queue_pops;
         ++stamp;
         touched.clear();
         settled.clear();
@@ -741,6 +1316,7 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
 
         if (size == 2)
         {
+            mask_work += n;
             const int a = FirstBit(mask);
             const int b = FirstBit(mask ^ (1 << a));
             for (int v = 1; v <= n; ++v)
@@ -753,6 +1329,7 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
                 const int right = mask ^ left;
                 if (!right || left > right || !Available(left) || !Available(right))
                     continue;
+                mask_work += PairBuildCost(left, right);
                 if (popcount[left] == 1 || popcount[right] == 1)
                 {
                     const int singleton = popcount[left] == 1 ? left : right;
@@ -971,6 +1548,7 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
 
             for (const auto& edge : graph.adj[current.vertex])
             {
+                ++mask_work;
                 const double next = current.distance + edge.w;
                 if (next >= distance[edge.to] || next + H(edge.to) > best)
                     continue;
@@ -1042,6 +1620,89 @@ SolveResult SolveOneQuery(const Graph& graph, const Query& query, bool verbose)
 
         for (int v : touched)
             distance[v] = fp::kInf;
+        mask_work += paid_rent;
+        if (cache_ready)
+            mask_work += build_cost;
+        mask_work += (stats.queue_pushes - pushes_before + stats.queue_pops - pops_before) *
+                     std::max(1, heap_cost);
+        stats.row_work += mask_work;
+        if (!greedy_upper_built && stats.row_work >= stats.greedy_upper_build_work)
+        {
+            const auto greedy_start = Clock::now();
+            const double old_best = best;
+            best = std::min(best,
+                            GreedyUpper(
+                                graph, color, full_mask, root, best, &greedy_roots));
+            stats.upper_bound_ms +=
+                std::chrono::duration<double, std::milli>(Clock::now() - greedy_start).count();
+            greedy_upper_built = true;
+            stats.greedy_upper_activated = true;
+            stats.greedy_upper_activation_work = stats.row_work;
+            stats.greedy_upper_activation_size = size;
+            if (verbose)
+            {
+                std::cerr << "[distance_epoch] buy_greedy size=" << size
+                          << " masks_in_size=" << masks_in_size
+                          << " row_work=" << stats.row_work
+                          << " buy_work=" << stats.greedy_upper_build_work
+                          << " best=" << best << std::endl;
+            }
+            if (best < old_best)
+                CompactRows();
+        }
+        if (activate_dual_at_buy && !stats.dual_cut_enabled &&
+            stats.row_work >= stats.dual_cut_build_work)
+        {
+            stats.dual_activation_size = size;
+            stats.dual_activation_masks_in_size = masks_in_size;
+            stats.dual_activation_work = stats.row_work;
+            BuildDual();
+            CompactRows();
+            if (verbose)
+            {
+                std::cerr << "[distance_epoch] buy_dual size=" << size
+                          << " masks_in_size=" << masks_in_size
+                          << " row_work=" << stats.row_work
+                          << " buy_work=" << stats.dual_cut_build_work
+                          << " best=" << best << std::endl;
+            }
+            if (early_global_at_dual_buy)
+            {
+                FinishWithGlobal(size, masks_in_size);
+                return result;
+            }
+        }
+        if (stop_after_dual_buy && stats.dual_activation_work > 0 &&
+            stats.row_work >= stats.dual_activation_work + stats.dual_cut_build_work)
+        {
+            stats.budget_exhausted = true;
+            stats.budget_stop_size = size;
+            stats.budget_stop_masks_in_size = masks_in_size;
+            stats.dp_ms =
+                std::chrono::duration<double, std::milli>(Clock::now() - dp_start).count();
+            stats.total_ms =
+                std::chrono::duration<double, std::milli>(Clock::now() - total_start).count();
+            result.best_weight = best;
+            return result;
+        }
+        if (continue_global_after_dual_buy && stats.dual_activation_work > 0 &&
+            stats.row_work >= stats.dual_activation_work + stats.dual_cut_build_work)
+        {
+            FinishWithGlobal(size, masks_in_size);
+            return result;
+        }
+        if (stop_at_buy && stats.row_work >= stats.dual_cut_build_work)
+        {
+            stats.budget_exhausted = true;
+            stats.budget_stop_size = size;
+            stats.budget_stop_masks_in_size = masks_in_size;
+            stats.dp_ms =
+                std::chrono::duration<double, std::milli>(Clock::now() - dp_start).count();
+            stats.total_ms =
+                std::chrono::duration<double, std::milli>(Clock::now() - total_start).count();
+            result.best_weight = best;
+            return result;
+        }
     }
 
     stats.dp_ms = std::chrono::duration<double, std::milli>(Clock::now() - dp_start).count();

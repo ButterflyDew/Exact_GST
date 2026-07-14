@@ -39,3 +39,6 @@
 65.600087 0.0513695423
 66.471387 0.0582137526
 67.006185 0.1109524835
+
+
+# Run started=2026-07-13 20:18:13 graph=Toronto method=PrunedDP data_root=data graph_folder=data\Toronto query_file=query_g12.txt run_subdir=query_g12 original_query_count=40 query_begin=1 query_limit=-1 query_count=40 result_dir=result\Toronto\PrunedDP\query_g12 rss_mb=12.332 peak_rss_mb=12.336

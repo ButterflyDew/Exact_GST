@@ -1,12 +1,15 @@
 # Dual-Anchored Global Labels Probe
 
-这是形成 ReleaseV2 的历史精确原型，不是当前发行入口。它保留 half/anchored/dual-anchored 模式和完整诊断，供复核原始实验；干净单路径实现位于 `methods/Release/release_v2.cpp`。
+这是形成 ReleaseV2 和 ReleaseV3 的历史 half/global 研究探针，不是当前发行入口。它保留多种研究模式；干净单路径实现位于 `methods/Release/release_v3.cpp`。
 
 完整算法、证明、复杂度、small/fast 边界与 DBLP g13 结果见：
 
 ```text
 readme_files/release_v2.md
 readme_files/release_v2_evidence.md
+readme_files/release_v3.md
+readme_files/history/half_global_hybrid.md
+readme_files/archive/half_global_probe_log_20260710.md
 ```
 
 ## Build
@@ -31,6 +34,16 @@ cmake --build build --config Release --target gst_global_half_probe
 
 当前结果分别为 `1000/1000` 和 `50/50`，`mismatches=0`。
 
+本轮新增模式只用于研究：
+
+```text
+--dual-half / --dual-half-offline    强下界下的 half labels 与离线三块
+--bare-half / --bare-anchored        无重预处理的 rental 工作量
+--metric-half / --metric-anchored    组度量 TSP/2 与缺块 threshold envelope
+```
+
+`--bare-half` 也启用 completion 下界取零时仍成立的 `base+k*lambda` 精确停止包络；它不构造组度量。对应 dataset 模式在名称后加 `-dataset`。这些模式的负结果不写入 ReleaseV3，也不按 `g` 或数据集自动启用。
+
 ## Dataset
 
 ```powershell
@@ -38,7 +51,7 @@ cmake --build build --config Release --target gst_global_half_probe
   --dual-anchored-dataset data_snapshot\generated_fast\DBLP_data_bfs g12 1 1
 ```
 
-最后一个参数是 1-based anchor group。anchor 只改变等价状态表示，不改变最优值；当前实验统一使用第一组，不按数据集、`g`、层级、状态密度或运行进度切换策略。
+最后一个参数是 1-based anchor group。该入口用于显式 anchor A/B；ReleaseV3 的生产规则是选择离 root-star 根最远的组，不试跑多个搜索。
 
 ## Bounded Full Run
 

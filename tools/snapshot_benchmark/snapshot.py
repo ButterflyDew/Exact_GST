@@ -30,10 +30,12 @@ def method_exe_name(method: str) -> str:
         "PrunedDP": "gst_pruned_dp_main",
         "ReleaseV1": "gst_release_v1_main",
         "ReleaseV2": "gst_release_v2_main",
+        "ReleaseV3": "gst_release_v3_main",
+        "ReleaseV4": "gst_release_v4_main",
     }
     if method in table:
         base = table[method]
-    elif method in {"Test16", "Test17", "Test18", "Test19"}:
+    elif method in {"Test16", "Test17", "Test18", "Test19", "Test21", "Test80"}:
         base = f"gst_{method.lower()}_main"
     else:
         raise SystemExit(f"Unknown method name: {method}")
@@ -47,10 +49,12 @@ def method_stats_name(method: str) -> str:
         "PrunedDP": "pruneddp_stats.txt",
         "ReleaseV1": "releasev1_stats.txt",
         "ReleaseV2": "releasev2_stats.txt",
+        "ReleaseV3": "releasev3_stats.txt",
+        "ReleaseV4": "releasev4_stats.txt",
     }
     if method in table:
         return table[method]
-    if method in {"Test16", "Test17", "Test18", "Test19"}:
+    if method in {"Test16", "Test17", "Test18", "Test19", "Test21", "Test80"}:
         return f"{method.lower()}_stats.txt"
     raise SystemExit(f"Unknown method name: {method}")
 

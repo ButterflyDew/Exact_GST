@@ -1,0 +1,6 @@
+# Run started=2026-07-13 13:31:28 graph=example method=ReleaseV3 data_root=data graph_folder=data\example query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=-1 query_count=1 result_dir=result\example\ReleaseV3\default rss_mb=3.320 peak_rss_mb=3.324
+0.000431 8.0000000000
+
+
+# Run started=2026-07-13 17:19:44 graph=example method=ReleaseV3 data_root=data graph_folder=data\example query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=result\example\ReleaseV3\default rss_mb=3.332 peak_rss_mb=3.336
+0.000187 8.0000000000

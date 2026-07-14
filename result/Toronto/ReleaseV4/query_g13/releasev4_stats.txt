@@ -1,0 +1,52 @@
+# Run started=2026-07-13 18:51:50 graph=Toronto method=ReleaseV4 data_root=data graph_folder=data\Toronto query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=1 query_count=1 result_dir=result\Toronto\ReleaseV4\query_g13 rss_mb=11.078 peak_rss_mb=11.082
+query=1 best=0.7048467020 wall_ms=7857.345 rss_before_mb=11.250 rss_after_mb=12.641 peak_rss_mb=58.000
+
+
+# Run started=2026-07-13 19:56:25 graph=Toronto method=ReleaseV4 data_root=data graph_folder=data\Toronto query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=-1 query_count=40 result_dir=result\Toronto\ReleaseV4\query_g13 rss_mb=12.617 peak_rss_mb=12.621
+query=1 best=0.7048467020 wall_ms=7751.625 rss_before_mb=12.793 rss_after_mb=14.148 peak_rss_mb=59.453
+query=2 best=0.7275272453 wall_ms=2593.473 rss_before_mb=14.172 rss_after_mb=14.094 peak_rss_mb=59.453
+query=3 best=0.7985684033 wall_ms=9259.187 rss_before_mb=14.098 rss_after_mb=13.996 peak_rss_mb=66.352
+query=4 best=0.6904989514 wall_ms=2187.470 rss_before_mb=14.000 rss_after_mb=14.281 peak_rss_mb=66.352
+query=5 best=0.9105249531 wall_ms=27176.969 rss_before_mb=14.285 rss_after_mb=14.559 peak_rss_mb=170.629
+query=6 best=0.6532861632 wall_ms=3768.716 rss_before_mb=14.562 rss_after_mb=14.320 peak_rss_mb=170.629
+query=7 best=0.6129860763 wall_ms=1889.777 rss_before_mb=14.320 rss_after_mb=14.742 peak_rss_mb=170.629
+query=8 best=0.8266893737 wall_ms=23248.106 rss_before_mb=14.742 rss_after_mb=14.625 peak_rss_mb=170.629
+query=9 best=0.8546377269 wall_ms=12854.193 rss_before_mb=14.625 rss_after_mb=14.590 peak_rss_mb=170.629
+query=10 best=0.5729610187 wall_ms=1149.366 rss_before_mb=14.590 rss_after_mb=14.395 peak_rss_mb=170.629
+query=11 best=0.5277709310 wall_ms=7886.606 rss_before_mb=14.395 rss_after_mb=13.957 peak_rss_mb=170.629
+query=12 best=0.5256240952 wall_ms=5148.790 rss_before_mb=13.957 rss_after_mb=14.254 peak_rss_mb=170.629
+query=13 best=0.3644963421 wall_ms=1109.592 rss_before_mb=14.254 rss_after_mb=36.285 peak_rss_mb=170.629
+query=14 best=0.5471491986 wall_ms=6835.748 rss_before_mb=36.285 rss_after_mb=14.379 peak_rss_mb=170.629
+query=15 best=0.4701625920 wall_ms=3562.169 rss_before_mb=14.379 rss_after_mb=41.715 peak_rss_mb=170.629
+query=16 best=0.5298834920 wall_ms=4760.475 rss_before_mb=41.715 rss_after_mb=46.086 peak_rss_mb=170.629
+query=17 best=0.5611649496 wall_ms=9129.820 rss_before_mb=46.086 rss_after_mb=15.652 peak_rss_mb=170.629
+query=18 best=0.4476168187 wall_ms=2476.079 rss_before_mb=15.652 rss_after_mb=14.746 peak_rss_mb=170.629
+query=19 best=0.4354577040 wall_ms=2261.331 rss_before_mb=14.746 rss_after_mb=39.656 peak_rss_mb=170.629
+query=20 best=0.5440762306 wall_ms=10936.502 rss_before_mb=39.656 rss_after_mb=14.172 peak_rss_mb=170.629
+query=21 best=0.1682619654 wall_ms=938.957 rss_before_mb=14.172 rss_after_mb=35.820 peak_rss_mb=170.629
+query=22 best=0.1055090306 wall_ms=903.023 rss_before_mb=35.820 rss_after_mb=35.688 peak_rss_mb=170.629
+query=23 best=0.1828479817 wall_ms=1055.349 rss_before_mb=35.688 rss_after_mb=36.102 peak_rss_mb=170.629
+query=24 best=0.2588784132 wall_ms=1632.506 rss_before_mb=36.102 rss_after_mb=38.012 peak_rss_mb=170.629
+query=25 best=0.1990243877 wall_ms=2056.782 rss_before_mb=38.012 rss_after_mb=38.312 peak_rss_mb=170.629
+query=26 best=0.1642283873 wall_ms=859.496 rss_before_mb=38.312 rss_after_mb=39.012 peak_rss_mb=170.629
+query=27 best=0.2079465925 wall_ms=1077.975 rss_before_mb=39.012 rss_after_mb=39.008 peak_rss_mb=170.629
+query=28 best=0.1233347623 wall_ms=925.291 rss_before_mb=39.008 rss_after_mb=39.008 peak_rss_mb=170.629
+query=29 best=0.1842728932 wall_ms=891.182 rss_before_mb=39.008 rss_after_mb=39.004 peak_rss_mb=170.629
+query=30 best=0.1369946881 wall_ms=948.748 rss_before_mb=39.004 rss_after_mb=39.004 peak_rss_mb=170.629
+query=31 best=0.0745269701 wall_ms=898.233 rss_before_mb=39.004 rss_after_mb=39.004 peak_rss_mb=170.629
+query=32 best=0.0530431822 wall_ms=908.545 rss_before_mb=39.004 rss_after_mb=39.090 peak_rss_mb=170.629
+query=33 best=0.0479022689 wall_ms=844.582 rss_before_mb=39.090 rss_after_mb=39.090 peak_rss_mb=170.629
+query=34 best=0.1005215444 wall_ms=1107.783 rss_before_mb=39.090 rss_after_mb=39.090 peak_rss_mb=170.629
+query=35 best=0.1119691098 wall_ms=1143.962 rss_before_mb=39.090 rss_after_mb=39.082 peak_rss_mb=170.629
+query=36 best=0.1015126463 wall_ms=1319.640 rss_before_mb=39.082 rss_after_mb=39.082 peak_rss_mb=170.629
+query=37 best=0.0689639235 wall_ms=1016.062 rss_before_mb=39.082 rss_after_mb=39.082 peak_rss_mb=170.629
+query=38 best=0.0530896860 wall_ms=944.006 rss_before_mb=39.082 rss_after_mb=39.082 peak_rss_mb=170.629
+query=39 best=0.0827554109 wall_ms=1073.146 rss_before_mb=39.082 rss_after_mb=39.082 peak_rss_mb=170.629
+query=40 best=0.0740348340 wall_ms=991.011 rss_before_mb=39.082 rss_after_mb=39.078 peak_rss_mb=170.629
+
+
+# Run started=2026-07-13 19:59:42 graph=Toronto method=ReleaseV4 data_root=data graph_folder=data\Toronto query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=-1 query_count=40 result_dir=result\Toronto\ReleaseV4\query_g13 rss_mb=12.621 peak_rss_mb=12.625
+query=1 best=0.7048467020 wall_ms=8058.170 rss_before_mb=12.797 rss_after_mb=14.168 peak_rss_mb=59.645
+query=2 best=0.7275272453 wall_ms=2680.394 rss_before_mb=14.191 rss_after_mb=14.297 peak_rss_mb=59.645
+query=3 best=0.7985684033 wall_ms=9734.339 rss_before_mb=14.297 rss_after_mb=13.711 peak_rss_mb=66.352
+query=4 best=0.6904989514 wall_ms=2245.565 rss_before_mb=13.711 rss_after_mb=14.121 peak_rss_mb=66.352

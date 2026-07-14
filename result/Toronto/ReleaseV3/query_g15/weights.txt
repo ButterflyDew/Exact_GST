@@ -1,0 +1,7 @@
+# Run started=2026-07-11 18:22:29 graph=Toronto method=ReleaseV3 data_root=data graph_folder=data\Toronto query_file=query_g15.txt run_subdir=query_g15 original_query_count=40 query_begin=1 query_limit=-1 query_count=40 result_dir=result\Toronto\ReleaseV3\query_g15 rss_mb=13.035 peak_rss_mb=13.039
+69.757184 1.0251354027
+148.687597 0.9501605116
+49.343485 0.9202026741
+75.833877 0.8758665137
+24.090070 0.8563348468
+5.871249 0.7256778755

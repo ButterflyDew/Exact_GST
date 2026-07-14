@@ -1,0 +1,6 @@
+# Run started=2026-07-13 13:31:28 graph=example method=ReleaseV3 data_root=data graph_folder=data\example query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=-1 query_count=1 result_dir=result\example\ReleaseV3\default rss_mb=3.320 peak_rss_mb=3.324
+query=1 best=8.0000000000 n=11 m=13 g=4 row_work=276 buy_work=456 row_bytes=132 switch_size=0 switch_masks=0 anchor_group=0 anchor_distance=0.0000000000 global_used=0 settled_labels=0 created_labels=0 peak_open_labels=0 group_dist_ms=0.037 tsp_ms=0.088 upper_ms=0.035 rows_ms=0.158 dual_ms=0.000 global_ms=0.000 total_ms=0.331 wall_ms=0.431 rss_before_mb=3.500 rss_after_mb=3.586 peak_rss_mb=3.590
+
+
+# Run started=2026-07-13 17:19:44 graph=example method=ReleaseV3 data_root=data graph_folder=data\example query_file=query.txt run_subdir=default original_query_count=1 query_begin=1 query_limit=1 query_count=1 result_dir=result\example\ReleaseV3\default rss_mb=3.332 peak_rss_mb=3.336
+query=1 best=8.0000000000 n=11 m=13 g=4 row_work=276 buy_work=456 row_bytes=132 switch_size=0 switch_masks=0 anchor_group=0 anchor_distance=0.0000000000 global_used=0 settled_labels=0 created_labels=0 peak_open_labels=0 group_dist_ms=0.031 tsp_ms=0.042 upper_ms=0.017 rows_ms=0.058 dual_ms=0.000 global_ms=0.000 total_ms=0.148 wall_ms=0.187 rss_before_mb=3.512 rss_after_mb=3.594 peak_rss_mb=3.598

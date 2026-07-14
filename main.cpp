@@ -15,10 +15,14 @@
 #include "methods/PrunedDP/pruned_dp_solver.h"
 #include "methods/Release/release_v1.h"
 #include "methods/Release/release_v2.h"
+#include "methods/Release/release_v3.h"
+#include "methods/Release/release_v4.h"
 #include "methods/Test/test16.h"
 #include "methods/Test/test17.h"
 #include "methods/Test/test18.h"
 #include "methods/Test/test19.h"
+#include "methods/Test/test21_anchor_half.h"
+#include "methods/Test/test80_anchor_progressive.h"
 #include "memory_usage.h"
 #include "output_manager.h"
 #include "output_naming.h"
@@ -417,12 +421,18 @@ int main(int argc, char** argv)
         const bool is_pruned = (method_name == "PrunedDP");
         const bool is_release_v1 = (method_name == "ReleaseV1");
         const bool is_release_v2 = (method_name == "ReleaseV2");
+        const bool is_release_v3 = (method_name == "ReleaseV3");
+        const bool is_release_v4 = (method_name == "ReleaseV4");
         const bool is_test16 = (method_name == "Test16");
         const bool is_test17 = (method_name == "Test17");
         const bool is_test18 = (method_name == "Test18");
         const bool is_test19 = (method_name == "Test19");
+        const bool is_test21 = (method_name == "Test21");
+        const bool is_test80 = (method_name == "Test80");
         if (!is_dpbf && !is_half && !is_pruned && !is_release_v1 && !is_release_v2 &&
-            !is_test16 && !is_test17 && !is_test18 && !is_test19)
+            !is_release_v3 && !is_release_v4 &&
+            !is_test16 && !is_test17 && !is_test18 && !is_test19 && !is_test21 &&
+            !is_test80)
         {
             throw std::runtime_error("Unknown GST method: " + method_name);
         }
@@ -439,10 +449,13 @@ int main(int argc, char** argv)
             gst::methods::pruned_dp::PrunedDpStats pruned_stats;
             gst::methods::release_v1::ReleaseStats release_stats;
             gst::methods::release_v2::ReleaseStats release_v2_stats;
+            gst::methods::release_v3::ReleaseStats release_v3_stats;
             gst::methods::test16::Test16Stats test16_stats;
             gst::methods::test17::Test17Stats test17_stats;
             gst::methods::test18::Test18Stats test18_stats;
             gst::methods::test19::Test19Stats test19_stats;
+            gst::methods::test21_anchor_half::Test21Stats test21_stats;
+            gst::methods::test80_anchor_progressive::Test80Stats test80_stats;
 
             if (is_dpbf)
             {
@@ -478,6 +491,20 @@ int main(int argc, char** argv)
                 best_weight = result.best_weight;
                 release_v2_stats = std::move(result.stats);
             }
+            else if (is_release_v3)
+            {
+                auto result = gst::methods::release_v3::SolveOneQuery(graph, queries[qi]);
+                feasible = result.feasible;
+                best_weight = result.best_weight;
+                release_v3_stats = std::move(result.stats);
+            }
+            else if (is_release_v4)
+            {
+                const auto result =
+                    gst::methods::release_v4::SolveOneQuery(graph, queries[qi]);
+                feasible = result.feasible;
+                best_weight = result.best_weight;
+            }
             else if (is_test16)
             {
                 auto result = gst::methods::test16::SolveOneQuery(graph, queries[qi]);
@@ -505,6 +532,22 @@ int main(int argc, char** argv)
                 feasible = result.feasible;
                 best_weight = result.best_weight;
                 test19_stats = std::move(result.stats);
+            }
+            else if (is_test21)
+            {
+                auto result = gst::methods::test21_anchor_half::SolveOneQuery(
+                    graph, queries[qi]);
+                feasible = result.feasible;
+                best_weight = result.best_weight;
+                test21_stats = std::move(result.stats);
+            }
+            else if (is_test80)
+            {
+                auto result = gst::methods::test80_anchor_progressive::SolveOneQuery(
+                    graph, queries[qi]);
+                feasible = result.feasible;
+                best_weight = result.best_weight;
+                test80_stats = std::move(result.stats);
             }
 
             const double sec = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
@@ -600,6 +643,251 @@ int main(int argc, char** argv)
                      << " dual_ms=" << FormatDouble(release_v2_stats.dual_ms, 3)
                      << " search_ms=" << FormatDouble(release_v2_stats.search_ms, 3)
                      << " total_ms=" << FormatDouble(release_v2_stats.total_ms, 3);
+                AppendRuntimeStats(line, sec, memory_before, memory_after);
+                output_manager.AppendResultLine(stats_filename, line.str());
+            }
+            else if (is_release_v3)
+            {
+                std::ostringstream line;
+                line << "query=" << query_id << " best=" << weight_str
+                     << " n=" << release_v3_stats.n
+                     << " m=" << release_v3_stats.m
+                     << " g=" << release_v3_stats.g
+                     << " row_work=" << release_v3_stats.row_work
+                     << " buy_work=" << release_v3_stats.dual_cut_build_work
+                     << " row_bytes=" << release_v3_stats.distance_bytes
+                     << " switch_size=" << release_v3_stats.global_switch_size
+                     << " switch_masks=" << release_v3_stats.global_switch_masks_in_size
+                     << " anchor_group=" << release_v3_stats.global_anchor_group
+                     << " anchor_distance="
+                     << FormatDouble(release_v3_stats.global_anchor_distance, 10)
+                     << " global_used=" << release_v3_stats.global_used
+                     << " settled_labels=" << release_v3_stats.global_settled_labels
+                     << " created_labels=" << release_v3_stats.global_created_labels
+                     << " peak_open_labels=" << release_v3_stats.global_peak_open_labels
+                     << " group_dist_ms="
+                     << FormatDouble(release_v3_stats.group_distance_ms, 3)
+                     << " tsp_ms=" << FormatDouble(release_v3_stats.tsp_ms, 3)
+                     << " upper_ms=" << FormatDouble(release_v3_stats.upper_bound_ms, 3)
+                     << " rows_ms=" << FormatDouble(release_v3_stats.dp_ms, 3)
+                     << " dual_ms=" << FormatDouble(release_v3_stats.dual_cut_ms, 3)
+                     << " global_ms=" << FormatDouble(release_v3_stats.global_ms, 3)
+                     << " total_ms=" << FormatDouble(release_v3_stats.total_ms, 3);
+                AppendRuntimeStats(line, sec, memory_before, memory_after);
+                output_manager.AppendResultLine(stats_filename, line.str());
+            }
+            else if (is_release_v4)
+            {
+                std::ostringstream line;
+                line << "query=" << query_id << " best=" << weight_str;
+                AppendRuntimeStats(line, sec, memory_before, memory_after);
+                output_manager.AppendResultLine(stats_filename, line.str());
+            }
+            else if (is_test80)
+            {
+                std::ostringstream line;
+                line << "query=" << query_id << " best=" << weight_str
+                     << " n=" << test80_stats.n
+                     << " m=" << test80_stats.m
+                     << " g=" << test80_stats.g
+                     << " root=" << test80_stats.root_star_root
+                     << " anchor_group=" << test80_stats.anchor_group
+                     << " min_group_size=" << test80_stats.min_group_size
+                     << " max_group_size=" << test80_stats.max_group_size
+                     << " anchor_group_size=" << test80_stats.anchor_group_size
+                     << " group_vertices=" << test80_stats.total_group_vertices
+                     << " group_dist_bytes=" << test80_stats.group_distance_bytes
+                     << " root_star_upper="
+                     << FormatDouble(test80_stats.root_star_upper, 10)
+                     << " dual_primal_upper="
+                     << FormatDouble(test80_stats.dual_primal_upper, 10)
+                     << " root_tour_lower="
+                     << FormatDouble(test80_stats.root_tour_lower, 10)
+                     << " root_dual_lower="
+                     << FormatDouble(test80_stats.root_dual_lower, 10)
+                     << " root_group_dist_min="
+                     << FormatDouble(test80_stats.root_group_distance_min, 10)
+                     << " root_group_dist_avg="
+                     << FormatDouble(test80_stats.root_group_distance_average, 10)
+                     << " root_group_dist_second_max="
+                     << FormatDouble(test80_stats.root_group_distance_second_max, 10)
+                     << " root_group_dist_max="
+                     << FormatDouble(test80_stats.root_group_distance_max, 10)
+                     << " junction_before="
+                     << FormatDouble(test80_stats.junction_before, 10)
+                     << " junction_upper="
+                     << FormatDouble(test80_stats.junction_upper, 10)
+                     << " junction_after="
+                     << FormatDouble(test80_stats.junction_after, 10)
+                     << " junction_path_vertices="
+                     << test80_stats.junction_path_vertices
+                     << " junction_candidates="
+                     << test80_stats.junction_candidate_roots
+                     << " junction_tree_vertices="
+                     << test80_stats.junction_tree_vertices
+                     << " junction_triple_scans="
+                     << test80_stats.junction_triple_scans
+                     << " junction_convolutions="
+                     << test80_stats.junction_convolutions
+                     << " junction_work=" << test80_stats.junction_work
+                     << " pair_work=" << test80_stats.pair_work
+                     << " packing_budget=" << test80_stats.packing_budget
+                     << " packing_trigger_pair_rows="
+                     << test80_stats.packing_trigger_pair_rows
+                     << " packing_trigger_pair_work="
+                     << test80_stats.packing_trigger_pair_work
+                     << " packing_trigger_pair_values="
+                     << test80_stats.packing_trigger_pair_values
+                     << " packing_rounds=" << test80_stats.packing_rounds
+                     << " packing_scale_min="
+                     << FormatDouble(test80_stats.packing_min_scale, 10)
+                     << " packing_scale_avg="
+                     << FormatDouble(test80_stats.packing_average_scale, 10)
+                     << " packing_scale_max="
+                     << FormatDouble(test80_stats.packing_max_scale, 10)
+                     << " ordinary_values=" << test80_stats.ordinary_values
+                     << " ordinary_branches="
+                     << test80_stats.ordinary_branch_values
+                     << " ordinary_pops=" << test80_stats.ordinary_queue_pops
+                     << " anchored_values=" << test80_stats.anchored_values
+                     << " anchored_pops=" << test80_stats.anchored_queue_pops
+                     << " anchored_touched=" << test80_stats.anchored_touched_values
+                     << " anchored_settled=" << test80_stats.anchored_settled_values
+                     << " anchored_peak_queue=" << test80_stats.anchored_peak_queue
+                     << " anchored_merge_probes=" << test80_stats.anchored_merge_probes
+                     << " d_join_direct_calls=" << test80_stats.ordinary_join_direct_calls
+                     << " d_join_direct_work=" << test80_stats.ordinary_join_direct_work
+                     << " d_join_binary_calls=" << test80_stats.ordinary_join_binary_calls
+                     << " d_join_binary_work=" << test80_stats.ordinary_join_binary_work
+                     << " d_join_linear_calls=" << test80_stats.ordinary_join_linear_calls
+                     << " d_join_linear_work=" << test80_stats.ordinary_join_linear_work
+                     << " a_join_direct_calls=" << test80_stats.anchored_join_direct_calls
+                     << " a_join_direct_work=" << test80_stats.anchored_join_direct_work
+                     << " a_join_binary_calls=" << test80_stats.anchored_join_binary_calls
+                     << " a_join_binary_work=" << test80_stats.anchored_join_binary_work
+                     << " a_join_linear_calls=" << test80_stats.anchored_join_linear_calls
+                     << " a_join_linear_work=" << test80_stats.anchored_join_linear_work
+                     << " completion_rows=" << test80_stats.completion_rows
+                     << " completion_vertices=" << test80_stats.completion_vertices
+                     << " completion_scan_vertices="
+                     << test80_stats.completion_scan_vertices
+                     << " completion_checks=" << test80_stats.completion_checks
+                     << " group_dist_ms="
+                     << FormatDouble(test80_stats.group_distance_ms, 3)
+                     << " dual_ms=" << FormatDouble(test80_stats.dual_ms, 3)
+                     << " junction_ms=" << FormatDouble(test80_stats.junction_ms, 3)
+                     << " packing_ms=" << FormatDouble(test80_stats.packing_ms, 3)
+                     << " ordinary_ms=" << FormatDouble(test80_stats.ordinary_ms, 3)
+                     << " anchored_ms=" << FormatDouble(test80_stats.anchored_ms, 3)
+                     << " completion_ms="
+                     << FormatDouble(test80_stats.completion_ms, 3)
+                     << " total_ms=" << FormatDouble(test80_stats.total_ms, 3);
+                for (int size = 1; size <= test80_stats.half; ++size)
+                    line << " d_masks_s" << size << '='
+                         << test80_stats.ordinary_masks_by_size[size]
+                         << " d_values_s" << size << '='
+                         << test80_stats.ordinary_values_by_size[size]
+                         << " d_branches_s" << size << '='
+                         << test80_stats.ordinary_branch_values_by_size[size]
+                         << " d_pops_s" << size << '='
+                         << test80_stats.ordinary_pops_by_size[size]
+                         << " d_dense_rows_s" << size << '='
+                         << test80_stats.ordinary_dense_rows_by_size[size]
+                         << " d_sparse_rows_s" << size << '='
+                         << test80_stats.ordinary_sparse_rows_by_size[size]
+                         << " d_row_bytes_s" << size << '='
+                         << test80_stats.ordinary_row_bytes_by_size[size]
+                         << " d_seed_candidates_s" << size << '='
+                         << test80_stats.ordinary_seed_candidates_by_size[size]
+                         << " d_seed_old_s" << size << '='
+                         << test80_stats.ordinary_seed_reject_old_by_size[size]
+                         << " d_seed_bound_s" << size << '='
+                         << test80_stats.ordinary_seed_reject_bound_by_size[size]
+                         << " d_seed_accept_s" << size << '='
+                         << test80_stats.ordinary_seed_accept_by_size[size]
+                         << " d_relax_s" << size << '='
+                         << test80_stats.ordinary_relax_attempts_by_size[size]
+                         << " d_relax_old_s" << size << '='
+                         << test80_stats.ordinary_relax_reject_old_by_size[size]
+                         << " d_relax_bound_s" << size << '='
+                         << test80_stats.ordinary_relax_reject_bound_by_size[size]
+                         << " d_relax_accept_s" << size << '='
+                         << test80_stats.ordinary_relax_accept_by_size[size]
+                         << " d_pop_stale_s" << size << '='
+                         << test80_stats.ordinary_pop_stale_by_size[size]
+                         << " d_pop_bound_s" << size << '='
+                         << test80_stats.ordinary_pop_bound_by_size[size]
+                         << " d_h_evals_s" << size << '='
+                         << test80_stats.ordinary_h_evals_by_size[size]
+                         << " d_h_far_s" << size << '='
+                         << test80_stats.ordinary_h_farthest_by_size[size]
+                         << " d_h_tour_s" << size << '='
+                         << test80_stats.ordinary_h_tour_by_size[size]
+                         << " d_h_dual_s" << size << '='
+                         << test80_stats.ordinary_h_dual_by_size[size]
+                         << " d_ms_s" << size << '='
+                         << FormatDouble(test80_stats.ordinary_ms_by_size[size], 3)
+                         << " best_after_d_s" << size << '='
+                         << FormatDouble(test80_stats.best_after_ordinary_size[size], 10);
+                for (int size = 0; size < test80_stats.half; ++size)
+                    line << " a_masks_s" << size << '='
+                         << test80_stats.anchored_masks_by_size[size]
+                         << " a_values_s" << size << '='
+                         << test80_stats.anchored_values_by_size[size]
+                         << " a_touched_s" << size << '='
+                         << test80_stats.anchored_touched_by_size[size]
+                         << " a_settled_s" << size << '='
+                         << test80_stats.anchored_settled_by_size[size]
+                         << " a_pops_s" << size << '='
+                         << test80_stats.anchored_pops_by_size[size]
+                         << " a_merge_probes_s" << size << '='
+                         << test80_stats.anchored_merge_probes_by_size[size]
+                         << " a_dense_rows_s" << size << '='
+                         << test80_stats.anchored_dense_rows_by_size[size]
+                         << " a_sparse_rows_s" << size << '='
+                         << test80_stats.anchored_sparse_rows_by_size[size]
+                         << " a_row_bytes_s" << size << '='
+                         << test80_stats.anchored_row_bytes_by_size[size]
+                         << " a_seed_candidates_s" << size << '='
+                         << test80_stats.anchored_seed_candidates_by_size[size]
+                         << " a_seed_old_s" << size << '='
+                         << test80_stats.anchored_seed_reject_old_by_size[size]
+                         << " a_seed_bound_s" << size << '='
+                         << test80_stats.anchored_seed_reject_bound_by_size[size]
+                         << " a_seed_accept_s" << size << '='
+                         << test80_stats.anchored_seed_accept_by_size[size]
+                         << " a_relax_s" << size << '='
+                         << test80_stats.anchored_relax_attempts_by_size[size]
+                         << " a_relax_old_s" << size << '='
+                         << test80_stats.anchored_relax_reject_old_by_size[size]
+                         << " a_relax_bound_s" << size << '='
+                         << test80_stats.anchored_relax_reject_bound_by_size[size]
+                         << " a_relax_accept_s" << size << '='
+                         << test80_stats.anchored_relax_accept_by_size[size]
+                         << " a_pop_stale_s" << size << '='
+                         << test80_stats.anchored_pop_stale_by_size[size]
+                         << " a_pop_bound_s" << size << '='
+                         << test80_stats.anchored_pop_bound_by_size[size]
+                         << " a_h_evals_s" << size << '='
+                         << test80_stats.anchored_h_evals_by_size[size]
+                         << " a_h_far_s" << size << '='
+                         << test80_stats.anchored_h_farthest_by_size[size]
+                         << " a_h_tour_s" << size << '='
+                         << test80_stats.anchored_h_tour_by_size[size]
+                         << " a_h_dual_s" << size << '='
+                         << test80_stats.anchored_h_dual_by_size[size]
+                         << " completion_rows_s" << size << '='
+                         << test80_stats.completion_rows_by_size[size]
+                         << " completion_scan_s" << size << '='
+                         << test80_stats.completion_scan_vertices_by_size[size]
+                         << " completion_checks_s" << size << '='
+                         << test80_stats.completion_checks_by_size[size]
+                         << " completion_ms_s" << size << '='
+                         << FormatDouble(test80_stats.completion_ms_by_size[size], 3)
+                         << " a_ms_s" << size << '='
+                         << FormatDouble(test80_stats.anchored_ms_by_size[size], 3)
+                         << " best_after_a_s" << size << '='
+                         << FormatDouble(test80_stats.best_after_anchored_size[size], 10);
                 AppendRuntimeStats(line, sec, memory_before, memory_after);
                 output_manager.AppendResultLine(stats_filename, line.str());
             }
@@ -716,6 +1004,84 @@ int main(int argc, char** argv)
             {
                 AppendTest18FamilyStats(output_manager, stats_filename, query_id, weight_str,
                                         test19_stats, sec, memory_before, memory_after);
+            }
+            else if (is_test21)
+            {
+                std::ostringstream line;
+                line << "query=" << query_id
+                     << " best=" << weight_str
+                     << " n=" << test21_stats.n
+                     << " m=" << test21_stats.m
+                     << " g=" << test21_stats.g
+                     << " anchor_group=" << test21_stats.anchor_group
+                     << " half=" << test21_stats.half
+                     << " original_half_masks=" << test21_stats.original_half_masks
+                     << " ordinary_masks=" << test21_stats.ordinary_masks
+                     << " anchored_masks=" << test21_stats.anchored_masks
+                      << " ordinary_values=" << test21_stats.ordinary_values
+                     << " ordinary_branch_values=" << test21_stats.ordinary_branch_values
+                     << " anchored_values=" << test21_stats.anchored_values
+                     << " ordinary_pops=" << test21_stats.ordinary_queue_pops
+                     << " anchored_pops=" << test21_stats.anchored_queue_pops
+                     << " anchored_touched=" << test21_stats.anchored_touched_values
+                     << " anchored_settled=" << test21_stats.anchored_settled_values
+                     << " anchored_peak_queue=" << test21_stats.anchored_peak_queue
+                     << " anchored_merge_probes=" << test21_stats.anchored_merge_probes
+                     << " completion_rows=" << test21_stats.completion_rows
+                     << " completion_vertices=" << test21_stats.completion_vertices
+                     << " completion_checks=" << test21_stats.completion_checks
+                     << " completion_scan_vertices="
+                     << test21_stats.completion_scan_vertices
+                     << " early_upper_partitions=" << test21_stats.early_upper_partitions
+                     << " early_upper_probes=" << test21_stats.early_upper_probes
+                     << " early_witness_values=" << test21_stats.early_witness_values
+                     << " early_witness_pops=" << test21_stats.early_witness_pops
+                     << " quarter_upper_halves=" << test21_stats.quarter_upper_halves
+                     << " quarter_upper_pair_probes="
+                     << test21_stats.quarter_upper_pair_probes
+                     << " quarter_upper_join_probes="
+                     << test21_stats.quarter_upper_join_probes
+                     << " quarter_witness_values="
+                     << test21_stats.quarter_witness_values
+                     << " quarter_witness_pops=" << test21_stats.quarter_witness_pops
+                     << " group_dist_ms=" << FormatDouble(test21_stats.group_distance_ms, 3)
+                     << " ordinary_ms=" << FormatDouble(test21_stats.ordinary_ms, 3)
+                     << " dual_ms=" << FormatDouble(test21_stats.dual_ms, 3)
+                     << " anchored_ms=" << FormatDouble(test21_stats.anchored_ms, 3)
+                     << " completion_ms=" << FormatDouble(test21_stats.completion_ms, 3)
+                     << " early_upper_before="
+                     << FormatDouble(test21_stats.early_upper_before, 10)
+                     << " early_upper_after="
+                     << FormatDouble(test21_stats.early_upper_after, 10)
+                     << " early_witness_before="
+                     << FormatDouble(test21_stats.early_witness_before, 10)
+                     << " early_witness_after="
+                     << FormatDouble(test21_stats.early_witness_after, 10)
+                     << " early_upper_ms=" << FormatDouble(test21_stats.early_upper_ms, 3)
+                     << " quarter_upper_before="
+                     << FormatDouble(test21_stats.quarter_upper_before, 10)
+                     << " quarter_upper_after="
+                     << FormatDouble(test21_stats.quarter_upper_after, 10)
+                     << " quarter_upper_ms="
+                     << FormatDouble(test21_stats.quarter_upper_ms, 3)
+                     << " quarter_witness_before="
+                     << FormatDouble(test21_stats.quarter_witness_before, 10)
+                     << " quarter_witness_after="
+                     << FormatDouble(test21_stats.quarter_witness_after, 10)
+                     << " total_ms=" << FormatDouble(test21_stats.total_ms, 3);
+                for (int size = 1; size <= test21_stats.half; ++size)
+                    line << " d_values_s" << size << '='
+                         << test21_stats.ordinary_values_by_size[size]
+                         << " d_branches_s" << size << '='
+                         << test21_stats.ordinary_branch_values_by_size[size]
+                         << " d_seeds_s" << size << '='
+                         << test21_stats.ordinary_seeds_by_size[size]
+                         << " d_pops_s" << size << '='
+                         << test21_stats.ordinary_pops_by_size[size]
+                         << " d_ms_s" << size << '='
+                         << FormatDouble(test21_stats.ordinary_ms_by_size[size], 3);
+                AppendRuntimeStats(line, sec, memory_before, memory_after);
+                output_manager.AppendResultLine(stats_filename, line.str());
             }
             else
             {

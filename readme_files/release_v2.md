@@ -1,6 +1,6 @@
 # ReleaseV2：Dual-Anchored Global Labels
 
-更新时间：2026-07-10。ReleaseV2 是当前面向大组数 GST 的可审查发行实现。它从已经跑通 full DBLP g13 q1 的独立原型重写而来，只有一条执行路径，不包装 Test19，也不依赖 `tools/` 中的探针代码。
+更新时间：2026-07-13。ReleaseV2 是历史 fixed-anchor 大组数发行实现。它从已经跑通 full DBLP g13 q1 的独立原型重写而来，只有一条执行路径，不包装 Test19，也不依赖 `tools/` 中的探针代码。当前纯 A 发行版见 `release_v4.md`。
 
 ```text
 methods/Release/release_v2.h      唯一公开接口与精简统计

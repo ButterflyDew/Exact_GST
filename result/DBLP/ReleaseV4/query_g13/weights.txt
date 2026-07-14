@@ -1,0 +1,2 @@
+# Run started=2026-07-13 18:55:38 graph=DBLP method=ReleaseV4 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=1 query_count=1 result_dir=result\DBLP\ReleaseV4\query_g13 rss_mb=868.160 peak_rss_mb=868.164
+544.378636 12.5936282853

@@ -1,0 +1,78 @@
+# Run started=2026-07-13 17:04:41 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.793 peak_rss_mb=868.797
+666.509237 12.5936282853
+
+
+# Run started=2026-07-13 23:36:20 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=2 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.605 peak_rss_mb=868.609
+1762.928491 14.5265254554
+
+
+# Run started=2026-07-14 00:06:13 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=11 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=867.727 peak_rss_mb=867.730
+1912.304318 13.2687246006
+
+
+# Run started=2026-07-14 00:38:35 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=21 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=867.883 peak_rss_mb=867.887
+3245.078029 10.2860596785
+
+
+# Run started=2026-07-14 01:33:12 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=31 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=867.773 peak_rss_mb=867.777
+2724.973670 7.2079425432
+
+
+# Run started=2026-07-14 02:19:08 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=3 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=867.879 peak_rss_mb=867.883
+580.521068 14.7796496905
+
+
+# Run started=2026-07-14 02:29:19 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=12 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.602 peak_rss_mb=868.605
+1604.412896 10.9621883681
+
+
+# Run started=2026-07-14 02:56:32 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=22 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.504 peak_rss_mb=868.508
+2970.745935 9.7821994140
+
+
+# Run started=2026-07-14 03:46:31 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=32 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=867.730 peak_rss_mb=867.734
+695.379955 6.3393307977
+
+
+# Run started=2026-07-14 03:58:35 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=4 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.559 peak_rss_mb=868.562
+959.489057 13.7162285243
+
+
+# Run started=2026-07-14 04:15:03 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=13 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.152 peak_rss_mb=868.156
+1939.544138 11.2660936568
+
+
+# Run started=2026-07-14 04:47:54 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=23 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.363 peak_rss_mb=868.367
+2225.988892 11.0560174734
+
+
+# Run started=2026-07-14 05:25:29 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=33 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.566 peak_rss_mb=868.570
+2917.923269 9.1419680480
+
+
+# Run started=2026-07-14 06:14:38 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=5 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=867.484 peak_rss_mb=867.488
+276.116610 14.5867185184
+
+
+# Run started=2026-07-14 06:19:44 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=14 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.312 peak_rss_mb=868.316
+2448.019363 12.3600596290
+
+
+# Run started=2026-07-14 07:01:01 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=24 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.559 peak_rss_mb=868.562
+3882.885013 9.2066654766
+
+
+# Run started=2026-07-14 08:06:12 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=34 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.297 peak_rss_mb=868.301
+1601.955813 7.8907913118
+
+
+# Run started=2026-07-14 08:33:24 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=6 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.691 peak_rss_mb=868.695
+588.336324 13.9342828835
+
+
+# Run started=2026-07-14 08:43:41 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=15 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=868.121 peak_rss_mb=868.125
+2042.815553 12.2607022927
+
+
+# Run started=2026-07-14 09:18:13 graph=DBLP method=Test80 data_root=data graph_folder=data\DBLP query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=25 query_limit=1 query_count=1 result_dir=result\DBLP\Test80\query_g13 rss_mb=867.785 peak_rss_mb=867.789
+7619.938119 12.0889822532

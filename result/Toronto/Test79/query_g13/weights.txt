@@ -1,0 +1,6 @@
+# Run started=2026-07-13 16:01:47 graph=Toronto method=Test79 data_root=data graph_folder=data\Toronto query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=1 query_count=1 result_dir=result\Toronto\Test79\query_g13 rss_mb=11.043 peak_rss_mb=11.047
+3.824216 0.7048467020
+
+
+# Run started=2026-07-13 16:17:16 graph=Toronto method=Test79 data_root=data graph_folder=data\Toronto query_file=query_g13.txt run_subdir=query_g13 original_query_count=40 query_begin=1 query_limit=1 query_count=1 result_dir=result\Toronto\Test79\query_g13 rss_mb=11.062 peak_rss_mb=11.066
+3.385704 0.7048467020

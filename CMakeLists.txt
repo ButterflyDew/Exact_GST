@@ -42,11 +42,16 @@ set(GST_COMMON_SOURCES
     methods/PrunedDP/pruned_dp_solver.cpp
     methods/Release/release_v1.cpp
     methods/Release/release_v2.cpp
+    methods/Release/release_v3.cpp
+    methods/Release/release_v4.cpp
+    methods/Common/anchor_junction_upper.cpp
     methods/Test/test16.cpp
     methods/Test/test17.cpp
     methods/Test/test18.cpp
     methods/Test/test19.cpp
     methods/Test/test19_future_bounds.cpp
+    methods/Test/test21_anchor_half.cpp
+    methods/Test/test80_anchor_progressive.cpp
 )
 
 add_executable(gst_dpbf_main ${GST_COMMON_SOURCES})
@@ -64,6 +69,12 @@ target_compile_definitions(gst_release_v1_main PRIVATE GST_DEFAULT_METHOD="Relea
 add_executable(gst_release_v2_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_release_v2_main PRIVATE GST_DEFAULT_METHOD="ReleaseV2")
 
+add_executable(gst_release_v3_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_release_v3_main PRIVATE GST_DEFAULT_METHOD="ReleaseV3")
+
+add_executable(gst_release_v4_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_release_v4_main PRIVATE GST_DEFAULT_METHOD="ReleaseV4")
+
 add_executable(gst_test16_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_test16_main PRIVATE GST_DEFAULT_METHOD="Test16")
 
@@ -76,6 +87,12 @@ target_compile_definitions(gst_test18_main PRIVATE GST_DEFAULT_METHOD="Test18")
 add_executable(gst_test19_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_test19_main PRIVATE GST_DEFAULT_METHOD="Test19")
 
+add_executable(gst_test21_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test21_main PRIVATE GST_DEFAULT_METHOD="Test21")
+
+add_executable(gst_test80_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_main PRIVATE GST_DEFAULT_METHOD="Test80")
+
 if(WIN32)
     foreach(target_name
             gst_dpbf_main
@@ -83,10 +100,14 @@ if(WIN32)
             gst_pruned_dp_main
             gst_release_v1_main
             gst_release_v2_main
+            gst_release_v3_main
+            gst_release_v4_main
             gst_test16_main
             gst_test17_main
             gst_test18_main
-            gst_test19_main)
+            gst_test19_main
+            gst_test21_main
+            gst_test80_main)
         target_link_libraries(${target_name} PRIVATE psapi)
     endforeach()
 endif()
@@ -102,3 +123,8 @@ add_subdirectory(tools/pair_forest_probe)
 add_subdirectory(tools/tsp_witness_solver_probe)
 add_subdirectory(tools/distance_epoch_solver_probe)
 add_subdirectory(tools/dual_cut_probe)
+add_subdirectory(tools/goal_root_star_probe)
+add_subdirectory(tools/paid_half_state_probe)
+add_subdirectory(tools/paid_pair_profile_probe)
+add_subdirectory(tools/paid_block_completion_probe)
+add_subdirectory(tools/paid_core_growth_probe)

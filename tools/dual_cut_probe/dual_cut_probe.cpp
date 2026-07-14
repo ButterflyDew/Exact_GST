@@ -15,14 +15,14 @@
 #include "float_compare.h"
 #include "graph_io.h"
 #include "methods/Test/test19_future_bounds.h"
+#include "methods/Common/dual_cut_potential.h"
 #include "query_io.h"
-#include "dual_cut_potential.h"
 
 namespace
 {
 using Clock = std::chrono::steady_clock;
 using HeapItem = std::pair<double, int>;
-using gst::tools::dual_cut::DualCutPotential;
+using gst::methods::dual_cut::DualCutPotential;
 
 int FirstBit(int mask)
 {
@@ -270,6 +270,7 @@ int SelfCheck(std::uint64_t seed, int iterations, int max_g, int max_n)
     long long admissibility_checks = 0;
     long long consistency_checks = 0;
     long long splice_checks = 0;
+    long long objective_checks = 0;
     for (int iteration = 1; iteration <= iterations; ++iteration)
     {
         auto [graph, query] = RandomInstance(random, max_g, max_n);
@@ -280,7 +281,7 @@ int SelfCheck(std::uint64_t seed, int iterations, int max_g, int max_n)
         dual.Build(graph, query, group_distance, root);
         int anchor_group = 0;
         for (int group = 1; group < static_cast<int>(query.groups.size()); ++group)
-            if (query.groups[group].size() < query.groups[anchor_group].size())
+            if (group_distance[group][root] > group_distance[anchor_group][root])
                 anchor_group = group;
         DualCutPotential anchor_dual;
         anchor_dual.BuildFromGroup(graph, query, group_distance, anchor_group);
@@ -288,6 +289,20 @@ int SelfCheck(std::uint64_t seed, int iterations, int max_g, int max_n)
         dynamic_dual.BuildDynamic(graph, query, group_distance, root);
         const auto exact = ExactRootedDp(graph, group_distance);
         const int subset_count = 1 << query.groups.size();
+        const int full_mask = subset_count - 1;
+        double exact_unrooted = gst::fp::kInf;
+        for (int v = 1; v <= graph.n; ++v)
+            exact_unrooted = std::min(exact_unrooted, exact[full_mask][v]);
+        ++objective_checks;
+        if (anchor_dual.Objective() > exact_unrooted + 1e-8)
+        {
+            std::cout << std::setprecision(17)
+                      << "OBJECTIVE_FAIL seed=" << seed
+                      << " iteration=" << iteration
+                      << " objective=" << anchor_dual.Objective()
+                      << " exact=" << exact_unrooted << '\n';
+            return 1;
+        }
         for (int mask = 1; mask < subset_count; ++mask)
         {
             for (int v = 1; v <= graph.n; ++v)
@@ -392,6 +407,7 @@ int SelfCheck(std::uint64_t seed, int iterations, int max_g, int max_n)
     }
     std::cout << "ALL_OK seed=" << seed
               << " iterations=" << iterations
+              << " objective_checks=" << objective_checks
               << " admissibility_checks=" << admissibility_checks
               << " consistency_checks=" << consistency_checks
               << " splice_checks=" << splice_checks << '\n';
@@ -478,7 +494,8 @@ void DatasetProbe(const gst::Graph& graph,
                   int query_index,
                   bool run_current,
                   bool use_anchor,
-                  bool use_dynamic)
+                  bool use_dynamic,
+                  bool objective_only)
 {
     const auto distance_begin = Clock::now();
     const auto group_distance = GroupDistances(graph, query);
@@ -505,6 +522,23 @@ void DatasetProbe(const gst::Graph& graph,
     dual.Build(graph, query, group_distance, root);
     const double dual_ms =
         std::chrono::duration<double, std::milli>(Clock::now() - dual_begin).count();
+
+    if (objective_only)
+    {
+        std::cout << std::fixed << std::setprecision(10)
+                  << "dual_objective query=" << query_index
+                  << " n=" << graph.n
+                  << " m=" << graph.m
+                  << " g=" << g
+                  << " root=" << root
+                  << " best=" << best
+                  << " dual_full_root=" << dual.Objective()
+                  << " dual_primal_upper=" << dual.PrimalUpper()
+                  << " group_distance_ms=" << group_distance_ms
+                  << " tsp_ms=" << tsp_ms
+                  << " dual_ms=" << dual_ms << '\n';
+        return;
+    }
 
     int anchor_group = 0;
     for (int group = 1; group < g; ++group)
@@ -618,7 +652,9 @@ int main(int argc, char** argv)
         const bool hybrid_only = argc >= 2 && std::string(argv[1]) == "--hybrid-only";
         const bool use_anchor = argc >= 2 && std::string(argv[1]) == "--anchor";
         const bool use_dynamic = argc >= 2 && std::string(argv[1]) == "--dynamic";
-        const int offset = hybrid_only || use_anchor || use_dynamic ? 1 : 0;
+        const bool objective_only =
+            argc >= 2 && std::string(argv[1]) == "--objective-only";
+        const int offset = hybrid_only || use_anchor || use_dynamic || objective_only ? 1 : 0;
         if (argc < 4 + offset || argc > 5 + offset)
         {
             std::cerr << "usage: " << argv[0]
@@ -632,6 +668,9 @@ int main(int argc, char** argv)
                       << " [query_index_1based=1]\n"
                       << "   or: " << argv[0]
                       << " --dynamic <data_root> <graph_selector> <query_selector>"
+                      << " [query_index_1based=1]\n"
+                      << "   or: " << argv[0]
+                      << " --objective-only <data_root> <graph_selector> <query_selector>"
                       << " [query_index_1based=1]\n"
                       << "   or: " << argv[0]
                       << " --self-check [seed=1] [iterations=100] [max_g=7] [max_n=10]\n";
@@ -650,7 +689,8 @@ int main(int argc, char** argv)
             query_index,
             !hybrid_only,
             use_anchor,
-            use_dynamic);
+            use_dynamic,
+            objective_only);
         return 0;
     }
     catch (const std::exception& error)

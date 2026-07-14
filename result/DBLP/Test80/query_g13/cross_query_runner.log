@@ -1,0 +1,117 @@
+﻿run_start=2026-07-13 23:35:48 deadline=2026-07-14 11:20:00 exe=D:\Dew\26-SPRING\GST_Framework\build\Release\gst_test80_main.exe
+query_start=2026-07-13 23:35:48 query=2
+[Query 2] time=1762.928491 sec, weight=14.5265254554, rss=878.812 MiB, peak=3863.949 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 00:05:44 query=2 elapsed_s=1795.622 exit=0
+query_start=2026-07-14 00:05:44 query=11
+[Query 11] time=1912.304318 sec, weight=13.2687246006, rss=878.715 MiB, peak=4537.336 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 00:38:05 query=11 elapsed_s=1941.574 exit=0
+query_start=2026-07-14 00:38:05 query=21
+[Query 21] time=3245.078029 sec, weight=10.2860596785, rss=880.309 MiB, peak=10654.984 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 01:32:41 query=21 elapsed_s=3275.194 exit=0
+query_start=2026-07-14 01:32:41 query=31
+[Query 31] time=2724.973670 sec, weight=7.2079425432, rss=879.473 MiB, peak=8317.957 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 02:18:38 query=31 elapsed_s=2757.272 exit=0
+query_start=2026-07-14 02:18:38 query=3
+[Query 3] time=580.521068 sec, weight=14.7796496905, rss=874.543 MiB, peak=2133.965 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 02:28:49 query=3 elapsed_s=611.317 exit=0
+query_start=2026-07-14 02:28:49 query=12
+[Query 12] time=1604.412896 sec, weight=10.9621883681, rss=878.336 MiB, peak=3775.668 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 02:56:04 query=12 elapsed_s=1634.281 exit=0
+query_start=2026-07-14 02:56:04 query=22
+[Query 22] time=2970.745935 sec, weight=9.7821994140, rss=883.422 MiB, peak=9201.395 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 03:46:04 query=22 elapsed_s=2999.975 exit=0
+query_start=2026-07-14 03:46:04 query=32
+[Query 32] time=695.379955 sec, weight=6.3393307977, rss=883.441 MiB, peak=2230.262 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 03:58:07 query=32 elapsed_s=723.272 exit=0
+query_start=2026-07-14 03:58:07 query=4
+[Query 4] time=959.489057 sec, weight=13.7162285243, rss=883.449 MiB, peak=2226.195 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 04:14:35 query=4 elapsed_s=987.688 exit=0
+query_start=2026-07-14 04:14:35 query=13
+[Query 13] time=1939.544138 sec, weight=11.2660936568, rss=878.535 MiB, peak=4884.324 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 04:47:23 query=13 elapsed_s=1968.488 exit=0
+query_start=2026-07-14 04:47:23 query=23
+[Query 23] time=2225.988892 sec, weight=11.0560174734, rss=880.191 MiB, peak=6173.648 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 05:25:00 query=23 elapsed_s=2257.229 exit=0
+query_start=2026-07-14 05:25:00 query=33
+[Query 33] time=2917.923269 sec, weight=9.1419680480, rss=879.816 MiB, peak=8524.770 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 06:14:08 query=33 elapsed_s=2947.353 exit=0
+query_start=2026-07-14 06:14:08 query=5
+[Query 5] time=276.116610 sec, weight=14.5867185184, rss=886.824 MiB, peak=2129.398 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 06:19:14 query=5 elapsed_s=306.677 exit=0
+query_start=2026-07-14 06:19:14 query=14
+[Query 14] time=2448.019363 sec, weight=12.3600596290, rss=878.617 MiB, peak=7182.688 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 07:00:33 query=14 elapsed_s=2478.612 exit=0
+query_start=2026-07-14 07:00:33 query=24
+[Query 24] time=3882.885013 sec, weight=9.2066654766, rss=882.035 MiB, peak=13173.938 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 08:05:44 query=24 elapsed_s=3911.356 exit=0
+query_start=2026-07-14 08:05:44 query=34
+[Query 34] time=1601.955813 sec, weight=7.8907913118, rss=879.137 MiB, peak=4052.918 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 08:32:54 query=34 elapsed_s=1629.724 exit=0
+query_start=2026-07-14 08:32:54 query=6
+[Query 6] time=588.336324 sec, weight=13.9342828835, rss=876.344 MiB, peak=1820.379 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 08:43:13 query=6 elapsed_s=618.617 exit=0
+query_start=2026-07-14 08:43:13 query=15
+[Query 15] time=2042.815553 sec, weight=12.2607022927, rss=883.738 MiB, peak=5874.098 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 09:17:44 query=15 elapsed_s=2071.298 exit=0
+query_start=2026-07-14 09:17:44 query=25
+[Query 25] time=7619.938119 sec, weight=12.0889822532, rss=877.105 MiB, peak=25541.363 MiB
+Graph: DBLP, queries: 1
+Result file: result\DBLP\Test80\query_g13\weights.txt
+Stats file: result\DBLP\Test80\query_g13\test80_stats.txt
+query_end=2026-07-14 11:25:13 query=25 elapsed_s=7649.244 exit=0
+deadline_reached=2026-07-14 11:25:13 next_query=35
+run_end=2026-07-14 11:25:13 elapsed_s=42565.091

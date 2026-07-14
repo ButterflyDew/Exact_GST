@@ -4,6 +4,8 @@ param(
     [string]$GraphSelector = "DBLP",
     [string]$QuerySelector = "g13",
     [int]$QueryIndex = 1,
+    [ValidateSet("--distance", "--hybrid", "--delayed-upper", "--delayed-upper-verbose", "--early-delayed", "--early-delayed-verbose")]
+    [string]$Mode = "--distance",
     [ValidateRange(1, 86400)]
     [int]$Seconds = 900
 )
@@ -20,7 +22,7 @@ function Quote-ProcessArgument([string]$Value) {
 }
 
 $arguments = @(
-    "--distance",
+    $Mode,
     $DataRoot,
     $GraphSelector,
     $QuerySelector,
@@ -44,14 +46,21 @@ try {
     }
     $stdoutTask = $process.StandardOutput.ReadToEndAsync()
     $stderrTask = $process.StandardError.ReadToEndAsync()
-    $completed = $process.WaitForExit($Seconds * 1000)
+    $watch = [System.Diagnostics.Stopwatch]::StartNew()
+    [long]$sampledPeak = 0
+    while (-not $process.HasExited -and $watch.Elapsed.TotalSeconds -lt $Seconds) {
+        $process.Refresh()
+        $sampledPeak = [Math]::Max($sampledPeak, $process.WorkingSet64)
+        Start-Sleep -Milliseconds 250
+    }
+    $completed = $process.HasExited
     if (-not $completed) {
         $process.Kill()
         $process.WaitForExit()
-        Write-Output "bounded_timeout=1 pid=$($process.Id) seconds=$Seconds"
+        Write-Output "bounded_timeout=1 pid=$($process.Id) seconds=$Seconds sampled_peak_mb=$([Math]::Round($sampledPeak / 1MB, 3)) mode=$Mode"
     }
     else {
-        Write-Output "bounded_timeout=0 pid=$($process.Id) exit=$($process.ExitCode)"
+        Write-Output "bounded_timeout=0 pid=$($process.Id) exit=$($process.ExitCode) sampled_peak_mb=$([Math]::Round($sampledPeak / 1MB, 3)) mode=$Mode"
     }
     if ($stderrTask.Result) {
         Write-Output $stderrTask.Result.TrimEnd()

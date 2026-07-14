@@ -1,13 +1,18 @@
 # Build And Run
 
-当前发行入口：
+当前主要入口：
 
 ```text
 ReleaseV1   small g 稳健、half-DP 单路径发行版
 ReleaseV2   dual-anchored global-label 大 g 发行版
+ReleaseV3   ordered half rows 与 farthest-goal global 的统一发行版
+ReleaseV4   anchor-aware ordered rows 的当前纯 A 发行版
+Test80      ReleaseV4 的带研究统计来源版本
 ```
 
-先读 `readme_files/test_series_overview.md`。ReleaseV2 的算法、证明、性能、边界和论文归属统一见 `readme_files/release_v2.md`。
+先读 `readme_files/test_series_overview.md`。当前纯 A 发行入口为 `gst_release_v4_main`；算法方法见 `readme_files/release_v4_method_cn.md`，发行实现、验证和性能见 `readme_files/release_v4.md`。
+
+`gst_release_v3_main` 保留为框架 B 的冻结发行对照。`gst_test80_main` 保留研究计数和阶段日志，用于解释 ReleaseV4 的来源；ReleaseV4 不调用两者。
 
 ## Build
 
@@ -15,7 +20,7 @@ ReleaseV2   dual-anchored global-label 大 g 发行版
 
 ```powershell
 cmake -S . -B build
-cmake --build build --config Release --target gst_release_v2_main
+cmake --build build --config Release --target gst_release_v4_main gst_release_v3_main
 ```
 
 常用目标：
@@ -25,7 +30,10 @@ gst_dpbf_main             正确性 oracle
 gst_pruned_dp_main        主 baseline
 gst_release_v1_main       ReleaseV1
 gst_release_v2_main       ReleaseV2
+gst_release_v3_main       ReleaseV3
+gst_release_v4_main       ReleaseV4
 gst_test16_main ... gst_test19_main
+gst_test21_main / gst_test80_main
 gst_random_compare        黑盒随机对拍
 gst_snapshot_prepare      snapshot 数据生成
 ```
@@ -51,6 +59,8 @@ query_limit     运行条数，默认 -1 表示到文件末尾
 .\build\Release\gst_release_v2_main.exe Toronto result query data 1 1
 .\build\Release\gst_release_v1_main.exe Toronto result g10 data 1 1
 .\build\Release\gst_pruned_dp_main.exe DBLP result g10 data 1 1
+.\build\Release\gst_release_v3_main.exe Toronto result g13 data 1 1
+.\build\Release\gst_release_v4_main.exe DBLP result g13 data 1 1
 ```
 
 ## Output
@@ -72,10 +82,10 @@ time_seconds best_weight
 
 ```powershell
 .\build\Release\gst_random_compare.exe `
-  .\build\Release\gst_release_v2_main.exe `
+  .\build\Release\gst_release_v4_main.exe `
   .\build\Release\gst_dpbf_main.exe `
-  ReleaseV2 711011 300 4 14 2 10 `
-  .tmp_random_compare_release_v2 0
+  ReleaseV4 714003 100 4 14 2 13 `
+  .tmp_random_compare_release_v4 0
 ```
 
 完整参数：
@@ -92,10 +102,10 @@ gst_random_compare <method_exe> <dpbf_exe> <method_name>
 
 ```powershell
 python tools\snapshot_benchmark\snapshot.py `
-  --method ReleaseV2 --suite small --no-prepare
+  --method ReleaseV4 --suite small --no-prepare
 
 python tools\snapshot_benchmark\snapshot.py `
-  --method ReleaseV2 --suite fast --no-prepare
+  --method ReleaseV4 --suite fast --no-prepare
 ```
 
 suite 与结果格式见 `readme_files/snapshot_benchmark.md`。
@@ -105,5 +115,5 @@ suite 与结果格式见 `readme_files/snapshot_benchmark.md`。
 1. 正确性以 DPBF、`1e-6` 和 Toronto 现有最后一次结果为准。
 2. benchmark 使用 Release/O2，并在文档中标出旧非 O2 数字。
 3. 运行后清理 `.tmp_random_compare*`、`result_tmp*`、空结果目录和残留 solver 进程。
-4. full DBLP g13 q1 已有完整精确证据；没有数量级新机制时不重复长跑。
+4. full DBLP g13 q1 的 ReleaseV3、Test80 与 ReleaseV4 都已有完整精确证据；纯文档或格式调整不重复长跑。
 5. 不使用数据集、固定 `g`、层级、密度或运行时刻特判，也不把 baseline 可用的普通压缩记作方法贡献。
