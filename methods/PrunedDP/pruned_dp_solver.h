@@ -1,6 +1,7 @@
 #ifndef GST_METHODS_PRUNED_DP_SOLVER_H
 #define GST_METHODS_PRUNED_DP_SOLVER_H
 
+#include <string>
 #include <vector>
 
 #include "../../graph_io.h"
@@ -8,6 +9,19 @@
 
 namespace gst::methods::pruned_dp
 {
+
+enum class StateStorage
+{
+    Hash,
+    Dense,
+};
+
+struct PrunedDpOptions
+{
+    StateStorage state_storage = StateStorage::Hash;
+    bool use_mst_upper_bound = true;
+    bool enforce_lb2_pathmax = true;
+};
 
 struct PrunedDpStats
 {
@@ -37,6 +51,14 @@ struct PrunedDpStats
     long long merge_submask_attempts = 0;
     long long merge_state_hits = 0;
     long long merge_cost_gate_pass = 0;
+    long long discovered_states = 0;
+    long long reopened_states = 0;
+    long long mst_calls = 0;
+    long long mst_improvements = 0;
+    long long mst_input_edges = 0;
+    std::string state_storage;
+    bool use_mst_upper_bound = true;
+    bool enforce_lb2_pathmax = true;
     std::vector<long long> finalized_by_size;
     std::vector<long long> update_push_by_size;
 };
@@ -49,6 +71,11 @@ struct SolveResult
 };
 
 SolveResult SolveOneQuery(const Graph& graph, const Query& query);
+SolveResult SolveOneQuery(const Graph& graph,
+                          const Query& query,
+                          const PrunedDpOptions& options);
+
+const char* StateStorageName(StateStorage storage);
 
 }  // namespace gst::methods::pruned_dp
 

@@ -65,5 +65,47 @@
 | `test74_half_seed_global_20260713.md` | ordered half rows 作为 global 宏种子的逐条 frontier 否决 |
 | `test78_pendant_cherry_two_interface_20260713.md` | macro cherry、三臂 block-anchor fixed-plan 定理、Toronto 单接口反例与第二接口边界 |
 | `test78_soft_pendant_followup_20260713.md` | 嵌套闭包反例、soft-terminal block transform、g9 正证据与未证明边界 |
+| `test81_d2_junction_local_facility_20260714.md` | D2 精确 pair 接入固定 junction tree，只获约 1.3% DBLP 前缀上界改善后撤回 |
+| `test82_dual_row_certificate_20260714.md` | directed-cut 行级整次合并证书；不减状态且 fast20/Toronto g13 退化后撤回 |
+| `test108_ordinary_component_minimum_20260715.md` | Test108–110 分量最小值在成员相交前后及 old→cut 顺序复核；拒绝不足且不减状态后撤回 |
+| `test111_anchor_attachment_row_certificate_20260715.md` | permanent-anchor attachment 行标量在 join 前整块拒绝；昂贵路径低命中且不减状态后撤回 |
+| `test112_113_completion_read_order_20260715.md` | Test107 component 证书的 singleton 门控与对称分量读序；工作量微降但 completion 不降后撤回 |
+| `test114_bitmap_word_root_minimum_20260715.md` | bitmap root word 最小值整字拒绝；scans 降 6.30% 但局部时间中性后撤回 |
+| `test120_online_anchor_facility_20260716.md` | Test119 设施上界的层内 rent-or-buy 反馈；D3 层末仅再少 0.20% values 后撤回 |
+| `test122_projected_anchor_tree_profile_20260716.md` | 全 rooted row 到最近压缩锚树节点的 profile；Toronto g13 五询问候选逐项不变后撤回 |
+| `test123_exact_triple_anchor_tree_20260716.md` | D3 精确 rooted triple 扩展最短路锚树；节点增至近 2 倍但上界与状态不变后撤回 |
+| `test124_anchor_metric_closure_20260716.md` | junction 度量闭包放宽固定父树；q33 D2 values 降 2.45%，但 Toronto 五询问完整 wall 回退 1.29% 后撤回 |
+| `test125_quarter_backbone_endpoint_20260716.md` | unrestricted quarter-backbone 修复旧 71/73 反例并过 130 次随机，但 Toronto g13 q3 返回错误权重后撤回 |
+| `test126_dual_cancelled_word_certificate_20260716.md` | directed-cut 势消元后的 bitmap word 证书；q5 direct work 只降 0.4%--0.7%，wall/peak 回退后撤回 |
+| `test127_paid_pair_witness_union_20260716.md` | D2 paid-pair skyline 见证并集上界；Toronto g13 q1--q5 仅 3/5 命中，q5 gap 10.93% 后撤回 |
+| `test128_all_site_pair_envelope_20260716.md` | 每个 junction site 的 D2 min-plus 包络；Toronto g13 q3 仍有 6.76% gap 后立即撤回 |
+| `test129_penultimate_a_completion_20260716.md` | 删除最终 A 层；随机门被已有 upper 掩盖，7/4/4 decoy-tree 给出 `27 -> 29` 反例 |
+| `test130_penultimate_da_completion_20260716.md` | 同时删除最高 D/A 层；宽随机与固定 g15 均有 exact 反例后撤回 |
+| `test131_final_consumer_mask_lower_20260716.md` | 最终 A consumer 的整 mask 行最小值下界；fast20 只拒绝 3.44%，重实例零命中后撤回 |
+| `test132_transposed_final_consumer_20260716.md` | 最终 A consumer 的精确转置闭包；fast20 与 Toronto 五询问合计回退后撤回 |
+| `test133_136_exact_row_cones_20260716.md` | exact rooted-row 度量锥与锚路径标量锥；理论合法但多询问面板状态收益不足、wall 回退后撤回 |
+| `test137_early_anchor_pair_lower_20260716.md` | 提前 exact A1 作为普通 D 的 anchor-aware future；Toronto 五询问显著正向，但 DBLP g15 q33 D3 wall/peak 回退后撤回 |
+| `test138_quarter_two_root_upper_20260716.md` | quarter witness 的 2+2 双汇合点上界；fast20 与 Toronto 五询问状态均不变，未进入 DBLP 即撤回 |
+| `test139_role_directed_joint_word_certificate_20260716.md` | 严格支配 Test126 的角色定向同根 word 证书；跳过数百万根但 Toronto 五询问 wall/peak 回退后撤回 |
+| `test140_anchor_tree_witness_union_20260716.md` | Test121 设施方案恢复真实边并去重；仅 q1 减状态，边际并集选择五询问全部更弱后撤回 |
+| `test141_facility_guided_macro_lifting_20260716.md` | Test121 分块的 `3^(g/2)` 全图 macro lifting；fast20 states 小降但 wall 回退 52.86% 后撤回 |
+| `test143_root_irreducible_adjoint_terminal_20260716.md` | root-irreducible 高层终端使 checks 下降但底层扫描不降，Toronto g15 伴随时间持平后撤回 |
+| `test147_lazy_dual_20260717.md` | MovieLens eager dual 过重，但 lazy 信号到 D3 才出现，D3 五问回退后撤回 |
+| `test148_indexed_ordinary_queue_20260717.md` | decrease-key heap 量化 DBLP/LinkedMDB stale 成本；属 baseline 可共享工程优化，源码与目标撤回 |
+| `test150_151_153_156_dual_ablation_20260718.md` | small-`g` no-dual 归因、一次性 lazy dual 失败、重模块消融与 quarter upper 物理删除依据 |
+| `test85_ordinary_last_use_reclamation_20260715.md` | 普通 D 行最终消费者公式；联合 payload 下降但 fast20 时间回退后撤回 |
+| `test86_dual_reduced_prefix_join_20260715.md` | 对偶约化前缀与二维顶点交集冲突；理想 report 工作仍不足后撤回 |
+| `test88_complement_dual_prefilter_20260715.md` | 补集 directed-cut 预筛选；fast 退化、q5 亚百分比收益且增加内存后撤回 |
+| `test89_dual_prefix_short_circuit_20260715.md` | 同序 cut 前缀保持 exact double，但 q5 只少读约 9% terms 且 wall 退化 8.6% 后撤回 |
+| `test91_paired_top_mask_order_20260715.md` | 补集成对让 Toronto D6 更早剪枝，但 fast20 跨库退化约 2% 后撤回 |
+| `test92_online_a0_label_feedback_20260715.md` | A0 completion 前移到每个 accepted label；70 万次分散查找只少 101 pops 后撤回 |
+| `test93_seed_boundary_a0_completion_20260715.md` | seed 自然边界批量有序相交；67 万扫描只少 15 pops 后撤回 |
+| `test94_phase_boundary_dual_compaction_20260715.md` | D/A 边界以新上界重筛普通 row；payload 仅降 4.35%、A 状态几乎不变后撤回 |
+| `test96_bounded_d4_full_a_20260715.md` | 3/4 树分解不能共享成固定-anchor D4/full-A；g13 双候选组 `71 -> 73` 反例 |
+| `test97_progressive_a_prefix_20260715.md` | one-third 边界提前生成完整 A 前缀；D 高层下降但 A/peak 膨胀，跨库不稳定后撤回 |
+| `test99_completion_root_epoch_20260715.md` | A completion 根集合 epoch 共享使局部降阶，但 DBLP q5 两次端到端退化后撤回 |
+| `test100_bitmap_branch_semijoin_20260715.md` | occupancy 与 branch bits 融合半连接只获局部收益，fast20 端到端中性后撤回 |
+| `test101_branch_exception_layout_20260715.md` | branch 补集例外表有额外 q25 空间上界，但 fast20 时间退化 10.7% 后撤回 |
+| `test102_layout_independent_bitmap_semijoin_20260715.md` | 布局无关半连接使 fast direct work 降约三成，但 DBLP q5 两次端到端退化后撤回 |
 
 引用归档数据时必须说明：是否为当前 Release/O2 重跑、是否来自已撤回二进制、是否产生最终权重。能代表当前实现的数字应整理到对应 `effect_report.md`，不能直接把 archive 当成主线结论。

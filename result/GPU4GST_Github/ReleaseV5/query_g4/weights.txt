@@ -1,0 +1,6 @@
+# Run started=2026-07-17 18:15:57 graph=GPU4GST_Github method=ReleaseV5 data_root=data graph_folder=data\GPU4GST_Github query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Github\ReleaseV5\query_g4 rss_mb=38.402 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+0.087494 0.0000000000 47.922
+0.102350 95.0000000000 48.344
+0.197188 199.0000000000 49.105
+0.161914 193.0000000000 48.887
+0.129017 390.0000000000 49.188

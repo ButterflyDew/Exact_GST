@@ -2,7 +2,7 @@
 
 > 只阅读算法方法时，请直接进入 `release_v4_method_cn.md`。该文档按学术论文的方法章节组织，不包含实验、构建和代码导读；本文继续维护发行实现、验证与结果。
 
-更新时间：2026-07-13。ReleaseV4 是从 Test80 收敛得到的纯框架 A 发行版。它不调用 Test80、ReleaseV3 或 global-label 框架 B；没有功能开关、数据集特判、wall-time 门禁和调试统计。公开入口是 `methods/Release/release_v4.cpp`，公开 API 只有 `best_weight` 与 `feasible`。
+更新时间：2026-07-14。ReleaseV4 是从 Test80 收敛得到的纯框架 A 发行版。它不调用 Test80、ReleaseV3 或 global-label 框架 B；没有功能开关、数据集特判、wall-time 门禁和调试统计。公开入口是 `methods/Release/release_v4.cpp`，公开 API 只有 `best_weight` 与 `feasible`。
 
 ## 1. 主线流程：从 query 到精确答案
 
@@ -269,7 +269,7 @@ DBLP 两版权重都为 `12.5936282853`。ReleaseV4 的主要差异是删除热�
 | small35 | `2.148s` | `11.457s` | `5.33x` | `274.281` | `~990` | `3.61x` |
 | fast20 | `8.303s` | `>379.869s` | `>45.7x` | `218.905` | `6418` | `29.3x` |
 
-solver MiB 对每个独立进程取 `peak_rss-rss_before` 后求和。PrunedDP 的 fast MovieLens g12 在 `100s` 内未完成，所以 fast 时间只写严格下界。ReleaseV4 在 `g=9..12` 的主目标区间明显超过时间和空间 10x；small `g=2..8` 为既定放宽项，不能用 fast 总量掩盖。
+本表是 2026-07-14 统一空间口径以前的历史快照，其中 solver MiB 对每个独立进程取 `peak_rss-rss_before` 后求和；它不能与新 `weights.txt` 第三列的绝对 query peak RSS 直接混比。PrunedDP 的 fast MovieLens g12 在 `100s` 内未完成，所以 fast 时间只写严格下界。ReleaseV4 在 `g=9..12` 的历史主目标区间明显超过时间和空间 10x；small `g=2..8` 为既定放宽项，不能用 fast 总量掩盖。后续发行比较统一使用 `RUN.md` 定义的 query peak RSS。
 
 ### 9.4 Full DBLP 与 ReleaseV3/B
 
@@ -284,6 +284,12 @@ peak        2158.637MiB
 相对框架 B 的 ReleaseV3 `531.556s / 3870.7MiB`，ReleaseV4 时间只慢 `2.4%`，峰值低 `44.2%`。这次 full 是当前最终算法与 Release/O2 二进制的正式结果；后续纯文档或格式调整不重复运行。
 
 快照目录：small35 为 `result_snapshot/small/20260713_185040`，fast20 为 `result_snapshot/fast/20260713_185007`，Toronto full 为 `result/Toronto/ReleaseV4/query_g13`。
+
+### 9.5 2026-07-14 框架维护
+
+MovieLens 的默认 `query.txt` 会在 q3 触发一条零权边上的锚路径恢复循环。旧实现逐步选择 tight 邻居；正权边使组距离严格下降，但零权 tight 边只保证距离不增，因而可能在等距顶点间往返。公共 branch-junction 现改为在 tight-edge 子图中做带 visited 的路径恢复，仍只接受满足 `w(u,v)+d(v)=d(u)` 的边，所以恢复路径保持最短且必然终止。Release/O2 最终验证在同一进程、一次图加载下连续完成默认 q3--q4，权重为 `0.0073800657/0.0082491959`，不再 RE；零权边两端分属不同组的 q74 仍为 `0.0003625162`。
+
+统一 main 同时把逐询问空间输出改为 `1ms` 采样的 query peak RSS。图仍只加载一次；进程生存期的 `PeakWorkingSetSize/ru_maxrss` 不再写入逐询问 peak。`weights.txt` 新行为 `time best query_peak_rss_mb`，完整口径与论文依据见 `../RUN.md`。历史性能表不据此重跑。
 
 ## 10. 构建与运行
 

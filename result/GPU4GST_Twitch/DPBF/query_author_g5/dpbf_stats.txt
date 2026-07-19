@@ -1,0 +1,4 @@
+# Run started=2026-07-17 18:16:22 graph=GPU4GST_Twitch method=DPBF data_root=data graph_folder=data\GPU4GST_Twitch query_file=query_author_g5.txt run_subdir=query_author_g5 original_query_count=300 query_begin=1 query_limit=3 query_count=3 result_dir=result\GPU4GST_Twitch\DPBF\query_author_g5 rss_mb=33.449 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+query=1 best=379.0000000000 wall_ms=379.503 rss_before_mb=33.648 rss_after_mb=34.336 peak_rss_mb=61.980
+query=2 best=386.0000000000 wall_ms=337.049 rss_before_mb=34.363 rss_after_mb=34.367 peak_rss_mb=62.156
+query=3 best=573.0000000000 wall_ms=402.670 rss_before_mb=34.379 rss_after_mb=34.375 peak_rss_mb=62.340

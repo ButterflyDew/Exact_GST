@@ -1,0 +1,58 @@
+\section{Related Work}
+\label{sec: relatedwork}
+
+% Table~\ref{table: Algorithms Comparison} summarizes the time complexities and approximation ratios of representative GST algorithms.
+
+\subsection{Sublinear-Approximation Algorithms}
+\label{subsec: sub-alg}
+% Our algorithms belong to this category.
+
+The 2-star concept is first introduced in~\cite{dstar1} to solve GSTP, where a heuristic two-step algorithm achieves an $O(\sqrt{g}\ln g)$ approximation, and is later generalized to $d$-star~\cite{dstar2}.
+\emph{Our holistic analysis improves this ratio to $O(\sqrt{g})$.}
+Besides, the algorithms in \cite{dstar1,dstar2} incur the high cost of computing all-pairs shortest paths.
+\emph{Our suspendable Dijkstra’s algorithm calculates distances lazily and supports early termination.}
+Although both~\cite{dstar1} and our approach employ greedy set cover, \emph{we define a novel greedy function whose monotonicity and unimodality enable efficient pruning.}
+This combination of pay-as-you-go distance calculation and a pruning-friendly greedy function makes our \ImprovPTS a practical solution for large GSTP instances.
+% its running time is $O(\tau + (ng)^d)$, where $\tau$ is an upper bound on computing all-pairs shortest paths
+
+GSTP can be reduced to DSTP~\cite{D_STP} where the $d$-star-based algorithm achieves an $O(\sqrt{g})$ approximation in $O(n^d g^{2d})$ time, not efficient on large graphs even for $d=2$.
+Using a more scalable DST algorithm~\cite{DiST} can reduce the time complexity of solving DSTP to $O(mg+ng\log n)$. Nevertheless, the approach still requires processing up to $n$~DSTP instances, each involving $g$~SSSP computations, amounting to a total of $gn$~computations.
+By contrast, \emph{our algorithms perform at most $(g+n)$~SSSP computations,} accounting for their orders-of-magnitude speedup in our experiments.
+
+% The polylog-approximation algorithms in~\cite{PolyAppr_1, PolyAppr_2} use tree metrics with stretch $O(\log n)$ to reduce the problem to GSTP on trees. For GSTP on a tree,~\cite{PolyAppr_1} applies a separation oracle to solve a linear program with an exponential number of constraints, or alternatively leverages the max-flow min-cut theorem to reinterpret the constraints so that they can be handled in polynomial time. In contrast,~\cite{PolyAppr_2} first performs a height-reducing transformation and a degree-reducing transformation to obtain a tree of height $O(\log n/\log\log n)$ and maximum degree $O(\log n)$; it then applies a greedy strategy, further reducing the number of recursive calls via geometric search and by pruning subtrees that cover few groups, together with additional preprocessing, to achieve a theoretical polynomial-time bound.
+
+% Respond Reviewer #5 R5: In particular, the authors should clarify how timeout cases are handled in quality comparisons, and report whether the conclusions change under an evaluation that includes all instances (for example, by treating timeout cases conservatively). In addition, if polylogarithmic-approximation methods are too expensive for the full datasets, they should be evaluated on smaller graphs/subgraphs or otherwise discussed more explicitly to better position the proposed method.
+Polylogarithmic-approximation algorithms~\cite{PolyAppr_1, PolyAppr_2} relax GSTP to its variant on a tree with stretch $O(\log n)$, and invoke heavy subroutines such as solving linear programs with exponentially many constraints. \dew{As noted in their papers, they incur large hidden constants and accumulated polylogarithmic factors, hard to perform efficiently in practice.}
+GSTP can also be reduced to the Steiner Tree Problem (STP)~\cite{ST_noappr}, but an approximation ratio is guaranteed only if using an exact, exponential-time STP solver.
+\emph{Consequently, the algorithms discussed above are more oriented towards theoretical analysis than practical deployment,} thus omitted from our experiments.
+
+\subsection{Linear-Approximation Algorithms}
+\label{subsec: line-alg}
+% Existing algorithms that scale to large graphs are typically $O(g)$-approximation algorithms; exact methods can be applied to large instances only with difficulty, suffer occasional timeouts, are on average slower by several orders of magnitude, and generally require $g$ to be small.
+
+% This class of algorithms is usually more practical for large graphs but offers weaker guarantees on solution quality.
+
+KeyKG$^+$~\cite{KeyKG} as an extension of 1-star achieves a $(g-1)$~approximation. To accelerate the search for the closest uncovered group to merge into the current GST, it uses a distance index~\cite{PLL}.
+% to handle vertex-to-group distance queries.
+Building this index is computationally expensive and may not scale to very large graphs, such as the DBLP dataset in our experiments.
+% identifies a core-vertex set to find a tightly clustered set of vertices and a corresponding root, and then greedily connects the group closest to the current tree.
+
+Among index-free methods that guarantee a $(g-1)$~approximation, ImprovAPP~\cite{ImprovAPP} performs SSSP computations and uses a priority queue to track the uncovered group closest to each vertex in the current GST. PartialOPT~\cite{ImprovAPP} improves the approximation to~$(g-h+1)$ by introducing a parameter $h \in [2,g]$ and invoking an exact GST solver~\cite{KS_5} on $h$~groups. Its time complexity grows exponentially with~$h$; in practice, a small~$h$ (e.g.,~$h=3$) must be used, resulting in marginal quality gains.
+% Moreover, because the coupling between the exact and approximate components is rather intricate, they often fail to realize the strengths of either side in terms of both running time and solution quality in practice
+
+Earlier methods also achieve an $O(g)$-approximation, such as BANKS~\cite{BANKS}, its improved variant BANKS-II~\cite{BANKS2} \dew{that} employs bidirectional search, and BLINKS~\cite{BLINKS} \dew{that} partitions the graph into blocks and builds a block-level index for search pruning.
+% BANKS performs reverse searches from each group and iteratively merges paths to form a GST
+
+The algorithms discussed above are predominantly 1-star-based, which trades off a linear approximation ratio in~$g$ for efficiency. By contrast, building on the 2-star framework, \emph{our \ImprovPTS guarantees a strictly better approximation ratio while maintaining its running time comparable to the state-of-the-art index-free linear-approximation algorithms.} Therefore, our work bridges a long-standing gap that has traditionally forced a choice between high-quality approximation and scalable, efficient computation.
+
+\subsection{Exact Algorithms} 
+
+Prominent exact GST solvers include DPBF~\cite{KS_5}, which employs best-first dynamic programming, and its successor PrunedDP++~\cite{PrunedDP} based on A* search. Both of them exhibit exponential time complexity and limited scalability. \emph{This body of work is largely orthogonal to ours, as they pursue different aims and adopt disparate methodologies.} In our experimental setup, PrunedDP++ serves a specific role: it provides the optimum GST weights needed to compute NWeight for quantifying the empirical approximation ratios of our algorithms.
+% DPBF is a dynamic program whose state encodes the current subtree root together with the set of already covered groups; transitions merge two subtrees sharing the same root and expand the current subtree from the root. PrunedDP++ leverages A* search to prune DPBF's state space and generates the solution progressively, yielding substantial speedups.
+% \emph{In contrast to the $d$-star paradigm adopted by approximation algorithms, exact methods must perform dynamic programming over coverings of arbitrary subsets of terminal groups, which makes them infeasible even when the number of groups is moderately large and thus substantially limits their applicability in practice.}
+
+% For sublinear-approximation algorithms, the rooted steiner 2-star heuristic algorithm in ~\cite{dstar1} introduced $2$-star, approximated via a set cover algorithm similar to ours, and proved a $(1+\ln \tfrac{g}{2})\sqrt{g}$ approximation ratio; however, it requires all-pairs shortest paths, which is impractical. \cite{dstar2} extend $2$-star to $d$-star without altering the algorithmic techniques; its running time is $O(\tau + (ng)^d)$, where $\tau$ is an upper bound on computing all-pairs shortest paths. 
+
+% The Directed Steiner Tree variant proposed in ~\cite{D_STP} also employs $d$-star and can be reduced to GSTP. For $d=2$, it achieves a $\sqrt{g}$ approximation ratio; however, its theoretical $O(n^d g^{2d})$ time complexity is high, rendering it difficult to run in practice. By contrast, DiST in~\cite{DiST} achieves a faster running time of $O(mg+ng\log n)$ while maintaining an $O(\sqrt g)$ approximation ratio. Note that reducing DSTP to GSTP requires enumerating the root vertex; consequently, such reduction-based approaches must solve $O(n)$ DSTP instances to obtain a solution for GSTP.
+
+% The polylog-approximation algorithms in~\cite{PolyAppr_1, PolyAppr_2} use tree metrics with stretch $O(\log n)$ to reduce the problem to GSTP on trees. For GSTP on a tree,~\cite{PolyAppr_1} applies a separation oracle to solve a linear program with an exponential number of constraints, or alternatively leverages the max-flow min-cut theorem to reinterpret the constraints so that they can be handled in polynomial time. In contrast,~\cite{PolyAppr_2} first performs a height-reducing transformation and a degree-reducing transformation to obtain a tree of height $O(\log n/\log\log n)$ and maximum degree $O(\log n)$; it then applies a greedy strategy, further reducing the number of recursive calls via geometric search and by pruning subtrees that cover few groups, together with additional preprocessing, to achieve a theoretical polynomial-time bound. Overall, these algorithms are geared more toward theoretical guarantees than practical performance, and are therefore inefficient in practice. GSTP can also be reduced to the Steiner Tree Problem (STP)~\cite{ST_noappr}, but this requires exact STP solvers; otherwise, the result can be arbitrarily bad.

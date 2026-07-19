@@ -1,0 +1,4 @@
+# Run started=2026-07-17 18:17:35 graph=GPU4GST_Youtube method=ReleaseV5 data_root=data graph_folder=data\GPU4GST_Youtube query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=3 query_count=3 result_dir=result\GPU4GST_Youtube\ReleaseV5\query_g4 rss_mb=222.254 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+query=1 best=2.0000000000 wall_ms=4663.104 rss_before_mb=222.422 rss_after_mb=231.355 peak_rss_mb=399.324
+query=2 best=10.0000000000 wall_ms=6265.259 rss_before_mb=231.375 rss_after_mb=231.309 peak_rss_mb=399.246
+query=3 best=0.0000000000 wall_ms=4619.480 rss_before_mb=231.316 rss_after_mb=231.246 peak_rss_mb=399.227

@@ -1,0 +1,6 @@
+# Run started=2026-07-17 18:15:42 graph=GPU4GST_Musae method=DPBF data_root=data graph_folder=data\GPU4GST_Musae query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Musae\DPBF\query_g4 rss_mb=33.332 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+0.098497 164.0000000000 42.039
+0.142215 285.0000000000 42.566
+0.098953 196.0000000000 42.016
+0.100206 199.0000000000 42.020
+0.095356 34.0000000000 42.016

@@ -620,36 +620,47 @@ double SoftPendantFamily(
         return size == 3 || size == 4;
     };
 
-    double result = kInf;
+    std::vector<std::vector<double>> best(full + 1);
     for (int core = 0; core <= full; ++core)
     {
-        if (Bits(core) > 4)
+        if (Bits(core) > 3)
             continue;
         std::vector<double> core_row(n, 0.0);
         if (core)
             core_row = rooted[core];
-        std::function<void(int, const std::vector<double>&)> Extend =
-            [&](int remaining, const std::vector<double>& row)
-        {
-            if (!remaining)
-            {
-                for (double value : row)
-                    result = std::min(result, value);
-                return;
-            }
-            for (int block = remaining; block;
-                 block = (block - 1) & remaining)
-            {
-                if (!IsBlock(block))
-                    continue;
-                const auto next =
-                    SoftBlockTransform(rooted, metric, block, row);
-                Extend(remaining ^ block, next);
-            }
-        };
-        Extend(full ^ core, core_row);
+        if (best[core].empty())
+            best[core] = std::move(core_row);
+        else
+            for (int vertex = 0; vertex < n; ++vertex)
+                best[core][vertex] = std::min(
+                    best[core][vertex], core_row[vertex]);
     }
-    return result;
+
+    for (int covered = 0; covered <= full; ++covered)
+    {
+        if (best[covered].empty())
+            continue;
+        const int remaining = full ^ covered;
+        for (int block = remaining; block;
+             block = (block - 1) & remaining)
+        {
+            if (!IsBlock(block))
+                continue;
+            std::vector<double> candidate = SoftBlockTransform(
+                rooted, metric, block, best[covered]);
+            std::vector<double>& target = best[covered | block];
+            if (target.empty())
+                target = std::move(candidate);
+            else
+                for (int vertex = 0; vertex < n; ++vertex)
+                    target[vertex] = std::min(
+                        target[vertex], candidate[vertex]);
+        }
+    }
+
+    return best[full].empty()
+        ? kInf
+        : *std::min_element(best[full].begin(), best[full].end());
 }
 
 struct InstanceResult

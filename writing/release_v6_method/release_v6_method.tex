@@ -1,0 +1,422 @@
+\documentclass[sigconf,nonacm]{acmart}
+
+\settopmatter{printacmref=false,printccs=false,printfolios=true}
+\setcopyright{none}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+\raggedbottom
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage[ruled,linesnumbered,noend]{algorithm2e}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\Clos}{\mathcal{C}}
+\newcommand{\Br}{\mathsf{Br}}
+\newcommand{\OPT}{\mathsf{OPT}}
+\newcommand{\inner}[2]{\langle #1,#2\rangle}
+\newcommand{\OrdSeed}{\operatorname{OrdSeed}}
+\newcommand{\BoundedClosure}{\operatorname{ForwardClose}}
+\newcommand{\PrefixClosure}{\operatorname{PrefixClose}}
+\newcommand{\Publish}{\operatorname{Publish}}
+\newcommand{\Improve}{\operatorname{Improve}}
+\newcommand{\CompleteLow}{\operatorname{CompleteLow}}
+\newcommand{\HighTerminals}{\operatorname{HighTerminals}}
+\newcommand{\OutsideSeed}{\operatorname{OutsideSeed}}
+\newcommand{\CrossBoundary}{\operatorname{CrossBoundary}}
+\SetKwInOut{KwIn}{Input}
+\SetKwInOut{KwOut}{Output}
+\SetKw{KwRet}{return}
+\SetKw{KwDownTo}{downto}
+\SetAlgoNlRelativeSize{-1}
+\DontPrintSemicolon
+
+\title{Anchored Bidirectional Half-State Evaluation for Exact Group Steiner Tree Search}
+\author{Anonymous Authors}
+\affiliation{\institution{Anonymous Institution}\city{Anonymous City}\country{Anonymous}}
+\renewcommand{\shortauthors}{Anonymous Authors}
+
+\begin{document}
+\maketitle
+
+\section{Preliminaries and Reading Guide}
+\label{sec:prelim}
+
+Let $G=(V,E,w)$ be an undirected graph with nonnegative edge weights, where $n=|V|$ and $m=|E|$.  A query $\mathcal{T}=\{T_1,\ldots,T_g\}$ contains $g$ vertex groups, which may overlap.  A group Steiner tree (GST) is a connected subgraph that intersects every $T_i$.  Its weight is the sum of its edges, and the exact GST problem asks for a minimum-weight GST.  Zero-weight edges are allowed.  A one-group query has value zero; a query is infeasible if no connected component intersects all groups.
+
+Write $[g]=\{1,\ldots,g\}$ and $d_i(v)=\dist(v,T_i)$.  Let $d=(d_1,\ldots,d_g)$ denote the complete collection of group-distance functions, obtained by $g$ multi-source shortest-path searches.  For a vertex function $f:V\rightarrow\mathbb{R}_{\geq0}\cup\{\infty\}$, define its \emph{graph closure}
+\begin{equation}
+  \Clos(f)(v)=\min_{u\in V}\{f(u)+\dist(u,v)\}.
+  \label{eq:closure}
+\end{equation}
+A closure moves the root of every finite seed through the graph and is evaluated by one multi-source shortest-path search.  Classical exact GST dynamic programming alternates two operations: it joins disjoint group subsets at a common root, then applies~\eqref{eq:closure}~\cite{dreyfus1971,pruneddp}.  Its $2^g$ rooted subset rows and $3^g$ subset joins motivate a different organization of the same exact recurrence.
+
+\paragraph{Reading guide.}
+Section~\ref{sec:roadmap} first gives the global state organization, a running example, and the complete algorithm.  Section~\ref{sec:ordinary} then explains how anchor-free rows are generated and safely pruned.  Section~\ref{sec:anchored} follows one anchored derivation from its low forward rows, through the forward/backward boundary, to its high terminal.  Section~\ref{sec:analysis} proves that this reorganization preserves every optimum derivation and gives its complexity.  Thus a reader may understand the full data flow from Section~\ref{sec:roadmap} before entering individual optimizations.
+
+\section{Algorithmic Roadmap}
+\label{sec:roadmap}
+
+\subsection{Anchor and state roles}
+
+Choose one group $T_a$ as a permanent \emph{anchor}, and let $K=[g]\setminus\{a\}$ and $k=|K|=g-1$.  The anchor gives every partial solution a unique distinguished side.  Let
+\[
+ h=\lfloor g/2\rfloor,\qquad a^{\max}=h-1,\qquad
+ c=\lfloor a^{\max}/2\rfloor.
+\]
+The value $h$ is the largest ordinary block required by a balanced three-part decomposition.  Because the anchored part already contains $T_a$, it needs at most $a^{\max}$ additional groups.  The cut $c$ divides this anchored range by mask depth, not by graph or query statistics.
+
+Table~\ref{tab:states} defines every state family and, equally importantly, its role.  A subscript is always a mathematical index such as a group mask or vertex.  Textual qualifiers appear as superscripts.
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{State and parameter roles.}
+\label{tab:states}
+\begin{tabular}{@{}p{0.18\columnwidth}p{0.75\columnwidth}@{}}
+\toprule
+Symbol & Meaning and role \\
+\midrule
+$B$ & Weight of the best feasible GST found so far; it is an upper bound on $\OPT$. \\
+$D_S(v)$ & Minimum tree rooted at $v$ that covers the non-anchor mask $S\subseteq K$. \\
+$\Br_S(v)$ & An exact $D_S(v)$ entry exported as one indivisible branch to later joins. \\
+$A_S(v)$ & Minimum tree rooted at $v$ that covers $T_a$ and $S$; only $|S|\leq c$ is stored. \\
+$G_T(v)$ & Cost of finishing high anchored mask $T$ at $v$ with at most two ordinary trees. \\
+$F_T(v)$ & High-mask suffix cost after the incoming graph closure has already been paid. \\
+$H_T(v)$ & $\Clos(F_T)(v)$; the suffix pulled back to the root before that closure. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The algorithm computes $D_S$ for $1\leq|S|\leq h$.  A complete forward anchored DP would compute $A_S$ up to $|S|=a^{\max}$.  We instead compute only its low rows $|S|\leq c$, and evaluate the remaining dependency DAG backward as $H_T$ for $c<|T|\leq a^{\max}$.  The two directions meet at the unique first edge that crosses from a low mask to a high mask.  This is one exact dynamic program with a changed evaluation order, rather than two competing solvers.
+
+\subsection{Running example}
+\label{sec:example}
+
+Consider $g=8$ and suppose preprocessing selects $T_8$ as the anchor, so $K=\{1,\ldots,7\}$.  Then $h=4$, $a^{\max}=3$, and $c=1$.  Hence we store only $A_\emptyset$ and singleton $A$ rows, while pair and triple anchored masks are evaluated backward.
+
+At a root $x$, consider the forward derivation
+\[
+ A_{\{1\}}\xrightarrow{\Br_{\{2\}}}A_{\{1,2\}}
+ \xrightarrow{\Br_{\{4\}}}A_{\{1,2,4\}},
+\]
+followed by ordinary blocks $D_{\{3,5\}}$ and $D_{\{6,7\}}$.  Suppose the five displayed values at $x$ are $6,2,3,4,5$, respectively, and the displayed closures attain their minima at $x$.  Full forward evaluation obtains $(6+2+3)+(4+5)=20$.
+
+Our evaluation reaches the same value without storing either high $A$ row.  First, the ordinary pair $(\{3,5\},\{6,7\})$ is transposed to its complement and emits $G_{\{1,2,4\}}(x)=4+5=9$.  Backward evaluation gives $H_{\{1,2,4\}}(x)=9$ and then $H_{\{1,2\}}(x)=3+9=12$.  Finally, the first crossing edge is settled as
+\[
+ A_{\{1\}}(x)+\Br_{\{2\}}(x)+H_{\{1,2\}}(x)=6+2+12=20.
+\]
+With nontrivial shortest paths, the closure identity in Section~\ref{sec:outside} moves the same path costs to the backward side.  This example will be revisited when the terminal transpose is defined.
+
+\subsection{End-to-end procedure}
+
+Algorithm~\ref{alg:main} uses named interfaces so that every line has one role.  $\BoundedClosure(f,R,B)$ computes $\Clos(f)$ using a lower bound for the unassigned labels $R$.  $\PrefixClosure(f,X,B)$ instead bounds the already included labels $X$ during a backward closure.  Both use incumbent $B$.
+
+\begin{algorithm}[t]
+\small
+\KwIn{$G=(V,E,w)$ and groups $\mathcal{T}=\{T_1,\ldots,T_g\}$}
+\KwOut{The exact GST weight}
+$d\leftarrow\operatorname{GroupDistances}(G,\mathcal{T})$\;
+$r^\star\leftarrow\operatorname{BestCommonRoot}(d)$\;
+$B\leftarrow\sum_{i\in[g]}d_i(r^\star)$\;
+$a\leftarrow\operatorname{FarthestGroup}(r^\star,d)$\;
+$K\leftarrow[g]\setminus\{a\}$\;
+$(h,a^{\max},c)\leftarrow\operatorname{HalfLimits}(g)$\;
+Initialize the tour bound and the progressive cut bound\;
+\ForEach{$i\in K$}{
+  $D_{\{i\}}\leftarrow d_i$\;
+  $\Br_{\{i\}}\leftarrow D_{\{i\}}$\;
+}
+$B\leftarrow\Improve(D,B)$\;
+\For{$s\leftarrow2$ \KwTo $h$}{
+  \ForEach{$S\subseteq K$ with $|S|=s$}{
+    $M_S\leftarrow\OrdSeed(S,D,\Br)$\;
+    $D_S\leftarrow\BoundedClosure(M_S,\{a\}\cup(K\setminus S),B)$\;
+    $\Br_S\leftarrow\Publish(D_S,M_S)$\;
+    Advance the cut bound using measured row work\;
+    $B\leftarrow\Improve(D,B)$\;
+  }
+}
+$A_\emptyset\leftarrow d_a$\;
+$B\leftarrow\CompleteLow(\emptyset,A_\emptyset,D,B)$\;
+\For{$s\leftarrow1$ \KwTo $c$}{
+  \ForEach{$S\subseteq K$ with $|S|=s$}{
+    $M^A_S\leftarrow\min_{\emptyset\neq Q\subseteq S}(A_{S\setminus Q}+\Br_Q)$\;
+    $A_S\leftarrow\BoundedClosure(M^A_S,K\setminus S,B)$\;
+    $B\leftarrow\CompleteLow(S,A_S,D,B)$\;
+  }
+}
+$G\leftarrow\HighTerminals(D,K,a,c,a^{\max},B)$\;
+\For{$s\leftarrow a^{\max}$ \KwDownTo $c+1$}{
+  \ForEach{$T\subseteq K$ with $|T|=s$}{
+    $F_T\leftarrow\OutsideSeed(T,G,\Br,H)$\;
+    $H_T\leftarrow\PrefixClosure(F_T,\{a\}\cup T,B)$\;
+    $B\leftarrow\CrossBoundary(T,A,\Br,H_T,B)$\;
+  }
+}
+\KwRet{$B$}\;
+\caption{Anchored bidirectional half-state evaluation.}
+\label{alg:main}
+\end{algorithm}
+
+\paragraph{Named interfaces.}
+Section~\ref{sec:branch} defines $\OrdSeed$ and $\Publish$.  Section~\ref{sec:low} defines $\CompleteLow$.  Section~\ref{sec:outside} defines $\OutsideSeed$ and $\CrossBoundary$.  Section~\ref{sec:upper} gives the feasible solutions constructed by $\Improve$.  $\HighTerminals$ is Algorithm~\ref{alg:transpose}.
+
+\paragraph{Reading Algorithm~\ref{alg:main}.}
+Line~1 materializes the group-distance collection $d$.  Lines~2--4 use it to choose the best common root, build the first feasible incumbent, and select the anchor.  Lines~5--7 derive the mask limits and initialize the two static bound families.  Lines~8--10 create the singleton ordinary rows; line~11 immediately lets the feasible constructions use them.
+
+Lines~12--18 build every remaining ordinary row in increasing mask size.  A row is joined, forward-closed, exported through the branch interface, and then used to purchase stronger bounds or feasible solutions.  Lines~19--25 compute the low anchored rows and settle every completion ending before the cut.  Line~26 transposes ordinary completions into all high targets at once.  Lines~27--31 traverse the high dependency DAG in decreasing mask size and settle each first crossing from a stored low row.  After every high row and crossing has been processed, line~32 returns the exact incumbent.
+
+\section{Ordinary Rows and Safe Bounds}
+\label{sec:ordinary}
+
+\subsection{Ordinary rows and the branch interface}
+\label{sec:branch}
+
+For a singleton, $D_{\{i\}}=d_i$.  For $|S|>1$, let $p(S)$ be the least group index in $S$.  The \emph{ordinary seed} keeps $p(S)$ on the accumulated side and attaches a nonempty branch $Q$ from the other side:
+\begin{equation}
+ M_S=\OrdSeed(S,D,\Br)=
+ \min_{\substack{\emptyset\neq Q\subset S\\p(S)\notin Q}}
+ \{D_{S\setminus Q}+\Br_Q\},\qquad D_S=\Clos(M_S).
+ \label{eq:ordinary}
+\end{equation}
+All minima and additions of vertex functions are pointwise.  After closure, $D_S(v)$ is published as an indivisible branch exactly when it was not already obtainable by a same-root split:
+\begin{equation}
+ \Br_S(v)=
+ \begin{cases}
+ D_S(v),& |S|=1,\\
+ D_S(v),& |S|>1\text{ and }D_S(v)<M_S(v),\\
+ \infty,&\text{otherwise.}
+ \end{cases}
+ \label{eq:branch}
+\end{equation}
+Thus $\Publish(D_S,M_S)$ returns the finite entries selected by~\eqref{eq:branch}.  An equality is expanded again at that root instead of being exported as another equivalent branch.
+
+\begin{lemma}[Branch-basis completeness]
+\label{lem:branch}
+Equation~\eqref{eq:ordinary} computes the same $D_S(v)$ values as the unrestricted rooted subset recurrence.
+\end{lemma}
+\begin{proof}
+Induct on $|S|$.  Every published entry is an exact $D$ value, so the restricted seed cannot be smaller.  Conversely, consider an optimum unrestricted split $(S\setminus Q,Q)$ at $v$.  If $\Br_Q(v)$ is finite, the split occurs in~\eqref{eq:ordinary}.  Otherwise $D_Q(v)=M_Q(v)$, and $Q=P\mathbin{\dot\cup}R$ for some $D_P(v)+\Br_R(v)=D_Q(v)$.  Move $P$ to the accumulated side.  Subadditivity at the common root gives
+$D_{(S\setminus Q)\cup P}(v)+\Br_R(v)\leq D_{S\setminus Q}(v)+D_Q(v)$.
+This replacement strictly shrinks the unpublished side, so iteration reaches a published branch without increasing cost.  Both seed functions, and hence their closures, coincide.
+\end{proof}
+
+Finite row entries are stored in vertex order.  For each row, exact byte counts choose among a sparse vector, a dense array, and a ranked bitmap.  Same-root joins use ordered merge, binary lookup, or bitmap intersection according to exact probe counts.  These layouts implement the same recurrence and require neither hashing nor a learned density threshold.
+
+\subsection{Admissible completion bounds}
+\label{sec:lower}
+
+Suppose a partial derivation has paid cost $x$, is rooted at $v$, and has unassigned labels $R$.  It survives exactly when $x+L(v,R)\leq B$, where
+\begin{equation}
+ L(v,R)=\max\{L^{\rm far}(v,R),L^{\rm tour}(v,R),L^{\rm cut}(v,R)\}.
+ \label{eq:lower}
+\end{equation}
+For overlapping groups, ``unassigned'' refers to a fixed representative hit for each group in an optimum, not to physical absence from the current subgraph.  This certificate ensures that an accidental hit cannot invalidate the lower-bound argument.
+
+All three terms are zero when $R=\emptyset$.  For a singleton $R=\{i\}$, set $\operatorname{HP}(R,i,i)=0$, so the tour expression below reduces to $d_i(v)$.
+
+The first term is the mandatory farthest connection,
+$L^{\rm far}(v,R)=\max_{i\in R}d_i(v)$.
+
+For the tour bound, let $\delta(i,j)$ denote the distance between groups $T_i$ and $T_j$.  Let $\operatorname{HP}(R,i,j)$ be the shortest Hamiltonian path through labels $R$ under $\delta$, with endpoints $i,j$.  A subset DP computes $\operatorname{HP}$, and doubling any completion tree proves
+\[
+ L^{\rm tour}(v,R)=\tfrac12\min_{i,j\in R}
+ \{d_i(v)+\operatorname{HP}(R,i,j)+d_j(v)\}.
+\]
+
+The third term shares edge capacity across groups.  Temporarily view each undirected edge in both accounting directions.  Group potentials $\pi_i$ are zero on $T_i$ and satisfy, for every accounting arc $(u,v)$,
+\begin{equation}
+ \sum_i[\pi_i(u)-\pi_i(v)]_+\leq w(u,v).
+ \label{eq:capacity}
+\end{equation}
+Orienting any completion tree away from $v$ charges every tree edge in only one direction, proving $L^{\rm cut}(v,R)=\sum_{i\in R}\pi_i(v)$.  Potentials are constructed by dual ascent on residual arc capacities~\cite{wong1984}.  Initially $r(u,v)=w(u,v)$.  When group $i$ is processed, let $q_i$ be its distance-to-$T_i$ function under $r$, set
+\[
+ \begin{aligned}
+ \pi_i(v)&=\min\{q_i(v),q_i(r^\star)\},\\
+ r(u,v)&\leftarrow r(u,v)-[\pi_i(u)-\pi_i(v)]_+.
+ \end{aligned}
+\]
+The truncation makes $r^\star$ the common cap, while residual subtraction preserves~\eqref{eq:capacity}.  To compute a later $q_i$, shortest-path propagation is seeded only by arcs whose residual was changed earlier.  Unchanged arcs already satisfy the original distance triangle inequality, but remain available once propagation starts.
+
+Constructing all potentials before a small search can cost more than it saves.  Therefore every completed non-singleton $D$ row deposits its exact seed probes, queue pops, and edge relaxations into a work bank.  Each $C^{\rm dual}=2m+n$ units construct the next potential in a fixed farthest-first group order.  Every prefix satisfies~\eqref{eq:capacity}, while unbuilt groups have zero potential.  If all potentials finish, unused residual capacity can be packed by scaling another family of truncated residual-distance potentials $q_i$.  With active scales $0\leq\lambda_i\leq1$ and load $\ell(u,v)=\sum_i[q_i(u)-q_i(v)]_+$, the maximal safe step is
+\[
+ \Delta=\min\left\{\min_i(1-\lambda_i),
+ \min_{\ell(u,v)>0}\frac{r(u,v)}{\ell(u,v)}\right\}.
+\]
+Each step fixes a group or saturates an arc, so packing terminates and preserves~\eqref{eq:capacity}.  Packing is attempted once only after later row work pays its explicit arc/group scan and at least one ordinary row remains to benefit; otherwise the residual structure is released.  Work accounting changes only when a stronger valid bound becomes available; it never changes the state graph or stopping condition.
+
+\subsection{Feasible incumbent updates}
+\label{sec:upper}
+
+The initial common-root solution has cost $U^{\rm root}(r)=\sum_i d_i(r)$.  We choose $r^\star=\arg\min_r U^{\rm root}(r)$, set $B=U^{\rm root}(r^\star)$, and choose a farthest group at $r^\star$ as the anchor, with group index breaking ties.  Any anchor is correct; this deterministic choice favors a long path that later branches may share.
+
+$\Improve$ maintains three additional feasible constructions.  First, it restores a shortest $r^\star$-to-$T_a$ backbone, attaches every non-anchor group triple at its best common junction on that backbone, compresses degree-two paths, and runs exact subset DP on the resulting tree.  Second, completed $D$ rows supply block-to-backbone costs for a path-facility partition, where each assigned block is connected by a realized rooted tree and path.  Third, once rows of size $\lceil k/3\rceil$ exist, all balanced three-block partitions are joined with the anchor path; a bounded sequence of exact closures lets the anchor side share a path with one selected block.  Each candidate is a union of actual graph paths and rooted trees, hence can only lower $B$ to another feasible value.  Expensive tree evaluations are invoked after measured closure work covers their exact probe count.
+
+\section{Anchored Bidirectional Evaluation}
+\label{sec:anchored}
+
+\subsection{Low inside rows and direct completions}
+\label{sec:low}
+
+The anchored base is $A_\emptyset=d_a$.  A low row absorbs one ordinary branch and then closes:
+\begin{equation}
+ A_S=\Clos\!\left(\min_{\emptyset\neq Q\subseteq S}
+ \{A_{S\setminus Q}+\Br_Q\}\right),\qquad |S|\leq c.
+ \label{eq:anchored}
+\end{equation}
+Only one operand contains the anchor, so every derivation has one anchored spine.  $\CompleteLow(S,A_S,D,B)$ partitions the remaining labels into two ordinary blocks and updates
+\begin{equation}
+ B\leftarrow\min\left\{B,
+ \min_{\substack{L\mathbin{\dot\cup}R=K\setminus S\\|L|,|R|\leq h}}
+ \inner{A_S}{D_L+D_R}\right\},
+ \label{eq:complete}
+\end{equation}
+where $D_\emptyset(v)=0$ and $\inner{f}{q}=\min_v\{f(v)+q(v)\}$.  Every update is a connected union at one root.
+
+\subsection{High outside rows and the crossing boundary}
+\label{sec:outside}
+
+Materializing $A_S$ for $c<|S|\leq a^{\max}$ is unnecessary because graph closure is self-adjoint under the min-plus inner product:
+\begin{equation}
+ \inner{\Clos(f)}{q}
+ =\min_{u,v}\{f(u)+\dist(u,v)+q(v)\}
+ =\inner{f}{\Clos(q)}.
+ \label{eq:selfadjoint}
+\end{equation}
+For a high mask $T$, $F_T$ denotes the suffix after the incoming closure, and $H_T=\Clos(F_T)$ pulls that suffix back to the preceding merge root.  Decreasing mask size makes every strict-superset dependency available:
+\begin{align}
+ F_T&=\min\!\left\{G_T,
+ \min_{\substack{\emptyset\neq Q\subseteq K\setminus T\\
+ |T\cup Q|\leq a^{\max}}}
+ \{\Br_Q+H_{T\cup Q}\}\right\},
+ \label{eq:outside}\\
+ H_T&=\Clos(F_T).
+ \label{eq:highclosure}
+\end{align}
+$\OutsideSeed$ is the right-hand side of~\eqref{eq:outside}.  All strict supersets are necessary because a forward transition may absorb a multi-group branch and skip mask layers.
+
+Every forward path that enters the high range has a unique first edge $S\rightarrow T=S\cup Q$ with $|S|\leq c<|T|$.  $\CrossBoundary$ therefore scans these edges and updates
+\begin{equation}
+ B\leftarrow\min\{B,\inner{A_S}{\Br_Q+H_T}\}.
+ \label{eq:crossing}
+\end{equation}
+In the running example, $T=\{1,2\}$ and $Q=\{2\}$ identify exactly this first crossing; $H_T$ already includes the later branch $\{4\}$ and the complement terminal.
+
+Backward rows require a lower bound on the already built anchored prefix, rather than on the suffix.  Let $P^{\rm anc}_T(v)$ be the maximum of the far, tour, and cut bounds applied to $\{a\}\cup T$.  Since $P^{\rm anc}_T(v)\leq A_T(v)$, a suffix value $q$ is discarded only if $q+P^{\rm anc}_T(v)>B$.  Each component is consistent along graph edges, so a discarded seed cannot become useful after closure.  This prefix-aware closure is exactly $\PrefixClosure(F_T,\{a\}\cup T,B)$ in Algorithm~\ref{alg:main}.
+
+\subsection{Root-wise terminal transposition}
+\label{sec:transpose}
+
+For a high target $T$, its direct suffix is
+\begin{equation}
+ G_T(v)=\min_{\substack{L\mathbin{\dot\cup}R=K\setminus T\\|L|,|R|\leq h}}
+ \{D_L(v)+D_R(v)\}.
+ \label{eq:terminal}
+\end{equation}
+Computing this expression separately for every $T$ repeatedly reads the same ordinary rows.  Algorithm~\ref{alg:transpose} instead fixes a root, enumerates an ordinary pair once, and emits it to the unique complement $T=K\setminus(L\cup R)$.  In the running example, the pair $(\{3,5\},\{6,7\})$ emits directly to $T=\{1,2,4\}$.
+
+Potentials provide a target-independent filter.  Define $\pi_X(v)=\sum_{i\in X}\pi_i(v)$,
+\[
+ \rho^v(S)=D_S(v)-\pi_S(v),\qquad
+ \beta^v=B-\pi_{\{a\}\cup K}(v).
+\]
+For every partition $L\mathbin{\dot\cup}R\mathbin{\dot\cup}T=K$,
+\begin{equation}
+ D_L(v)+D_R(v)+\pi_{\{a\}\cup T}(v)
+ =\rho^v(L)+\rho^v(R)+\pi_{\{a\}\cup K}(v).
+ \label{eq:reduced}
+\end{equation}
+Thus a pair with $\rho^v(L)+\rho^v(R)>\beta^v$ cannot improve $B$.  Reduced values only filter and order events; $G_T$ stores the true cost $D_L+D_R$.
+
+\makeatletter
+\begingroup
+\@twocolumnfalse
+\begin{algorithm}[H]
+\small
+\KwIn{Ordinary rows $D$, masks $K$, anchor $a$, cut $c$, limit $a^{\max}$, incumbent $B$}
+\KwOut{High terminal rows $G$}
+\ForEach{root $v$ in streamed vertex blocks}{
+  $E^v\leftarrow\{(\emptyset,0)\}$\;
+  \ForEach{ordinary row $D_S$ containing $v$}{
+    Insert $(S,D_S(v))$ into $E^v$\;
+  }
+  $\beta^v\leftarrow B-\pi_{\{a\}\cup K}(v)$\;
+  $z^{\rm sort}\leftarrow\operatorname{SortedProbeCount}(E^v,\beta^v)$\;
+  $z^{\rm sub}\leftarrow\operatorname{SubmaskProbeCount}(E^v,K)$\;
+  $\mathcal{P}\leftarrow\operatorname{CheaperExactPlan}(z^{\rm sort},z^{\rm sub})$\;
+  \ForEach{unordered disjoint pair $(L,R)$ returned by $\mathcal{P}$}{
+    \If{$\rho^v(L)+\rho^v(R)\leq\beta^v$}{
+      $T\leftarrow K\setminus(L\cup R)$\;
+      \If{$c<|T|\leq a^{\max}$}{
+        $x\leftarrow D_L(v)+D_R(v)$\;
+        \If{$x+P^{\rm anc}_T(v)\leq B$}{
+          $G_T(v)\leftarrow\min\{G_T(v),x\}$\;
+        }
+      }
+    }
+  }
+}
+\KwRet{$G$}\;
+\caption{Root-wise transposed high-terminal generation.}
+\label{alg:transpose}
+\end{algorithm}
+\endgroup
+\makeatother
+
+\paragraph{Reading Algorithm~\ref{alg:transpose}.}
+Lines~1--4 gather, for one streamed root, all ordinary masks whose rows contain that root; the explicit empty row also represents one-block completions.  Lines~5--8 compute the common reduced-cost budget and choose between two exact enumerations by their exact probe counts.  The sorted plan scans value pairs under $\beta^v$ and then tests disjointness.  The submask plan enumerates $R\subseteq K\setminus L$ and looks up present rows.  Lines~9--15 apply the common budget, map each surviving pair to one high complement, apply the full anchored-prefix bound, and retain its minimum true cost.  Both plans enumerate the same disjoint pairs, and submask enumeration performs at most $\sum_{L\subseteq K}2^{k-|L|}=3^k$ probes.  Line~16 returns the aggregated terminal rows.
+
+\section{Correctness and Complexity}
+\label{sec:analysis}
+
+\begin{lemma}[Anchored balanced decomposition]
+\label{lem:balanced}
+For any optimum GST and any anchor group, there is a root $r$ and a partition $S\mathbin{\dot\cup}L\mathbin{\dot\cup}R=K$ such that $|S|\leq h-1$, $|L|,|R|\leq h$, and the optimum is the union of one rooted component covering $T_a\cup S$ and two rooted components covering $L$ and $R$.
+\end{lemma}
+\begin{proof}
+Remove cycles and redundant edges from an optimum, and fix one hit for each group.  Give each selected vertex the number of labels selecting it.  A weighted centroid $r$ leaves components of weight at most $h$.  Treat these component weights and labels at $r$ as positive integer items of total $g$, each at most $h$.  They fit in three bins of capacity $h$: while more than three items remain, merge the two smallest.  If the two smallest exceeded $h$, the four smallest would sum to at least $2h+2>g$.  Assign the bin containing the anchor hit to the anchored component.  It has at most $h-1$ non-anchor labels; the other bins give $L$ and $R$.  Group overlap and zero-weight edges do not change this counting argument.
+\end{proof}
+
+\begin{lemma}[Exact high-range replacement]
+\label{lem:outside}
+All low completions in~\eqref{eq:complete} together with all first-crossing values in~\eqref{eq:crossing} have the same minimum as materializing every forward $A_T$ with $|T|\leq a^{\max}$.
+\end{lemma}
+\begin{proof}
+A forward edge that attaches $Q$ is the operator $\mathcal{T}_Q(f)=\Clos(f+\Br_Q)$.  Equation~\eqref{eq:selfadjoint} moves its closure to the suffix, so its reverse action is $q\mapsto\Br_Q+\Clos(q)$.  Applying this identity in reverse topological order yields~\eqref{eq:outside}--\eqref{eq:highclosure}.  Every high forward path has one first low-to-high edge and maps value-preservingly to one crossing term.  Conversely, every outside term is a true terminal or the reversal of a true forward edge, so it reconstructs a forward derivation.
+\end{proof}
+
+\begin{theorem}[Exactness]
+\label{thm:exact}
+Algorithm~\ref{alg:main} returns the optimum GST weight.
+\end{theorem}
+\begin{proof}
+Lemma~\ref{lem:branch} preserves every ordinary row.  Lemma~\ref{lem:balanced} places an optimum in an $A_S+D_L+D_R$ completion inside the retained half-state envelope.  Lemma~\ref{lem:outside} preserves every such completion across the low/high cut.  Algorithm~\ref{alg:transpose} is a bijective reordering from each disjoint ordinary pair to its complement target;~\eqref{eq:reduced} rejects only pairs already exceeding a feasible incumbent under an admissible prefix.  The three terms of~\eqref{eq:lower} lower-bound the fixed-representative completion certificate: mandatory distance, half a doubled completion tour, and edge capacity charged at most once by~\eqref{eq:capacity}.  Progressive potentials, residual packing, and prefix pruning preserve these inequalities.  Therefore no improving optimum derivation is removed, while every update to $B$ is a realizable connected solution.  The returned value equals $\OPT$.
+\end{proof}
+
+Let
+\begin{align*}
+ N^D&=\sum_{i=1}^{h}\binom{k}{i}, &
+ N^A&=\sum_{i=0}^{c}\binom{k}{i},\\
+ N^H&=\sum_{i=c+1}^{a^{\max}}\binom{k}{i}, &
+ N&=N^D+N^A+N^H.
+\end{align*}
+If one graph closure costs $C^G=O(m+n\log n)$, all ordinary joins, anchored transitions, reverse edges, and transposed terminal probes contribute $O(n3^k)$.  Group-tour DP costs $O(g^3 2^g)$; potentials and packing cost $O(gC^G+g^2m)$; backbone and three-block feasible solutions cost $O((h+t)3^k)$ for compressed backbone-tree size $t\leq n$.  The worst-case time is
+\begin{equation}
+ O\!\left(NC^G+n3^k+gC^G+g^2m+g^3 2^g+(h+t)3^k\right).
+ \label{eq:time}
+\end{equation}
+This is $O(\operatorname{poly}(g)(n3^k+2^kC^G))$, matching the exponential base of balanced MITM~\cite{iwata2019}.
+
+Let $Z^{\rm state}$ be the number of finite rooted values stored and $E^{\rm term}$ the number of aggregated high-terminal events.  Space is
+\begin{equation}
+ O(m+gn+g^2 2^g+t2^k+Z^{\rm state}+E^{\rm term}),
+ \label{eq:space}
+\end{equation}
+where $Z^{\rm state}\leq nN$ and $E^{\rm term}\leq nN^H$ in the dense worst case.  Root streaming bounds transient transpose storage.  The method combines balanced decomposition~\cite{iwata2019}, exact GST recurrence~\cite{dreyfus1971,pruneddp,gpu4gst}, dual ascent~\cite{wong1984}, outside evaluation~\cite{gildea2020}, and disjoint-subset enumeration~\cite{bjorklund2007} into one anchored inside/outside state organization.
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{release_v6_method}
+
+\end{document}

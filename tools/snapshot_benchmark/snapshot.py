@@ -32,6 +32,12 @@ def method_exe_name(method: str) -> str:
         "ReleaseV2": "gst_release_v2_main",
         "ReleaseV3": "gst_release_v3_main",
         "ReleaseV4": "gst_release_v4_main",
+        "ReleaseV5": "gst_release_v5_main",
+        "Test121": "gst_test80_anchor_tree_main",
+        "Test142": "gst_test142_adjoint_anchor_main",
+        "Test144": "gst_test144_adjoint_eager_boundary_main",
+        "Test145": "gst_test145_transposed_terminal_main",
+        "Test149": "gst_test149_changed_arc_dual_main",
     }
     if method in table:
         base = table[method]
@@ -51,11 +57,14 @@ def method_stats_name(method: str) -> str:
         "ReleaseV2": "releasev2_stats.txt",
         "ReleaseV3": "releasev3_stats.txt",
         "ReleaseV4": "releasev4_stats.txt",
+        "ReleaseV5": "releasev5_stats.txt",
     }
     if method in table:
         return table[method]
     if method in {"Test16", "Test17", "Test18", "Test19", "Test21", "Test80"}:
         return f"{method.lower()}_stats.txt"
+    if method in {"Test121", "Test142", "Test144", "Test145", "Test149"}:
+        return "test80_stats.txt"
     raise SystemExit(f"Unknown method name: {method}")
 
 
@@ -156,23 +165,33 @@ def ensure_snapshot_data(plan: dict, suite_name: str, *, force: bool) -> Path:
     return generated_root
 
 
-def read_weights(path: Path) -> tuple[int, float, float | None]:
+def read_weights(path: Path) -> tuple[int, float, float | None, float | None]:
     count = 0
     total_time = 0.0
     last_weight: float | None = None
+    peak_rss_mb: float | None = None
     if not path.exists():
-        return 0, 0.0, None
+        return 0, 0.0, None, None
     with path.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
-            if not line or line.startswith("#"):
+            if not line:
+                continue
+            if line.startswith("#"):
+                count = 0
+                total_time = 0.0
+                last_weight = None
+                peak_rss_mb = None
                 continue
             parts = line.split()
             if len(parts) >= 2:
                 count += 1
                 total_time += float(parts[0])
                 last_weight = float(parts[1])
-    return count, total_time, last_weight
+                if len(parts) >= 3:
+                    value = float(parts[2])
+                    peak_rss_mb = value if peak_rss_mb is None else max(peak_rss_mb, value)
+    return count, total_time, last_weight, peak_rss_mb
 
 
 def read_peak_mb(stats_file: Path) -> float | None:
@@ -181,10 +200,14 @@ def read_peak_mb(stats_file: Path) -> float | None:
     peak = None
     with stats_file.open("r", encoding="utf-8") as f:
         for line in f:
+            if line.startswith("#"):
+                peak = None
+                continue
             for token in line.split():
                 if token.startswith("peak_rss_mb="):
                     try:
-                        peak = float(token.split("=", 1)[1])
+                        value = float(token.split("=", 1)[1])
+                        peak = value if peak is None else max(peak, value)
                     except ValueError:
                         pass
     return peak
@@ -226,11 +249,18 @@ def run_suite(plan: dict, method: str, suite_name: str, generated_root: Path) ->
                 exit_code = -1
                 timed_out = True
 
-            result_dir = out_root / ds["name"] / method / f"query_g{g}"
+            result_method = (
+                "Test80"
+                if method
+                in {"Test121", "Test142", "Test144", "Test145"}
+                else method
+            )
+            result_dir = out_root / ds["name"] / result_method / f"query_g{g}"
             weights = result_dir / "weights.txt"
             stats = result_dir / stats_name
-            count, total_time, last_weight = read_weights(weights)
-            peak = read_peak_mb(stats)
+            count, total_time, last_weight, peak = read_weights(weights)
+            if peak is None:
+                peak = read_peak_mb(stats)
             rows.append(
                 {
                     "dataset": ds["name"],

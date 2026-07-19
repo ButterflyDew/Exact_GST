@@ -7,4 +7,3 @@ add_executable(gst_paid_pair_profile_probe
 target_include_directories(gst_paid_pair_profile_probe PRIVATE ${CMAKE_SOURCE_DIR})
 set_target_properties(gst_paid_pair_profile_probe PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tools/paid_pair_profile_probe)
-

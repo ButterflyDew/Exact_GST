@@ -10,3 +10,4 @@ add_executable(gst_distance_epoch_solver_probe
     ${CMAKE_SOURCE_DIR}/methods/Release/release_v2.cpp
 )
 target_include_directories(gst_distance_epoch_solver_probe PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(gst_distance_epoch_solver_probe PRIVATE Threads::Threads)

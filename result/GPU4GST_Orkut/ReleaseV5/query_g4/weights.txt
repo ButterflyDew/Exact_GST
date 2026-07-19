@@ -1,0 +1,2 @@
+# Run started=2026-07-17 18:30:40 graph=GPU4GST_Orkut method=ReleaseV5 data_root=data graph_folder=data\GPU4GST_Orkut query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=1 query_count=1 result_dir=result\GPU4GST_Orkut\ReleaseV5\query_g4 rss_mb=7987.922 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+51.633169 0.0000000000 10160.973

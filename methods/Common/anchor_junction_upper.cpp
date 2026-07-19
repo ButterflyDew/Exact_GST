@@ -31,6 +31,46 @@ int FirstBit(int mask)
 #endif
 }
 
+std::vector<int> RecoverTightPathToGroup(const Graph& graph,
+                                         const std::vector<int>& terminals,
+                                         const std::vector<double>& distance,
+                                         int root,
+                                         long long& work)
+{
+    // A zero-weight tight edge need not decrease distance.  Traverse the
+    // tight-edge graph with visited marks so recovery cannot cycle inside a
+    // zero-distance component.
+    std::vector<char> is_terminal(graph.n + 1);
+    for (int terminal : terminals)
+        is_terminal[terminal] = 1;
+
+    std::vector<char> visited(graph.n + 1);
+    std::vector<size_t> next_edge(graph.n + 1);
+    std::vector<int> path{root};
+    visited[root] = 1;
+    while (!path.empty() && !is_terminal[path.back()])
+    {
+        const int vertex = path.back();
+        bool advanced = false;
+        while (next_edge[vertex] < graph.adj[vertex].size())
+        {
+            const AdjEdge& edge = graph.adj[vertex][next_edge[vertex]++];
+            ++work;
+            if (visited[edge.to] || edge.w + distance[edge.to] != distance[vertex])
+                continue;
+            visited[edge.to] = 1;
+            path.push_back(edge.to);
+            advanced = true;
+            break;
+        }
+        if (!advanced)
+            path.pop_back();
+    }
+    if (path.empty())
+        throw std::runtime_error("Failed to recover the paid anchor path.");
+    return path;
+}
+
 }  // namespace
 
 Result BuildUpper(
@@ -38,41 +78,16 @@ Result BuildUpper(
     const Query& query,
     const std::vector<std::vector<double>>& group_distance,
     int root,
-    int anchor)
+    int anchor,
+    std::vector<double>* anchor_path_distance,
+    AnchorTree* anchor_tree)
 {
     Result result;
     result.upper = fp::kInf;
     const int g = static_cast<int>(query.groups.size());
 
-    std::vector<char> anchor_terminal(graph.n + 1);
-    for (int vertex : query.groups[anchor])
-        anchor_terminal[vertex] = 1;
-    std::vector<int> path;
-    int vertex = root;
-    for (int steps = 0; steps <= graph.n; ++steps)
-    {
-        path.push_back(vertex);
-        if (anchor_terminal[vertex])
-            break;
-        int next_vertex = 0;
-        double next_value = fp::kInf;
-        for (const AdjEdge& edge : graph.adj[vertex])
-        {
-            ++result.work;
-            const double candidate = edge.w + group_distance[anchor][edge.to];
-            if (candidate < next_value ||
-                (candidate == next_value && edge.to < next_vertex))
-            {
-                next_value = candidate;
-                next_vertex = edge.to;
-            }
-        }
-        if (!next_vertex || next_value > group_distance[anchor][vertex] + fp::kEps)
-            throw std::runtime_error("Failed to recover the paid anchor path.");
-        vertex = next_vertex;
-    }
-    if (!anchor_terminal[path.back()])
-        throw std::runtime_error("Paid anchor path did not reach its group.");
+    const std::vector<int> path = RecoverTightPathToGroup(
+        graph, query.groups[anchor], group_distance[anchor], root, result.work);
     result.anchor_path = path;
 
     std::vector<double> path_distance(graph.n + 1, fp::kInf);
@@ -197,6 +212,12 @@ Result BuildUpper(
     for (int index = 0; index < super_root; ++index)
         id[kept_vertices[index]] = index;
     std::vector<std::vector<Child>> children(super_root + 1);
+    if (anchor_tree)
+    {
+        anchor_tree->vertices = kept_vertices;
+        anchor_tree->parent.assign(super_root, super_root);
+        anchor_tree->parent_edge.assign(super_root, 0.0);
+    }
     for (int index = 0; index < super_root; ++index)
     {
         int ancestor = parent[kept_vertices[index]];
@@ -209,6 +230,11 @@ Result BuildUpper(
         }
         const int parent_id = ancestor ? id[ancestor] : super_root;
         children[parent_id].push_back({index, ancestor ? length : 0.0});
+        if (anchor_tree)
+        {
+            anchor_tree->parent[index] = parent_id;
+            anchor_tree->parent_edge[index] = ancestor ? length : 0.0;
+        }
     }
 
     std::vector<int> order{super_root};
@@ -253,6 +279,8 @@ Result BuildUpper(
     }
 
     result.upper = group_distance[anchor][root] + dp[super_root][full];
+    if (anchor_path_distance)
+        anchor_path_distance->swap(path_distance);
     return result;
 }
 

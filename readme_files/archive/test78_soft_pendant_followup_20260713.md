@@ -36,10 +36,26 @@ F(X) = C(min_{Y nonempty subset X} D(Y) + F(X-Y))
 seed 7802  200/200
 ```
 
-这只是随机证据。当前没有一般分解证明，也没有 g13/大图共享规模结论；递归枚举还可能退化为另一种 subset DP。因此 soft-pendant 保留为理论候选，不进入正式 Test。
+这是 2026-07-13 当时的随机证据；当时尚无一般分解证明。2026-07-15 的 Test95 已证明 core 可以进一步收紧到 3，完整定理与新的验证见 `../test95_soft_pendant_decomposition.md`。本段保留用于说明猜想到定理的演化，不再代表当前理论结论。
 
 ## 3. 与 Test79 的边界
 
 soft transform 试图让一个 row 隐式携带 paid second interface；Test79 采用的是另一条已证明安全的路线：branch-junction 只构造可行 upper，再把实际工作计入 ReleaseV3 rent-or-buy。后者已经通过 full DBLP，不能反向证明 soft-pendant 完备。
 
 本轮没有新增论文引用。Dreyfus--Wagner 只作为局部 subset recurrence 背景；soft-terminal 组合尚未完成系统新颖性检索。
+
+## 4. 2026-07-15：外层顺序的精确子集 DAG
+
+原探针递归枚举全部 3/4-block 顺序，块数增加时有阶乘重复。由于 `SoftBlockTransform(B, row)` 对输入 row 保持逐点 `min`：
+
+```text
+T_B(min(row1,row2)) = min(T_B(row1),T_B(row2)),
+```
+
+所有到达同一 covered mask 的顺序可以先逐顶点取最小，再继续扩展。工具现为每个 `covered` 保存一条 pointwise-min row，并沿每个不相交 3/4-block 的子集 DAG 边做一次 transform。该改写精确表示原任意顺序 family，不是近似剪枝，也没有经验参数；最坏外层从排列枚举改为 subset-DAG 枚举。
+
+Release/O2 验证为 g9 singleton seed `7802` 的 `200/200`，fixed g13 singleton seed `715121` 的 `20/20`，fixed g13 双候选组 seed `715122` 的 `20/20`；此前两组 g13 smoke 各为 `5/5`。这部分当时只增强了候选 family 的计算方式。
+
+## 5. 2026-07-15：Test95 完备分解
+
+Test95 随后证明了纯树结构的 3/4 pendant lemma：将 group witnesses 变成零长标号叶并二叉化后，可反复剥离 3/4 单接口 blocks，留下 `core<=3`。但 Test96 的 g13 双候选组反例表明，连续 blocks 的 attachment points 可位于 paid tree 的不同内部位置，标量 rooted row 会重复支付重根路径；固定 group 0 的 soft/bounded-D4 价格为 `73`，exact 为 `71`。所以保留的是树分解引理，不是 soft 标量 family 的完备性。完整边界见 `../test95_soft_pendant_decomposition.md` 与 `test96_bounded_d4_full_a_20260715.md`；Test80 与发行版均未修改。

@@ -1,0 +1,4 @@
+add_executable(gst_test157_core_verifier test157_core_verifier.cpp)
+target_include_directories(gst_test157_core_verifier PRIVATE ${CMAKE_SOURCE_DIR})
+set_target_properties(gst_test157_core_verifier PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})

@@ -1,0 +1,6 @@
+# Run started=2026-07-17 20:59:45 graph=GPU4GST_Twitch method=ReleaseV5 data_root=data graph_folder=data\GPU4GST_Twitch query_file=query_g5.txt run_subdir=query_g5 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Twitch\ReleaseV5\query_g5 rss_mb=43.586 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+query=1 best=369.0000000000 wall_ms=167.914 rss_before_mb=43.766 rss_after_mb=44.328 peak_rss_mb=55.867
+query=2 best=369.0000000000 wall_ms=251.418 rss_before_mb=44.355 rss_after_mb=46.039 peak_rss_mb=56.715
+query=3 best=178.0000000000 wall_ms=241.223 rss_before_mb=46.047 rss_after_mb=45.012 peak_rss_mb=56.863
+query=4 best=198.0000000000 wall_ms=167.079 rss_before_mb=45.020 rss_after_mb=45.020 peak_rss_mb=55.965
+query=5 best=293.0000000000 wall_ms=162.494 rss_before_mb=45.027 rss_after_mb=44.492 peak_rss_mb=55.906

@@ -1,0 +1,2 @@
+# Run started=2026-07-17 18:18:45 graph=GPU4GST_DBLP method=DPBF data_root=data graph_folder=data\GPU4GST_DBLP query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=1 query_count=1 result_dir=result\GPU4GST_DBLP\DPBF\query_g4 rss_mb=954.113 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+40.852304 95.0000000000 1979.008

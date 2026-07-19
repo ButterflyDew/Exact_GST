@@ -1,0 +1,1 @@
+add_executable(gst_prepare_gpu4gst prepare_gpu4gst.cpp)

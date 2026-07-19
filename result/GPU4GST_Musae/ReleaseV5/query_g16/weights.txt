@@ -1,0 +1,2 @@
+# Run started=2026-07-18 15:40:12 graph=GPU4GST_Musae method=ReleaseV5 data_root=data graph_folder=data\GPU4GST_Musae query_file=query_g16.txt run_subdir=query_g16 original_query_count=300 query_begin=1 query_limit=1 query_count=1 result_dir=result\GPU4GST_Musae\ReleaseV5\query_g16 rss_mb=35.324 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+142.125133 555.0000000000 444.508

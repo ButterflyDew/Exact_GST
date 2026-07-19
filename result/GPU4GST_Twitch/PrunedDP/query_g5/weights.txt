@@ -1,0 +1,6 @@
+# Run started=2026-07-17 20:59:41 graph=GPU4GST_Twitch method=PrunedDP data_root=data graph_folder=data\GPU4GST_Twitch query_file=query_g5.txt run_subdir=query_g5 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Twitch\PrunedDP\query_g5 rss_mb=43.410 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1 state_storage=hash mst_upper=on lb2_pathmax=on
+0.180744 369.0000000000 51.684
+0.405651 369.0000000000 56.918
+0.092691 178.0000000000 50.309
+0.117821 198.0000000000 50.438
+0.122108 293.0000000000 51.148

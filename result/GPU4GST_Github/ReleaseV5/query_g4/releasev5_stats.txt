@@ -1,0 +1,6 @@
+# Run started=2026-07-17 18:15:57 graph=GPU4GST_Github method=ReleaseV5 data_root=data graph_folder=data\GPU4GST_Github query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Github\ReleaseV5\query_g4 rss_mb=38.402 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+query=1 best=0.0000000000 wall_ms=87.494 rss_before_mb=38.586 rss_after_mb=39.824 peak_rss_mb=47.922
+query=2 best=95.0000000000 wall_ms=102.350 rss_before_mb=39.840 rss_after_mb=39.297 peak_rss_mb=48.344
+query=3 best=199.0000000000 wall_ms=197.188 rss_before_mb=39.320 rss_after_mb=39.289 peak_rss_mb=49.105
+query=4 best=193.0000000000 wall_ms=161.914 rss_before_mb=39.297 rss_after_mb=39.598 peak_rss_mb=48.887
+query=5 best=390.0000000000 wall_ms=129.017 rss_before_mb=39.605 rss_after_mb=39.305 peak_rss_mb=49.188

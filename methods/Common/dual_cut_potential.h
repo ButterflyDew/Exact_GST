@@ -2,6 +2,7 @@
 #define GST_METHODS_COMMON_DUAL_CUT_POTENTIAL_H
 
 #include <algorithm>
+#include <cstdint>
 #include <functional>
 #include <numeric>
 #include <queue>
@@ -35,7 +36,7 @@ public:
                const std::vector<std::vector<double>>& group_distance,
                int root)
     {
-        BuildInternal(graph, query, group_distance, std::vector<int>{root}, false);
+        BuildInternal<false>(graph, query, group_distance, std::vector<int>{root}, false);
         primal_upper_ = RecoverPrimal(graph, query, root, residual_);
         residual_.clear();
         residual_.shrink_to_fit();
@@ -46,7 +47,7 @@ public:
                       const std::vector<std::vector<double>>& group_distance,
                       int root)
     {
-        BuildInternal(graph, query, group_distance, std::vector<int>{root}, true);
+        BuildInternal<false>(graph, query, group_distance, std::vector<int>{root}, true);
         primal_upper_ = RecoverPrimal(graph, query, root, residual_);
         residual_.clear();
         residual_.shrink_to_fit();
@@ -57,7 +58,170 @@ public:
                               const std::vector<std::vector<double>>& group_distance,
                               int root)
     {
-        BuildInternal(graph, query, group_distance, std::vector<int>{root}, false);
+        BuildInternal<false>(graph, query, group_distance, std::vector<int>{root}, false);
+        primal_upper_ = RecoverPrimal(graph, query, root, residual_);
+    }
+
+    void BuildKeepingResidualChangedArcs(
+        const Graph& graph,
+        const Query& query,
+        const std::vector<std::vector<double>>& group_distance,
+        int root)
+    {
+        BuildInternal<true>(graph, query, group_distance, std::vector<int>{root}, false);
+        primal_upper_ = RecoverPrimal(graph, query, root, residual_);
+    }
+
+    void BeginProgressiveChangedArcs(
+        const Graph& graph,
+        const Query& query,
+        const std::vector<std::vector<double>>& group_distance,
+        int root)
+    {
+        const int g = static_cast<int>(query.groups.size());
+        objective_ = 0.0;
+        primal_upper_ = fp::kInf;
+        seed_arc_scans_ = 0;
+        full_seed_arc_scans_ = 0;
+        changed_arcs_ = 0;
+        potential_.assign(g, {});
+        order_.resize(g);
+        std::iota(order_.begin(), order_.end(), 0);
+        std::sort(order_.begin(), order_.end(), [&](int left, int right)
+        {
+            if (group_distance[left][root] != group_distance[right][root])
+                return group_distance[left][root] > group_distance[right][root];
+            return left < right;
+        });
+
+        residual_.assign(static_cast<size_t>(2) * graph.m, 0.0);
+        for (const auto& edge : graph.edges)
+        {
+            residual_[2 * edge.id] = edge.w;
+            residual_[2 * edge.id + 1] = edge.w;
+        }
+        progressive_changed_arc_words_.assign(
+            (static_cast<size_t>(2) * graph.m + 63) / 64, 0);
+        progressive_group_distance_ = &group_distance;
+        progressive_root_ = root;
+        progressive_index_ = 0;
+    }
+
+    bool AdvanceProgressiveChangedArcs(const Graph& graph)
+    {
+        if (!progressive_group_distance_ || progressive_index_ >= order_.size())
+            return false;
+
+        using HeapItem = std::pair<double, int>;
+        const int group = order_[progressive_index_];
+        std::vector<double> distance = (*progressive_group_distance_)[group];
+        std::priority_queue<HeapItem, std::vector<HeapItem>, std::greater<HeapItem>> heap;
+        if (progressive_index_ > 0)
+        {
+            full_seed_arc_scans_ += static_cast<long long>(2) * graph.m;
+            for (size_t word_index = 0;
+                 word_index < progressive_changed_arc_words_.size();
+                 ++word_index)
+            {
+                std::uint64_t bits = progressive_changed_arc_words_[word_index];
+                while (bits)
+                {
+#if defined(_MSC_VER)
+                    unsigned long offset = 0;
+                    _BitScanForward64(&offset, bits);
+#else
+                    const int offset = __builtin_ctzll(bits);
+#endif
+                    const int arc = static_cast<int>(word_index * 64 + offset);
+                    bits &= bits - 1;
+                    if (arc >= 2 * graph.m)
+                        continue;
+                    ++seed_arc_scans_;
+                    const UndirectedEdge& edge = graph.edges[arc / 2];
+                    const bool forward = ArcIndex(edge.id, edge.u, edge.v) == arc;
+                    const int target = forward ? edge.u : edge.v;
+                    const int source = forward ? edge.v : edge.u;
+                    const double next = residual_[arc] + distance[source];
+                    if (next < distance[target])
+                    {
+                        distance[target] = next;
+                        heap.push({next, target});
+                    }
+                }
+            }
+        }
+        while (!heap.empty())
+        {
+            const auto [value, vertex] = heap.top();
+            heap.pop();
+            if (value != distance[vertex])
+                continue;
+            for (const AdjEdge& edge : graph.adj[vertex])
+            {
+                const int arc = ArcIndex(edge.edge_id, edge.to, vertex);
+                const double next = value + residual_[arc];
+                if (next < distance[edge.to])
+                {
+                    distance[edge.to] = next;
+                    heap.push({next, edge.to});
+                }
+            }
+        }
+
+        const double root_distance = distance[progressive_root_];
+        objective_ += root_distance;
+        auto& group_potential = potential_[group];
+        group_potential.assign(graph.n + 1, 0.0);
+        auto MarkChangedArc = [&](int arc)
+        {
+            std::uint64_t& word =
+                progressive_changed_arc_words_[static_cast<size_t>(arc) >> 6];
+            const std::uint64_t bit = std::uint64_t{1} << (arc & 63);
+            if (!(word & bit))
+            {
+                word |= bit;
+                ++changed_arcs_;
+            }
+        };
+        for (int vertex = 1; vertex <= graph.n; ++vertex)
+            group_potential[vertex] = std::min(distance[vertex], root_distance);
+        for (const auto& edge : graph.edges)
+        {
+            const double forward = std::max(
+                0.0, group_potential[edge.u] - group_potential[edge.v]);
+            const double backward = std::max(
+                0.0, group_potential[edge.v] - group_potential[edge.u]);
+            const int forward_arc = ArcIndex(edge.id, edge.u, edge.v);
+            const int backward_arc = ArcIndex(edge.id, edge.v, edge.u);
+            if (forward > 0.0)
+                MarkChangedArc(forward_arc);
+            if (backward > 0.0)
+                MarkChangedArc(backward_arc);
+            residual_[forward_arc] =
+                std::max(0.0, residual_[forward_arc] - forward);
+            residual_[backward_arc] =
+                std::max(0.0, residual_[backward_arc] - backward);
+        }
+        ++progressive_index_;
+        return true;
+    }
+
+    bool ProgressiveComplete() const
+    {
+        return progressive_group_distance_ && progressive_index_ == order_.size();
+    }
+
+    int ProgressiveGroupsBuilt() const
+    {
+        return static_cast<int>(progressive_index_);
+    }
+
+    void RecoverProgressivePrimal(const Graph& graph,
+                                  const Query& query,
+                                  int root)
+    {
+        if (!ProgressiveComplete())
+            throw std::runtime_error("Cannot recover primal from an incomplete dual.");
         primal_upper_ = RecoverPrimal(graph, query, root, residual_);
     }
 
@@ -214,7 +378,8 @@ public:
                         const std::vector<std::vector<double>>& group_distance,
                         int anchor_group)
     {
-        BuildInternal(graph, query, group_distance, query.groups[anchor_group], false);
+        BuildInternal<false>(
+            graph, query, group_distance, query.groups[anchor_group], false);
         primal_upper_ = fp::kInf;
         residual_.clear();
         residual_.shrink_to_fit();
@@ -226,10 +391,17 @@ public:
         while (mask)
         {
             const int bit = mask & -mask;
-            value += potential_[FirstBit(bit)][vertex];
+            const auto& group_potential = potential_[FirstBit(bit)];
+            if (!group_potential.empty())
+                value += group_potential[vertex];
             mask ^= bit;
         }
         return value;
+    }
+
+    double GroupAt(int vertex, int group) const
+    {
+        return potential_[group].empty() ? 0.0 : potential_[group][vertex];
     }
 
     double Objective() const
@@ -247,7 +419,12 @@ public:
         return order_;
     }
 
+    long long SeedArcScans() const { return seed_arc_scans_; }
+    long long FullSeedArcScans() const { return full_seed_arc_scans_; }
+    long long ChangedArcs() const { return changed_arcs_; }
+
 private:
+    template <bool changed_arc_seeds>
     void BuildInternal(const Graph& graph,
                        const Query& query,
                        const std::vector<std::vector<double>>& group_distance,
@@ -259,6 +436,9 @@ private:
         const int n = graph.n;
         const int g = static_cast<int>(query.groups.size());
         objective_ = 0.0;
+        seed_arc_scans_ = 0;
+        full_seed_arc_scans_ = 0;
+        changed_arcs_ = 0;
         potential_.assign(g, std::vector<double>(n + 1));
         order_.clear();
         std::vector<int> static_order(g);
@@ -289,6 +469,21 @@ private:
         std::vector<double> distance(n + 1);
         std::vector<double> capped(n + 1);
         std::vector<char> processed(g);
+        // Original group distances satisfy every untouched arc.  Only arcs
+        // affected by an earlier potential can seed a residual-distance repair.
+        std::vector<std::uint64_t> changed_arc_words;
+        if constexpr (changed_arc_seeds)
+            changed_arc_words.resize((static_cast<size_t>(2) * graph.m + 63) / 64);
+        auto MarkChangedArc = [&](int arc)
+        {
+            std::uint64_t& word = changed_arc_words[static_cast<size_t>(arc) >> 6];
+            const std::uint64_t bit = std::uint64_t{1} << (arc & 63);
+            if (!(word & bit))
+            {
+                word |= bit;
+                ++changed_arcs_;
+            }
+        };
         for (int order_index = 0; order_index < g; ++order_index)
         {
             const int group = dynamic_order
@@ -301,21 +496,61 @@ private:
             std::priority_queue<HeapItem, std::vector<HeapItem>, std::greater<HeapItem>> heap;
             if (order_index > 0)
             {
-                for (const auto& edge : graph.edges)
+                if constexpr (changed_arc_seeds)
                 {
-                    const double to_u =
-                        residual_[ArcIndex(edge.id, edge.u, edge.v)] + distance[edge.v];
-                    if (to_u < distance[edge.u])
+                    full_seed_arc_scans_ += static_cast<long long>(2) * graph.m;
+                    for (size_t word_index = 0; word_index < changed_arc_words.size();
+                         ++word_index)
                     {
-                        distance[edge.u] = to_u;
-                        heap.push({to_u, edge.u});
+                        std::uint64_t bits = changed_arc_words[word_index];
+                        while (bits)
+                        {
+#if defined(_MSC_VER)
+                            unsigned long offset = 0;
+                            _BitScanForward64(&offset, bits);
+#else
+                            const int offset = __builtin_ctzll(bits);
+#endif
+                            const int arc = static_cast<int>(word_index * 64 + offset);
+                            bits &= bits - 1;
+                            if (arc >= 2 * graph.m)
+                                continue;
+                            ++seed_arc_scans_;
+                            const UndirectedEdge& edge = graph.edges[arc / 2];
+                            const bool forward = ArcIndex(edge.id, edge.u, edge.v) == arc;
+                            const int target = forward ? edge.u : edge.v;
+                            const int source = forward ? edge.v : edge.u;
+                            const double next = residual_[arc] + distance[source];
+                            if (next < distance[target])
+                            {
+                                distance[target] = next;
+                                heap.push({next, target});
+                            }
+                        }
                     }
-                    const double to_v =
-                        residual_[ArcIndex(edge.id, edge.v, edge.u)] + distance[edge.u];
-                    if (to_v < distance[edge.v])
+                }
+                else
+                {
+                    full_seed_arc_scans_ += static_cast<long long>(2) * graph.m;
+                    seed_arc_scans_ += static_cast<long long>(2) * graph.m;
+                    for (const auto& edge : graph.edges)
                     {
-                        distance[edge.v] = to_v;
-                        heap.push({to_v, edge.v});
+                        const double to_u =
+                            residual_[ArcIndex(edge.id, edge.u, edge.v)] +
+                            distance[edge.v];
+                        if (to_u < distance[edge.u])
+                        {
+                            distance[edge.u] = to_u;
+                            heap.push({to_u, edge.u});
+                        }
+                        const double to_v =
+                            residual_[ArcIndex(edge.id, edge.v, edge.u)] +
+                            distance[edge.u];
+                        if (to_v < distance[edge.v])
+                        {
+                            distance[edge.v] = to_v;
+                            heap.push({to_v, edge.v});
+                        }
                     }
                 }
             }
@@ -353,6 +588,13 @@ private:
                 const double backward = std::max(0.0, capped[edge.v] - capped[edge.u]);
                 const int forward_arc = ArcIndex(edge.id, edge.u, edge.v);
                 const int backward_arc = ArcIndex(edge.id, edge.v, edge.u);
+                if constexpr (changed_arc_seeds)
+                {
+                    if (forward > 0.0)
+                        MarkChangedArc(forward_arc);
+                    if (backward > 0.0)
+                        MarkChangedArc(backward_arc);
+                }
                 residual_[forward_arc] =
                     std::max(0.0, residual_[forward_arc] - forward);
                 residual_[backward_arc] =
@@ -504,6 +746,13 @@ private:
     std::vector<double> residual_;
     double objective_ = 0.0;
     double primal_upper_ = fp::kInf;
+    long long seed_arc_scans_ = 0;
+    long long full_seed_arc_scans_ = 0;
+    long long changed_arcs_ = 0;
+    const std::vector<std::vector<double>>* progressive_group_distance_ = nullptr;
+    std::vector<std::uint64_t> progressive_changed_arc_words_;
+    size_t progressive_index_ = 0;
+    int progressive_root_ = 0;
 };
 }  // namespace gst::methods::dual_cut
 

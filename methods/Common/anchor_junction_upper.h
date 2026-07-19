@@ -19,11 +19,20 @@ struct Result
     long long work = 0;
 };
 
+struct AnchorTree
+{
+    std::vector<int> vertices;
+    std::vector<int> parent;
+    std::vector<double> parent_edge;
+};
+
 Result BuildUpper(const Graph& graph,
                   const Query& query,
                   const std::vector<std::vector<double>>& group_distance,
                   int root,
-                  int anchor_group);
+                  int anchor_group,
+                  std::vector<double>* anchor_path_distance = nullptr,
+                  AnchorTree* anchor_tree = nullptr);
 
 }  // namespace gst::methods::anchor_junction
 

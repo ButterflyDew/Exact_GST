@@ -45,7 +45,7 @@ python tools/snapshot_benchmark/snapshot.py --method Test16 --suite fast --build
 常用选项：
 
 ```text
---method Test16        方法名：DPBF / Half_DPBF / PrunedDP / ReleaseV1 / ReleaseV2 / ReleaseV3 / ReleaseV4 / Test16 / Test17 / Test18 / Test19 / Test21 / Test80
+--method Test16        方法名：DPBF / Half_DPBF / PrunedDP / ReleaseV1--ReleaseV6 / Test16 / Test17 / Test18 / Test19 / Test21 / Test80 / Test149
 --suite fast           small / fast / normal / large
 --build                先 configure/build 目标方法与 snapshot prepare 工具
 --prepare-only         只生成当前 suite 对应的 snapshot 数据
@@ -53,6 +53,8 @@ python tools/snapshot_benchmark/snapshot.py --method Test16 --suite fast --build
 --force-prepare        删除并重建当前 suite 的 snapshot 数据
 --plan <file>          使用另一份 snapshot plan
 ```
+
+`--method PrunedDP` 使用 baseline 默认复现口径 `state_storage=hash, mst_upper=on, lb2_pathmax=on`。其他开关组合通过 solver CLI 与 `gst_random_compare` 运行，定义和正确性边界见 `pruneddp_reproduction.md`。
 
 结果写入：
 
@@ -62,5 +64,14 @@ result_snapshot/<suite>/<timestamp>/<dataset>/<method>/query_g*/weights.txt
 result_snapshot/<suite>/<timestamp>/<dataset>/<method>/query_g*/<method>_stats.txt
 ```
 
-`snapshot_summary.csv` 会汇总每个 `<dataset, g>` 的退出码、完成查询数、查询时间、最后权重和
-峰值常驻内存。
+`snapshot_summary.csv` 会汇总每个 `<dataset, g>` 的退出码、完成查询数、查询时间、最后权重和逐询问 peak RSS 的最大值。新结果优先读取 `weights.txt` 第三列；历史两列文件继续从 stats 的 `peak_rss_mb` 回退读取。空间口径见 `../RUN.md`。
+
+Test80 自 Test98 起在逐层 stats 中同时输出 `d_dense_rows_s*`、`d_bitmap_rows_s*`、`d_sparse_rows_s*` 以及对应的 `a_*` 字段。`d_row_bytes_s*`/`a_row_bytes_s*` 已包含 occupancy、rank 和 branch 容器的实际 capacity；比较新旧布局时应同时核对 row 数、payload 与状态计数，不能只看进程 peak RSS。
+
+## 大图询问方差
+
+单个询问只用于 smoke，不能代表整个 `<dataset,g>`。DBLP g13 当前有 **19 条新增跨询问记录**（q2--q6、q11--q15、q21--q25、q31--q34）；这些记录的 wall 从 `276.1s` 到 `7619.9s`，中位数为 `2042.8s`。若再计入历史 q1，则共有 **20 条已完成询问**，wall 中位数为 `1939.5s`、均值为 `2133.3s`、样本标准差为 `1635.3s`；q1 只有 `666.5s`，约为该中位数的 `34.4%`，明显偏容易。
+
+研究阶段应使用预先固定 query ID 的跨档 panel，并对新旧方法做逐询问配对。q5/q32 之类的日常门只用于尽早发现退化，困难询问 panel 只用于压力筛查和寻找反例；二者都不能估计总体均值或方差。最终性能结论必须来自完整查询集，或来自事先声明且与候选运行结果无关的分层抽样；至少报告总时间、中位数、P90、标准差或变异系数，以及逐询问配对加速比分布。不能用 q1、最快询问或未完成运行替代。
+
+panel 是外部实验协议，不得进入求解器分支。为避免重复加载大图，同一 `<dataset,g>` 的 panel 应在一个进程内顺序执行，并依赖 `weights.txt` 的逐询问时间与 query peak RSS，而不是逐条重启。

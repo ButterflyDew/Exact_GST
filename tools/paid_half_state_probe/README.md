@@ -73,9 +73,19 @@ naive ordered recurrence `row <- C(D(B)+row)`. Seed `7801` fails immediately
 at g9 with `72 -> 78`.
 
 `soft-pendant-family[-groups]` treats the accumulated row as a soft terminal
-and runs a local subset DP inside each 3/4-block. With an arbitrary number of
-ordered blocks and `core<=4`, current g9 singleton evidence is `200/200`
-(seed `7802`). This is not a decomposition theorem and is not integrated into
-Test21, Test79, or any release.
+and runs a local subset DP inside each 3/4-block. The core is limited to three
+labels by the 3/4-pendant tree lemma. The outer search is an
+exact subset DAG: for every covered mask it stores the pointwise minimum row
+over all block orders, then applies every disjoint 3/4-block transform once.
+This replaces factorial order recursion without changing the represented
+family. The tightened core-3 implementation passes g9 singleton `200/200`
+(seed `715621`), fixed-g13 singleton `20/20` (seed `715622`), and fixed-g13
+two-candidate groups `20/20` (seed `715623`). These checks do not prove
+scalar-state completeness: seed `715613` iteration 3 has a fixed-anchor
+`71 -> 73` counterexample because later blocks need different paid attachment
+points. The tree lemma and interface barrier are documented in
+`readme_files/test95_soft_pendant_decomposition.md`; the exact witness is in
+`readme_files/archive/test96_bounded_d4_full_a_20260715.md`. Nothing is
+integrated into Test21, Test80, or a release.
 
 工具只做结构证明和代表族计数，不修改 Test21，不读取数据集名，也不使用经验阈值。

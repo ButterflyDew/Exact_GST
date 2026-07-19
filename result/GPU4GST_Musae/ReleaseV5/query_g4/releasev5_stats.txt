@@ -1,0 +1,6 @@
+# Run started=2026-07-17 18:15:44 graph=GPU4GST_Musae method=ReleaseV5 data_root=data graph_folder=data\GPU4GST_Musae query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Musae\ReleaseV5\query_g4 rss_mb=33.566 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+query=1 best=164.0000000000 wall_ms=66.333 rss_before_mb=33.758 rss_after_mb=34.844 peak_rss_mb=42.859
+query=2 best=285.0000000000 wall_ms=89.450 rss_before_mb=34.867 rss_after_mb=34.996 peak_rss_mb=42.996
+query=3 best=196.0000000000 wall_ms=68.190 rss_before_mb=35.004 rss_after_mb=34.875 peak_rss_mb=43.047
+query=4 best=199.0000000000 wall_ms=75.656 rss_before_mb=34.891 rss_after_mb=35.184 peak_rss_mb=43.758
+query=5 best=34.0000000000 wall_ms=60.658 rss_before_mb=35.195 rss_after_mb=35.281 peak_rss_mb=42.355

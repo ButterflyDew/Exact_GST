@@ -1,0 +1,374 @@
+%\section{PROOF OF LEMMA~\ref{lem: useful_subset}}
+%\label{app: useful_subset_proof}
+%\begin{proof}
+%    By construction, $LS_c$ orders the groups by nondecreasing $\dist(c,K_j)$. Fix any cardinality $k=|S|$. Let $A=\{LS_{c,2},\dots,LS_{c,k+1}\}$ be the length-$k$ prefix. Then, by the ordering of $LS_c$, for every $S\subseteq U$ with $|S|=k$, $\sum_{j\in A}\dist(c,K_j)\ \le\ \sum_{j\in S}\dist(c,K_j)$.
+
+%    Consequently, the weight $\w(c,S)=\dist(r,c)+\sum_{j\in S}\dist(c,K_j)$ is minimized, among all size-$k$ choices, by taking the prefix $A$. In particular, the cost-effectiveness ratio (weight divided by set size) at cardinality $k$ is no larger for $A$ than for any other $S$ of size $k$.
+
+%    The greedy algorithm compares these ratios across candidates; hence at each iteration there exists an optimal choice within the restricted family of prefixes that is at least as good as any arbitrary subset of the same size. Therefore, restricting to prefixes does not change any greedy selection and yields the same approximate total weight $W$.
+%\end{proof}
+
+% \section{PROOF OF THEOREM~\ref{the: feasible_solution}}
+% \label{app: feasible_solution_proof}
+% \begin{proof}
+%    \Basic enumerates all vertices in $K_1$ as candidate roots to construct a 2-star structure, and formulates this construction as a set cover problem. By Lemma~\ref{lem: useful_subset}, \Basic performs set cover by enumerating each vertex $c$ together with every prefix of $LS_c$ and applying the greedy method in Subsection~\ref{subsec: set covering problem}. This yields a 2-star rooted at $r$, with a set of $c$ serving as intermediate vertices, that covers (as terminals) one vertex from each group in $K_2,K_3,\dots,K_g$. By Subsection~\ref{subsec: 2-star}, \Basic then connects, in the original graph, the paths corresponding to each edge of the 2-star, thereby producing a feasible GST.
+% \end{proof}
+
+%\section{PROOF OF LEMMA~\ref{lem: 2star_appr_extend}}
+%\label{app: 2star_appr_extend_proof}
+%\begin{proof}
+%    We regard $\{r\}$ as the first vertex set $K_1$ in $\{r\}\cup Q$. Because $r$ is the unique element of this set, $r$ is always contained in $T^*_{\{r\}\cup Q}$. The claim then follows by applying Lemma~\ref{lem: 2star_appr}.
+%\end{proof}
+
+\iffalse
+\section{PROOF OF LEMMA~\ref{lem: basic_appr}}
+\label{app: basic_appr_proof}
+\begin{proof}
+    For the query $\{r\}\cup Q$, \Basic runs the set cover procedure rooted at $r$ to obtain $T_{\{r\}\cup Q}$. Define the family of covering elements as $F=\{(c, K)\mid c\in V,\  K\subseteq Q\}$. Following the greedy method in Section~\ref{subsec: set covering problem}, for each $x=(c, K)\in F$ we define its cost-effectiveness ratio by
+    \begin{gather}
+        \label{eq: cost}
+        \Cost(x)\;=\;\frac{\dist(r,c)+\sum_{K_i\in K}\dist(c,K_i)}{| K|}
+    \end{gather}
+    
+    Let $x^*=(c^*, K^*)=\arg\min_{x\in F}\Cost(x)$. By Lemma~\ref{lem: useful_subset}, we have the recurrence
+    \begin{gather}
+        \label{eq: basic_rec}
+        \w'\big(S_{\{r\}\cup Q}\big)\;=\;\Cost(x^*)\;+\;\w'\big(S_{\{r\}\cup( Q\setminus  K^*)}\big)
+    \end{gather}
+    
+    Next consider $S^*_{\{r\}\cup Q}$, and define
+    \begin{gather}
+        \label{eq: CFQ}
+        \mathcal{X}
+        =\bigl\{X\subseteq F\ \bigm|\ \bigcup_{(c, K)\in X} K= Q\bigr\}
+    \end{gather}
+    
+    Since $S^*_{\{r\}\cup Q}$ is the minimum-weight 2-star, we obtain
+    \begin{gather}
+    \label{eq: 2tar_setcover}
+        \w'\big(S^*_{\{r\}\cup Q}\big)
+        =\min_{X\in \mathcal{X}}\ \sum_{(c, K)\in X} \Cost\big((c, K)\big)\cdot | K|
+    \end{gather}
+    
+    Let $X^*\in \arg\min_{X\in \mathcal{X}}\sum_{(c, K)\in X} \Cost\big((c, K)\big)\cdot | K|$. Then
+    \begin{gather}
+        \label{eq: cost_1}
+        \Cost(x^*)\ \le\ \min_{x\in X^*}\Cost(x).
+    \end{gather}
+    
+    Combining \eqref{eq: 2tar_setcover} with \eqref{eq: cost_1} yields
+    \begin{gather}
+    \label{eq: cost_2}
+        \Cost(x^*)\ \le\ \frac{\w'\big(S^*_{\{r\}\cup Q}\big)}{| Q|}
+    \end{gather}
+
+    Using Eq.~\eqref{eq: basic_rec} and Eq.~\eqref{eq: cost_2}, we obtain
+    \begin{equation}\label{eq: appr_1}
+    \begin{aligned}
+    \w'\big(S_{\{r\}\cup Q}\big)
+    \le \frac{\w'\big(S^*_{\{r\}\cup Q}\big)}{| Q|}
+    \;+\;\w'\big(S_{\{r\}\cup ( Q\setminus  K^*)}\big)
+    \end{aligned}
+    \end{equation}
+    
+    By Lemma~\ref{lem: 2star_appr_extend}, we have
+    \begin{gather}
+    \label{eq: appr_2}
+    \frac{\w'\big(S^*_{\{r\}\cup Q}\big)}{| Q|}
+    \;\le\;
+    \frac{2\sqrt{2(| Q|+1)}\,\w\big(T^*_{\{r\}\cup Q}\big)}{| Q|}
+    \end{gather}
+    
+    For any \( Q'\subseteq Q\), applying Eq.~\eqref{eq: appr_2} (and using \(\w(T^*_{\{r\}\cup Q'})\le \w(T^*_{\{r\}\cup Q})\)) gives
+    \begin{gather}
+    \label{eq: appr_3}
+    \frac{\w'\big(S^*_{\{r\}\cup Q'}\big)}{| Q'|}
+    \;\le\;
+    \frac{2\sqrt{2(| Q'|+1)}\,\w\big(T^*_{\{r\}\cup Q}\big)}{| Q'|}
+    \end{gather}
+    
+    Proceeding inductively by iterating \(\Basic\) with Eq.~\eqref{eq: appr_1} and Eq.~\eqref{eq: appr_3}, we obtain
+    \begin{equation}\label{eq: appr_4}
+    \resizebox{0.90\linewidth}{!}{$
+    \begin{aligned}
+    \w'\big(S_{\{r\}\cup Q}\big)
+    &\le 2\sqrt{2}\,\w\big(T^*_{\{r\}\cup Q}\big)
+    \left(\sqrt{| Q|+1}\,\frac{| K_1^*|}{| Q|}
+    +\sqrt{| Q\setminus  K_1^*|+1}\,\frac{| K_2^*|}{| Q\setminus  K_1^*|}
+    +\dots\right)\\
+    &\le 2\sqrt{2}\,\w\big(T^*_{\{r\}\cup Q}\big)
+    \left(\sum_{i=1}^{| Q|}\frac{\sqrt{i+1}}{i}\right)\\
+    &\le 4\,\w\big(T^*_{\{r\}\cup Q}\big)
+    \left(\sum_{i=1}^{| Q|} i^{-1/2}\right)
+    \end{aligned}
+    $}
+    \end{equation}
+\end{proof}
+\fi
+
+
+% \section{PROOF OF LEMMA~\ref{lem: dist_max}}
+% \label{app: dist_max_proof}
+% \begin{proof}
+%     We argue by contradiction and assume that Eq.~\eqref{eq: transfer target} does not hold.
+
+%     Clearly, every $\dist(c,K)$ that is at least $f_0$ contributes a nonpositive amount to the maximization; hence,
+%     \begin{gather}
+%         \label{eq: zoom1}
+%         \dist(r,c) \ge \max_{L\subseteq L_{c,\infty}:\,|L|\le |U|}\; \sum_{d\in L} (f_0-d)
+%     \end{gather}
+%     By enumerating the size of $L$, we obtain
+%     \begin{gather}
+%         \label{eq: zoom2}
+%         \dist(r,c) \ge \max_{j\le |U|}\Big(j f_0 - \min_{L\subseteq L_{c,\infty}:\,|L|=j}\sum_{d\in L} d\Big)
+%     \end{gather}
+%     Fix any $p$ with the corresponding prefix set $S=\{LS_{c,2},LS_{c,3},\dots,LS_{c,p}\}$. Since $|S\cap U|\le |U|$, it follows that
+%     \begin{equation}\label{eq: zoom3}
+%     \begin{aligned}
+%         &\dist(r,c)+\sum_{j\in S\cap U} \dist(c,K_j)\\
+%         &\ge |S\cap U|f_0 - \min_{L\subseteq L_{c,\infty}:\,|L|=|S\cap U|}\sum_{d\in L} d + \sum_{j\in S\cap U} \dist(c,K_j)\\
+%         &\ge |S\cap U|f_0
+%     \end{aligned}
+%     \end{equation}
+%     Therefore,
+%     \begin{gather}
+%         \label{eq: zoom4}
+%         \frac{\dist(r,c)+\sum_{j\in S\cap U} \dist(c,K_j)}{|S\cap U|}\ge f_0
+%     \end{gather}
+%     which contradicts the assumption, establishing the claim.
+% \end{proof}
+
+% \section{PROOF OF THEOREM~\ref{the: dub_prop}}
+% \label{app: dub_prop_proof}
+% \begin{proof}
+%      By Lemma~\ref{lem: dist_max}, for any vertex $c$ to achieve an optimal cost-effectiveness smaller than the current minimum $f_0$ produced by the candidate set $CP$, it must hold that $\dist(r,c) < \overline d$.
+% \end{proof}
+
+% \section{PROOF OF LEMMA~\ref{lem: msd_property}}
+% \label{app: msd_property_proof}
+% \begin{proof}
+%     We proceed by induction.
+
+%     For $i=1$, only $S_{1,b_1}$ is nonempty; the $b_1$-th coordinate of $D^{\sum}_1$ is finite and all the others are $\infty$, which satisfies the stated equality.
+    
+%     For $i>1$, if $j=b_i$ then $S_{i,j}=S_{i-1,j}\cup\{D^\Pre_i\}$; otherwise $S_{i,j}=S_{i-1,j}$. Hence, 
+%     \begin{equation}
+%     \begin{aligned}
+%          D^\sum_{i,k}&=\min\!\Big(\min_{T\subseteq S_{i,b_i}:\,|T|= k}\sum_{d\in T}d,\ \min_{j\in V}\min_{T\subseteq S_{i-1,j}:\,|T|= k}\sum_{d\in T}d\Big)\\
+%         &=\min\!\Big(\min_{T\subseteq S_{i,b_i}:\,|T|= k}\sum_{d\in T}d,\ D^\sum_{i-1,k}\Big).
+%     \end{aligned}
+%     \end{equation}
+    
+%     Since $D^\Pre_i \ge \max\limits_{d\in S_{i-1,b_i}} d$, for any $T\subsetneq S_{i,b_i}$ we have
+
+%     \begin{gather}
+%       \sum_{d\in T}d \ \ge\ \min_{T'\subseteq S_{i-1,b_i}:\,|T'|=|T|}\sum_{d\in T'}d
+%     \end{gather}
+    
+%     Therefore, for $k\neq |S_{i,b_i}|$ we obtain $D^\sum_{i,k}=D^\sum_{i-1,k}$, while for $k=|S_{i,b_i}|$ we have 
+
+%     \begin{gather}
+%         \min\!\Big(\min_{T\subseteq S_{i,b_i}:\,|T|= k}\sum_{d\in T}d,D^\sum_{i-1,k}\Big)=\min\!\Big(D^\sum_{i-1,k}\ ,\ \sum_{d\in S_{i,b_i}}d\Big)
+%     \end{gather}
+    
+%     This completes the induction.
+% \end{proof}
+
+% \section{PROOF OF THEOREM~\ref{the: msd2dub}}
+% \label{app: msd2dub_proof}
+% \begin{proof}
+%     We first use induction to prove
+%     \begin{gather}
+%     \label{eq: msd_equal}
+%         D^{\sum}_{i,k}=\min_{j\in V}\min_{T\subseteq S_{i,j}: |T|= k}\sum_{d\in T}d
+%     \end{gather}
+
+%     For $i=1$, only $S_{1,b_1}$ is nonempty; the $1$-st coordinate of $D^{\sum}_1$ is $D^{\Pre}_1$ and all the others are $\infty$, which satisfies the stated equality.
+    
+%     For $i>1$, if $j=b_i$ then $S_{i,j}=S_{i-1,j}\cup\{D^\Pre_i\}$; otherwise $S_{i,j}=S_{i-1,j}$. Hence, 
+    
+%     \begin{equation}
+%     \label{eq: induc1}
+%     \begin{aligned}
+%          D^{\sum}_{i-1,k}&=\min_{j\in V}\min_{T\subseteq S_{i-1,j}:\,|T|= k}\sum_{d\in T}d\\
+%         &=\min\!\Big(\min_{j\in V\setminus\{b_i\}}\min_{T\subseteq S_{i,j}:\,|T|= k}\sum_{d\in T}d,\ \min_{T\subseteq S_{i-1,b_i}:\,|T|= k}\sum_{d\in T}d\Big)
+%     \end{aligned}
+%     \end{equation}
+    
+%     Since $D^\Pre_i \ge \max\limits_{d\in S_{i-1,b_i}} d$, for any $T\subsetneq S_{i,b_i}$ we have
+
+%     \begin{gather}
+%       \sum_{d\in T}d \ \ge\ \min_{T'\subseteq S_{i-1,b_i}:\,|T'|=|T|}\sum_{d\in T'}d
+%     \end{gather}
+
+%     Therefore, if $k\not=|S_{i,b_i}|$, we have 
+%     \begin{equation}
+%     \label{eq: induc2}
+%     \begin{aligned}
+%         &\min_{T\subseteq S_{i-1,b_i}:\,|T|= k}\sum_{d\in T}d=\min_{T\subseteq S_{i,b_i}:\,|T|= k}\sum_{d\in T}d
+%     \end{aligned}
+%     \end{equation}
+
+%     and if $k=|S_{i,b_i}|$, we have
+
+%     \begin{equation}
+%     \label{eq: induc3}
+%     \resizebox{0.90\linewidth}{!}{$
+%     \begin{aligned}
+%     &\min\!\Big( \min_{T\subseteq S_{i-1,b_i}:\,|T|= k}\sum_{d\in T}d,\ \sum_{d\in S_{i,b_i}}d\Big)=\min_{T\subseteq S_{i,b_i}:\,|T|=k}\sum_{d\in T}d
+%     \end{aligned}
+%     $}
+%     \end{equation}
+
+%     Applying Eqs.~\eqref{eq: induc1}, \eqref{eq: induc2} and \eqref{eq: induc3} to the definition of $D^{\sum}$ in Eq.~\eqref{eq: msd_calc}, we have
+%     \begin{gather}
+%       D^{\sum}_{i,k}=\min_{j\in V}\min_{T\subseteq S_{i,j}: |T|= k}\sum_{d\in T}d
+%     \end{gather}
+
+%     which completes the induction.
+    
+%     Next, recall the definitions of $L_{c,f}$ and $S_{i,j}$ in Eq.~\eqref{eq: Lcf} and Eq.~\eqref{eq: sij}, it follows that $L_{c,f}=S_{i,c}$. Moreover, by Eq.~\eqref{eq: msd_equal} we have
+%     \begin{equation}\label{eq: dub_fin_1}
+%     \begin{aligned}
+%          \max_{k=1}^{|U|}\big(kf-D^{\sum}_{i,k}\big)
+%         =&\max_{k=1}^{|U|}\Big(kf-\min_{c\in V}\min_{T\subseteq L_{c,f}:\,|T|= k}\sum_{d\in T} d\Big)\\
+%         =&\max_{c\in V}\max_{k=1}^{|U|}\max_{T\subseteq L_{c,f}:\,|T|= k}\sum_{d\in T}(f- d)\\
+%         =&\max_{c\in V}\max_{T\subseteq L_{c,f}:\,|T|\le|U|}\sum_{d\in T}(f-d)
+%     \end{aligned}
+%     \end{equation}
+% \end{proof}
+
+
+
+% \section{PROOF OF THEOREM~\ref{the: dub_final}}
+% \label{app: dub_final_proof}
+% \begin{proof}
+%     Let $g(f)=\max_{c\in V}\max_{L\subseteq L_{c,f}:\,|L|\le |U|}\; \sum_{d\in L}(f-d)$, and consider any $f_1,f_2$ with $f_1<f_2$.
+    
+%     By the definition of $L_{c,f}$, we have $L_{c,f_1}\subseteq L_{c,f_2}$, hence $g(f_1)<g(f_2)$. Thus $g(f)$ can be regarded as a monotonically increasing function (over integer thresholds).
+    
+%     By Theorem~\ref{the: dub_prop}, $\overline d=g(\min_{f\in F}f)$; by the monotonicity of $g(f)$ it follows that $\overline d=\min_{f\in F}g(f)$.
+%     % The first equality in the equation follows directly from Theorem~\ref{the: dub_prop} and Lemma~\ref{lem: msd2dub}. 
+    
+%     % For the second equality, we first analyze the monotonicity of the relevant quantity. As $f$ increases, the corresponding $i$ also increases. From the definition of $D^\sum$, a larger $i$ implies a smaller $D^\sum_{i,k}$. Therefore $\UpdateUpperBound(f,U,D^\Pre)$ can be regarded as a nondecreasing function of $f$. In particular, taking $f_0=\min_{(r,p)\in C} \Cost(r,c,p)$ yields a value of $\UpdateUpperBound(f_0,U,D^\Pre)$ that is no greater than those obtained using any other choice of cost, which completes the proof of the theorem.
+% \end{proof}
+
+
+% \section{PROOF OF LEMMA~\ref{lem: unidomal_1}}
+% \label{app: unidomal_1_proof}
+% \begin{proof}
+%    Consider the first order difference of this sequence:
+%    \begin{equation}
+%     \label{eq: diff1}
+%     \begin{aligned}
+%         &f(k+1)-f(k)\\&= \frac{C+\sum_{j=1}^{k+1}{a_j}}{k+1}-\frac{C+\sum_{j=1}^{k}{a_j}}{k} \\
+%         &= \frac{kC+\sum_{j=1}^{k+1}{ka_j}-(k+1)C-\sum_{j=1}^{k}{(k+1)a_j}}{k(k+1)} \\
+%         &= \frac{ka_{k+1}-\sum_{j=1}^{k}{a_j}-C}{k(k+1)} \\
+%         &= \frac{\sum_{j=1}^{k}{(a_{k+1}-a_j)}-C}{k(k+1)}
+%     \end{aligned}
+%     \end{equation}
+
+%     The positive or negative of this expression depends only on the numerator, so we can only consider the numerator.
+
+%     Consider splitting the $\sum_{j=1}^{k}{(a_{k+1}-a_j)}$:   
+%     \begin{equation}\label{eq:diff2}
+%     \resizebox{0.90\linewidth}{!}{$
+%     \begin{aligned}
+%       &\sum_{j=1}^{k}(a_{k+1}-a_j) \\
+%       &= k(a_{k+1}-a_k) + \sum_{j=1}^{k-1}(a_k-a_j) \\
+%       &= \dots \\
+%       &= k(a_{k+1}-a_k) + (k-1)(a_k-a_{k-1}) + \dots + 2(a_3-a_2) + (a_2-a_1)
+%     \end{aligned}
+%     $}
+%     \end{equation}
+    
+%     Sequence $a$ is non-decreasing, $a_i-a_{i-1} \geq 0$. So, when $k$ increases, $\sum_{j=1}^{k}{(a_{k+1}-a_j)}-C$ is non-decreasing. Therefore, the positive and negative properties of the first order difference sequence can change at most once, and can only change from negative to positive. Therefore, the original sequence must be unimodal sequence, and the peak value is the minimum. 
+% \end{proof}
+
+% \section{PROOF OF LEMMA~\ref{lem: mono_l1}}
+% \label{app: mono_l1_proof}
+% \begin{proof}
+%     We first prove that for $f(k)=\frac{C+\sum_{j=1}^{k} a_j}{k}$, where $C$ is an arbitrary real number and $\{a_j\}$ is a nondecreasing sequence, $f(k)$ is unimodal.
+
+%     Consider the first order difference of this sequence:
+%    \begin{equation}
+%     \label{eq: diff1}
+%     \begin{aligned}
+%         &f(k+1)-f(k)\\&= \frac{C+\sum_{j=1}^{k+1}{a_j}}{k+1}-\frac{C+\sum_{j=1}^{k}{a_j}}{k} \\
+%         &= \frac{kC+\sum_{j=1}^{k+1}{ka_j}-(k+1)C-\sum_{j=1}^{k}{(k+1)a_j}}{k(k+1)} \\
+%         &= \frac{ka_{k+1}-\sum_{j=1}^{k}{a_j}-C}{k(k+1)} \\
+%         &= \frac{\sum_{j=1}^{k}{(a_{k+1}-a_j)}-C}{k(k+1)}
+%     \end{aligned}
+%     \end{equation}
+
+%     The positive or negative of this expression depends only on the numerator, so we can only consider the numerator.
+
+%     Consider splitting the $\sum_{j=1}^{k}{(a_{k+1}-a_j)}$:   
+%     \begin{equation}\label{eq:diff2}
+%     \resizebox{0.90\linewidth}{!}{$
+%     \begin{aligned}
+%       &\sum_{j=1}^{k}(a_{k+1}-a_j) \\
+%       &= k(a_{k+1}-a_k) + \sum_{j=1}^{k-1}(a_k-a_j) \\
+%       &= \dots \\
+%       &= k(a_{k+1}-a_k) + (k-1)(a_k-a_{k-1}) + \dots + 2(a_3-a_2) + (a_2-a_1)
+%     \end{aligned}
+%     $}
+%     \end{equation}
+    
+%     Sequence $a$ is non-decreasing, $a_i-a_{i-1} \geq 0$. So, when $k$ increases, $\sum_{j=1}^{k}{(a_{k+1}-a_j)}-C$ is non-decreasing. Therefore, the positive and negative properties of the first order difference sequence can change at most once, and can only change from negative to positive. Therefore, the original sequence must be a unimodal sequence, and the peak value is the minimum. 
+    
+%     Next, we remove all positions $i$ with $LS_{c,i}\notin U$ and reorder the remaining entries in their original order to obtain $LS'_c$. The expression for $\Cost(r,c,i)$ then becomes $\frac{\dist(r,c)+\sum_{j=1}^i \dist(c,K_{LS'_{c,j}})}{i}$.
+% Since $\{\dist(c,K_{LS'_{c,j}})\}$ is a nondecreasing sequence, $\Cost(r,c,i)$ is unimodal (first nonincreasing and then nondecreasing), and its minimum occurs at the turning point.
+% \end{proof}
+
+% \section{PROOF OF THEOREM~\ref{the: rightmost-argmin}}
+% \label{app: rightmost-argmin_proof}
+% \begin{proof}
+%    Let $C=\dist(r,c)$ and $a_j=\dist(c,K_{LS_{c,j}})$, which is nondecreasing in $j$ by the definition of $LS_c$. For $i\in\{2,\dots,g\}$ set $S(i)=\{LS_{c,2},\dots,LS_{c,i}\}$ and define $k_U(i)=|S(i)\cap U|$, $A_U(i)=\sum_{j\in S(i)\cap U} a_j$, then we have $\Cost_U(i)=\frac{C+A_U(i)}{k_U(i)}$.
+%   Consider the first difference
+%   \begin{gather}\label{eq:delta-def}
+%     \Delta_U(i)=\Cost_U(i{+}1)-\Cost_U(i)
+%   \end{gather}
+%   If $LS_{c,i{+}1}\notin U$, then $\Delta_U(i)=0$. Otherwise, writing $k=k_U(i)$, $S=A_U(i)$, and $a=a_{i+1}$, the same algebra as in the proof of Lemma~\ref{lem: mono_l1} yields
+%   \begin{gather}\label{eq:delta-sign}
+%     \operatorname{sgn}\bigl(\Delta_U(i)\bigr)=\operatorname{sgn}\bigl(k\,a - C - S\bigr)
+%   \end{gather}
+%   Let $U'\subset U$ be arbitrary, and put $k'=k_{U'}(i)$, $S'=A_{U'}(i)$. Since $\{a_j\}$ is nondecreasing, we have
+%   \begin{gather}\label{eq:dominance}
+%     S - S' \;\le\; (k-k')\,a
+%   \end{gather}
+%   Consequently,
+%   \begin{gather}\label{eq:delta-dom}
+%     k'a - C - S' \;\le\; k a - C - S
+%     \quad\Rightarrow\quad
+%     \Delta_{U'}(i)\;\le\;\Delta_U(i)
+%   \end{gather}
+%   By Lemma~\ref{lem: mono_l1}, $i\mapsto \Cost_U(i)$ is unimodal; in particular, $\Delta_U(i)\le 0$ for all $i<p(U)$. Hence $\Delta_{U'}(i)\le 0$ for all $i<p(U)$, so $\Cost_{U'}$ cannot attain its (rightmost) minimum to the left of $p(U)$. Therefore, $p(U')\ge p(U)$ for every $U'\subset U$, which proves the claim.
+% \end{proof}
+
+% \section{PROOF OF THEOREM~\ref{the: pres_nondec}}
+% \label{app: pres_nondec_proof}
+% \begin{proof}
+%     The procedure \Improved tells us that, for a fixed root $r$, the set of all remaining group indexes $U$ monotonically shrinks to its own subsets until it becomes empty. By Lemma~\ref{lem: mono_l1}, $\Cost(r,c,p)$ is unimodal in $p$; by Lemma~\ref{lem: rightmost-argmin}, as $U$ shrinks, the location of the minimum never moves to the left. Consequently, $p$ is nondecreasing (it never shifts to the left).
+% \end{proof}
+
+
+% \section{PROOF OF THEOREM~\ref{the: rebuildtree}}
+% \label{app: rebuildtree_proof}
+% \begin{proof}
+%     The weight of the edge from root $r$ to each $c$ in set $C$ in the 2-star is equal to the length of $\SP(r,c)$, so the total length in \ConstructTree will never be greater than the total weight of the $2$-star in the $r$-to-$C$ part.
+
+%     In the $C$-to-terminals part, each group $K_i$ is always connected to the vertex of the current GST that is closest to $K_i$ in \ConstructTree. At the time of connecting $K_i$, the GST which has the $r$-to-$C$ part already contains all vertices in $C$. Therefore, the length of the shortest path used to connect $K_i$ to the GST is no greater than the weight of the edge connecting $K_i$ to its covering intermediate vertex $c$ in the 2-star. Summing over all $K_i$ shows that the total length of the paths in \ConstructTree is no greater than the total weight of the $2$-star which are used to connect the $C$-to-terminals part. Combining with the  $r$-to-$C$ part proves the claim.
+% \end{proof}
+
+% \section{PROOF OF LEMMA~\ref{lem: same_c}}
+% \label{app: same_c_proof}
+% \begin{proof}
+%    At each step of the set cover procedure, \Basic\ picks the intermediate vertex $c_0$ together with its optimal prefix $p_0$, where the pair $(c_0,p_0)$ has the minimum cost-effectiveness for current $c_0$. By Theorem~\ref{the: dub_prop}, \Improved does not miss any potentially optimal intermediate vertex $c$; moreover, by Section~\ref{subsec: mono_upt}, each candidate intermediate vertex $c$ always adopts its own best prefix $p$. Hence, at every step \Improved likewise selects the pair with the minimum cost-effectiveness, and therefore the resulting intermediate vertex set $C_0$ coincides with that of \Basic.
+% \end{proof}
+
+% \section{PROOF OF THEOREM~\ref{the: impro_app}}
+% \label{app: impro_app_proof}
+% \begin{proof}
+%     By Lemma~\ref{lem: same_c}, when the root $r$ is fixed, \Improved and \Basic yield the same intermediate vertex set $C_0$. By Theorem~\ref{the: rebuildtree}, for the same $r$ and $C_0$, the GST constructed by \Improved has a total weight not greater than the weight of $2$-star constructed by \Basic. Since both algorithms enumerate all $r\in K_1$ as roots on $Q=\{K_1,K_2,\dots,K_g\}$, the output GST's weight of \Improved is never worse than $\w'(R_Q)$ of \Basic. By Lemma~\ref{lem: basic_appr}, $\w'(R_Q)\le O(\sqrt g)\w(T^*_Q)$. Consequently, \Improved attains an $O(\sqrt{g})$ approximation ratio.
+% \end{proof}

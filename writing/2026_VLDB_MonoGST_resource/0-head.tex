@@ -1,0 +1,99 @@
+\usepackage{amsfonts}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{xspace}
+\usepackage{listings}
+
+\usepackage{overpic}
+\usepackage{subfig}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{makecell}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage[normalem]{ulem}
+
+% \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+% \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+% \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\usepackage[ruled,linesnumbered,noend,boxed]{algorithm2e}
+\SetKwInOut{KIN}{Input }
+\SetKwInOut{KOUT}{Output }
+\SetKw{Break}{break}
+\SetKw{Continue}{continue}
+\SetEndCharOfAlgoLine{\string;}
+\SetArgSty{textup}
+% \usepackage{algorithmicx}
+% \newcommand{\KwTo}{\textbf{to}\ }
+% \algnewcommand\algorithmicto{\textbf{to}}
+% \algrenewtext{For}[3]{\algorithmicfor\ #1 \gets #2 \algorithmicto\ #3 \algorithmicdo}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\len}{\ensuremath{\mathtt{len}}\xspace}
+\newcommand{\dist}{\ensuremath{\mathtt{dist}}\xspace}
+\newcommand{\getD}{\ensuremath{\mathtt{DistQuery}}\xspace}
+\newcommand{\getSP}{\ensuremath{\mathtt{SPQuery}}\xspace}
+\newcommand{\w}{\ensuremath{\mathtt{w}}\xspace}
+\newcommand{\Basic}{\ensuremath{\mathtt{MonoGST}}\xspace}
+\newcommand{\Improved}{\ensuremath{\mathtt{MonoGST+}}\xspace}
+\newcommand{\num}{\ensuremath{\mathtt{num}}\xspace}
+\newcommand{\SP}{\ensuremath{\mathtt{SP}}\xspace}
+\newcommand{\MST}{\ensuremath{\mathtt{MST}}\xspace}
+\newcommand{\ud}{\ensuremath{\mathtt{ud}}\xspace}
+\newcommand{\F}{\ensuremath{\mathtt{F}}\xspace}
+\newcommand{\bestprefix}{\ensuremath{\mathtt{bpre}}\xspace}
+\newcommand{\BuildHeap}{\ensuremath{\mathtt{BuildHeap}}\xspace}
+
+% For algorithm name
+\newcommand{\BasicPTS}{\ensuremath{\mathtt{MonoGST}}\xspace}
+\newcommand{\ImprovPTS}{\ensuremath{\mathtt{MonoGST+}}\xspace}
+
+
+% For chapter 3
+\newcommand{\OptGST}{\ensuremath{\mathtt{OptGST}}\xspace}
+\newcommand{\Optstar}{\ensuremath{\mathtt{Optstar}}\xspace}
+
+% For chapter 4
+\newcommand{\Pred}{\ensuremath{\mathtt{Pred}}\xspace}
+\newcommand{\PartialDijkstra}{\ensuremath{\mathtt{SuspendableDijkstra}}\xspace}
+%\newcommand{\PartialDijkstral}{\ensuremath{\mathtt{Suspendable}}\xspace}
+%\newcommand{\PartialDijkstrar}{\ensuremath{\mathtt{Dijkstra}}\xspace}
+
+\newcommand{\UpdateCandidate}{\ensuremath{\mathtt{UpdatePrefix}}\xspace}
+\newcommand{\ConstructTree}{\ensuremath{\mathtt{ConstructTree}}\xspace}
+\newcommand{\DUB}{\ensuremath{\mathtt{DUB}}\xspace}
+\newcommand{\Cost}{\ensuremath{\mathtt{Cost}}\xspace}
+
+\newcommand{\new}{\ensuremath{\mathtt{New}}\xspace}
+\newcommand{\UpdateUpperBound}{\ensuremath{\mathtt{UpdateBound}}\xspace}
+\newcommand{\UpdateUpperBoundfs}{\ensuremath{\mathtt{UpdateUpper}}\xspace}
+\newcommand{\UpdateUpperBoundt}{\ensuremath{\mathtt{Bound}}\xspace}
+
+\newcommand{\Pre}{\ensuremath{\texttt{All}}\xspace}
+\newcommand{\Sum}{\ensuremath{\texttt{Sum}}\xspace}
+
+% Datesets Name
+\newcommand{\Toronto}{\ensuremath{\mathtt{Toronto}}\xspace}
+\newcommand{\DBLP}{\ensuremath{\mathtt{DBLP}}\xspace}
+\newcommand{\MovieLens}{\ensuremath{\mathtt{MovieLens}}\xspace}
+
+\newcommand{\MONDIAL}{\ensuremath{\mathtt{MONDIAL}}\xspace}
+\newcommand{\LinkedMDB}{\ensuremath{\mathtt{LinkedMDB}}\xspace}
+\newcommand{\DBpedia}{\ensuremath{\mathtt{DBpedia}}\xspace}
+
+% \newcommand{\beq}[1]{\resizebox{\columnwidth}{!}{$ #1 $}}
+
+
+\newcommand{\shan}[1]{\textcolor{red}{#1}}
+\newcommand{\gong}[1]{\textcolor{green}{#1}}
+\newcommand{\dew}[1]{#1}
+% \newcommand{\dew}[1]{{\textcolor{blue}{#1}}}

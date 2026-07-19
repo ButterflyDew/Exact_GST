@@ -1,0 +1,273 @@
+\section{\Basic: A Basic Algorithm}
+\label{sec: basic}
+
+\subsection{Basic Idea}
+
+Our basic algorithm \Basic efficiently implements the approximation scheme described in Section~\ref{subsec: 2-star}. In the first step, for each vertex~$r$ in the smallest group, we \emph{greedily solve a weighted set cover problem} to approximate an optimum 2-star rooted in~$r$ with a ratio $O(\ln{g})$, where each iteration \emph{explores a pruned search space}. Combined with the ratio $O(\sqrt{g})$ to approximate an optimum GST with an optimum 2-star in the second step, an overall ratio $O(\sqrt{g}\ln g)$ might be expected. However, \emph{our holistic analysis reduces it to $O(\sqrt{g})$.}
+
+\subsection{Algorithm Design}
+\label{subsec: basic_design}
+
+%Our basic algorithm \Basic is described in Algorithm \ref{alg: Basic}.
+
+\begin{algorithm}[t]
+    \KwIn{Graph $G = \langle V,E,\w \rangle$; Query~$Q=\{K_1,K_2,\dots,K_g\}$.}
+    \KwOut{GST $T = \langle V_T,E_T \rangle$.}
+    
+    Swap $K_1$ with the smallest $K_i \in Q$\;
+    
+    Compute a shortest-path tree from each $K_i\in \{K_2,K_3,\dots,K_g\}$\;
+    
+    \ForEach{$c \in V$}
+    {
+        \For{$i \leftarrow 2$ \KwTo $g$}
+        {
+            $GI_{c,i} \leftarrow i$\;
+        }
+        Sort $GI_c$ by $\dist(c,K_{GI_{c,i}})$ in non-decreasing order\;
+    }
+    \ForEach{$r \in K_1$}
+    {
+        $T_{r} \leftarrow \langle \{r\},\emptyset\rangle$\;
+        $U \leftarrow \{2,3,\dots,g\}$\;
+        Compute a shortest-path tree from $r$\;
+        \While{$U \neq \emptyset$}
+        {
+            $c_0 \leftarrow null, p_0 \leftarrow 1, S_0 \leftarrow \emptyset, f_0 \leftarrow \infty$\;
+            \ForEach{$c \in V$}
+            {
+                \For{$p \leftarrow 2$ \KwTo $g$}
+                {
+                    $S \leftarrow \{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\}$\;
+                    $f \leftarrow \Cost(r,c,p)$\;
+                    \If{$f < f_0$}
+                    {
+                        $c_0 \leftarrow c, p_0 \leftarrow p, S_0 \leftarrow S, f_0 \leftarrow f$\;
+                    }
+                }
+            }
+            Add the vertices and edges of \(\SP(r,c_0)\) to \(T_r\)\;
+            %T_{r} \leftarrow T_{r} \cup \SP(r,c_0)$\;
+            \ForEach{$j \in (S_0 \cap U)$}
+            {
+                Add the vertices and edges of \(\SP(c_0,K_j)\) to \(T_r\)\;
+                %$T_{r} \leftarrow T_{r} \cup \SP(c_0,K_j)$\;
+            }
+            $U \leftarrow U \setminus S_0$\; 
+        }
+        %T_{r} \leftarrow \MST(T_{r})$\;
+    }
+    $T \leftarrow \argmin_{r \in K_1}{\w(T_{r})}$\;
+    \KwRet{$T$}
+\caption{\Basic} 
+\label{alg: Basic}
+\end{algorithm}
+
+\textbf{Algorithm~\ref{alg: Basic} (\Basic).}
+Let~$K_1$ be the smallest group (line~1); we will enumerate its vertices as the root~$r$ of a 2-star. We compute single-source shortest paths (SSSP) from every other group and retain the resulting shortest-path trees (line~2). Based on these distances, for each vertex $c \in V$, we construct a sorted list~$GI_c$ of group indices $\{2,3,\ldots,g\}$ in non-decreasing order of the distance between~$c$ and each group (lines~3--6);
+% which encodes the priority with which $v$~covers the groups;
+when we cover groups through an intermediate vertex~$c$ of a 2-star, \emph{we will only enumerate the prefixes---rather than all subsets---of~$GI_c$ to prune the search space.}
+Specifically, for each root $r \in K_1$ (line~7), we initialize a GST~$T_r$ with~$r$, the set~$U$ of all remaining group indices as the universe to be covered, and a shortest-path tree rooted in~$r$ (lines~8--10). In each iteration until $U$~is covered (line~11), we enumerate each intermediate vertex $c \in V$ and each prefix~$p$ of~$GI_c$ corresponding to a subset of group indices $S=\{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\}$, i.e.,~to cover $S \cap U$ through~$c$ (lines~13--15), and calculate the \emph{cost-effectiveness}~$f$ of the pair $\langle c,p \rangle$ rooted in~$r$ as our greedy function (line~16):
+\begin{equation}
+\resizebox{0.92\linewidth}{!}{$
+\displaystyle
+\begin{aligned}
+\label{eq: defi_cost}
+    \Cost(r,c,p) =
+    \begin{cases}
+        \infty \quad \text{ if } \{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\} \cap U = \emptyset,\\
+        \frac{\dist(r,c)+\sum_{j\in (\{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\} \cap U)} \dist(c,K_j)}{|\{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\} \cap U|} \text{ otherwise.}
+    \end{cases}
+\end{aligned}
+$}
+\end{equation}
+\noindent Note that more generally, for any subset~$S$ of group indices that may not be a prefix of~$GI_c$, we analogously define the cost-effectiveness of the pair $\langle c,S \rangle$ rooted in~$r$, which will be used in our proofs:
+\begin{gather}
+\label{eq: defi_cost_by_set}
+    \Cost(r,c,S) =
+    \begin{cases}
+        \infty & \text{if } S \cap U = \emptyset,\\
+        \frac{\dist(r,c)+\sum_{j\in (S \cap U)} \dist(c,K_j)}{|S \cap U|} & \text{otherwise.}
+    \end{cases}
+\end{gather}
+\noindent We greedily select the best pair $\langle c_0,p_0 \rangle$ with the smallest cost-effectiveness~$f_0$, which corresponds to a subset of group indices $S_0=\{GI_{c_0,2},GI_{c_0,3},\dots,GI_{c_0,p_0}\}$ and covers $S_0 \cap U$ (lines~12, 17--18), likely leading to a low-weight 2-star. We expand the current GST~$T_r$ by converting and merging this subtree of 2-star as described in Section~\ref{subsec: 2-star}: we add to~$T_r$ an $r$-$c_0$ shortest path and a shortest path from~$c_0$ to each group in $S_0 \cap U$ (lines~19--21); then update~$U$ (line~22). After constructing $|K_1|$~GSTs using each root in~$K_1$, the algorithm outputs the minimum-weight GST among them (lines~23--24).
+
+\textbf{Running Example.}
+%\label{exam: exa_1}
+\dew{In Figure~\ref{fig: TF}, for $Q=\{\{1\},\{5,6,9\},\{4,5\},\\\{2,8\},\{3,7,12\},\{6,8\},\{10,12,13\},\{11\}\}$, we start with $r=1\in K_1$. The 1st iteration selects $c_0=5$ with $GI_{c_0}=\langle 2,3,4,6,5,7,8\rangle$, $p_0=3$, $S_0=\{2,3\}$, $f_0=\frac{\dist(1,5)+\dist(5,5)+\dist(5,5)}{|\{2,3\}\cap\{2,3,4,5,6,7,8\}|}=2$, adds paths $1\!-5$, $5$, $5$, and updates $U=\{4,5,6,7,8\}$. The 2nd iteration selects $c_0=8$ with $GI_{c_0}=\langle 4,6,2,3,5,7,8\rangle$, $p_0=5$, $S_0=\{4,6,2,3\}$, $f_0=\frac{\dist(1,8)+\dist(8,8)+\dist(8,8)}{|\{4,6,2,3\}\cap\{4,5,6,7,8\}|}=3.5$, adds paths $1\!-5\!-8$, $8$, $8$, and updates $U=\{5,7,8\}$. The 3rd iteration selects $c_0=9$ with $GI_{c_0}=\langle 2,7,8,3,4,5,6\rangle$, $p_0=4$, $S_0=\{2,7,8\}$, $f_0=\frac{\dist(1,9)+\dist(9,10)+\dist(9,11)}{|\{2,7,8\}\cap\{5,7,8\}|}=4.5$, adds paths $1\!-9$, $9\!-10$, $9\!-\!11$, and updates $U=\{5\}$. The 4th iteration selects $c_0=1$ with $GI_{c_0}=\langle 2,3,4,5,7,8,6\rangle$, $p_0=5$, $S_0=\{2,3,4,5\}$, $f_0=\frac{\dist(1,1)+\dist(1,3)}{|\{2,3,4,5\}\cap\{5\}|}=6$, adds paths $1$, $1\!-3$, and updates $U=\emptyset$, completing set cover.}
+
+\subsection{Algorithm Analysis}
+\label{subsec: basic analysis}
+It is straightforward that \Basic produces a feasible GST. In the following, we analyze its approximation ratio and time complexity.
+
+\subsubsection{Approximation Ratio}
+\label{subsubsec: Appr_prove}
+
+Finding an optimum 2-star rooted in~$r$ is NP-hard~\cite{dstar1} and can be approximated in the ratio $O(\ln{g})$ using the classic greedy algorithm to solve a weighted set cover problem with $U = \{2,3,\dots,g\}$ as the universe and a family of subsets where each corresponding to a pair $\langle c,S \rangle \in V \times 2^U$ covers~$S$ through an intermediate vertex~$c$ and has weight $\dist(r,c)+\sum_{j \in S}\dist(c,K_j)$. In \Basic, we essentially prune the search space of~$S$ from~$2^U$ to the prefixes of~$GI_c$ (lines~14--15). The following lemma shows that \emph{this pruning maintains the quality of the 2-star found}.
+
+\begin{lemma}
+\label{lem: useful_subset}
+    Pruning the search space of~$S$ from~$2^U$ to the prefixes of~$GI_c$ maintains the weight of the 2-star found greedily.
+\end{lemma}
+\begin{proof}
+    Since $GI_c$~is sorted by $\dist(c,K_{GI_{c,i}})$ in non-decreasing order, the cost-effectiveness~$f$ of~$S$ in \Basic (lines~15--16) is not greater than that of any $S' \in 2^U$ subject to $|S' \cap U|=|S \cap U|$. Then it suffices to enumerate all prefixes of~$GI_c$ instead of~$2^U$.
+\end{proof}
+
+% \begin{theorem}
+% \label{the: feasible_solution}
+% The \Basic algorithm outputs a feasible GST.
+% \end{theorem}
+% \begin{proof}
+%     See Appendix~\ref{app: feasible_solution_proof} for the complete proof.`
+% \end{proof}
+
+Therefore, \emph{in the following analysis we will ignore this pruning.} Given a query~$Q$, let~$T^*_{Q}$ be an optimum GST and~$R^*_{Q,r}$ an optimum 2-star rooted in~$r$. Let~$T_{Q}$ be the GST returned by \Basic which is converted from the 2-star~$R_Q$. The conversion process indicates $\w(T_{Q})\leq\w'(R_{Q})$. The following lemma is well-known~\cite{dstar2}.
+
+\begin{lemma}
+\label{lem: 2star_appr}
+If any~$T^*_{Q}$ contains~$r$, then $\w'(R^*_{Q,r}) \leq 2\sqrt{2g}\cdot\w(T^*_{Q})$.
+\end{lemma}
+
+%\begin{lemma}
+%\label{lem: 2star_appr_extend}
+%For any vertex $r$ and any $Q$, we have $\w'(S^*_{\{r\}\cup Q})\le 2\sqrt{2(|Q|+1)}\w(T^*_{\{r\}\cup Q})$.
+%\end{lemma}
+%\begin{proof}
+%    Use Lemma~\ref{lem: 2star_appr}. See Appendix~\ref{app: 2star_appr_extend_proof} for the complete proof.
+%\end{proof}
+
+% Given a fixed root $r$, for $\mathcal F=\{(c,\mathcal K)|c\in V, \mathcal{K}\subseteq Q\}$, we first define an element $x=(c,\mathcal{K})\in \mathcal{F}$ with cost-effectiveness ratio
+% \begin{gather}
+% \label{eq: cost}
+%     \Cost(x)=\frac{\dist(r,c)+\sum_{K\in\mathcal{K}}\dist(c,K)}{|\mathcal{K}|}
+% \end{gather}
+
+% By the execution of \Basic, the algorithm first selects the element of minimum cost which is $x^*=(c^*,\mathcal{K}^*)$. Consequently, we have
+% \begin{gather}
+% \label{eq: basic_rec}
+%     \w(T_{\{r\}\cupQ})=\Cost(x^*)+\w(T_{\{r\}\cup(Q-\mathcal{K}_1)})
+% \end{gather}
+
+% \begin{lemma}
+% \label{lem: 2tar_setcover_def}
+%     We have
+%     \begin{gather}
+%     \label{eq: 2tar_setcover}
+%         \w'(S^*_{\{r\}\cupQ})
+%         =\min_{X\subseteq\mathcal{F}\,:\,\bigcup_{(c,\mathcal{K})\in X}\mathcal{K}=Q}\ \sum_{x\in X}\Cost(x)\cdot|\mathcal{K}|
+%     \end{gather}
+% \end{lemma}
+% \begin{proof}
+%     ...
+% \end{proof}
+
+% \begin{lemma}
+% \label{lem: 2tar_setcover_lowerbound}
+%      We have
+% \begin{gather}
+% \label{eq: cost_2}
+%     \Cost(x^*)\le \frac{\w'(S^*_{\{r\}\cupQ})}{|Q|}
+% \end{gather} 
+% \end{lemma}
+% \begin{proof}
+%     ...
+% \end{proof}
+
+% Let $X$ be any collection of elements that attains $\w'(S^*_{\{r\}\cupQ})$. From the above discussion, it follows that
+% \begin{gather}
+% \label{eq: cost_1}
+%     \Cost(x^*)\le \min_{x\in X}\Cost(x)
+% \end{gather}
+
+% and hence, we obtain
+% \begin{gather}
+% \label{eq: cost_2}
+%     \Cost(x^*)\le \frac{\w'(S^*_{\{r\}\cupQ})}{|Q|}
+% \end{gather}
+
+
+% Respond Reviewer #4 R1: While the holistic analysis is a significant contribution, the current proof for the O(\sqrt{g}) approximation ratio is presented in an overly dense manner, making the high-level intuition behind the removal of the logarithmic factor difficult to grasp. The authors should provide a more intuitive conceptual summary or a high-level roadmap of the proof to help readers clearly follow the logic of how the 2-star greedy process tightens the standard bound.
+\dew{Combining this ratio~$O(\sqrt{g})$ with~$O(\ln g)$ for approximating an optimum 2-star yields $O(\sqrt{g}\ln g)$. However, this result is loose. Motivated by the view that \Basic solves $|K_1|$ \emph{reduced} GSTP instances, each with a distinct $\{r\}\subseteq K_1$ as its own $K_1$, we prove the following lemma that \emph{leads to a better approximation ratio $O(\sqrt{g})$}. The key is to \emph{charge each iteration recursively with a decreased number of uncovered groups} (i.e.,~$i$ in the following analysis).}
+% Once the root $r$ is fixed, \Basic operates on the reduced instance $\{\{r\}\}\cup Q$ and progressively decreases the number of uncovered groups. The key is to charge each greedy step by the \emph{current} number of uncovered groups: when $i$ groups remain, Lemma~\ref{lem: 2star_appr} shows that the relevant rooted 2-star is within $O(\sqrt{i})$ of the optimal GST, so the average cost per newly covered group is only an $O(i^{-1/2})$ fraction of the optimal GST weight. Summing over all residual sizes gives $\sum_{i=1}^{g-1} i^{-1/2}=O(\sqrt{g})$, eliminating the extra logarithmic factor.
+
+\begin{lemma}
+\label{lem: basic_appr}
+    If $K_1=\{r\}$, then $\w'(R_{\{\{r\}\} \cup Q})\leq$
+    $4\sum\limits_{i=1}^{|Q|}i^{-\frac{1}{2}}\cdot\w(T^*_{\{\{r\}\}\cup Q})$.
+\end{lemma}
+\begin{proof}
+    Given the query $\{\{r\}\} \cup Q$, let $\langle c_0,p_0 \rangle$ be the pair selected in the first iteration of \Basic that covers $S_0 \cap U = S_0$, that is,
+    \begin{equation}
+    \label{eq: basic_rec}
+    \resizebox{0.92\linewidth}{!}{$
+    \displaystyle
+        \w'\big(R_{\{\{r\}\}\cup Q}\big) = |S_0|\Cost(r,c_0,S_0) + \w'\big(R_{\{\{r\}\}\cup( Q\setminus \{K_j \mid j \in S_0\} )}\big) \,.
+    $}
+    \end{equation}
+    
+    As the first greedy choice, $\Cost(r,c_0,S_0)$ also serves as a lower bound on the weight per covered group needed for a 2-star rooted in~$r$ to cover the groups in~$Q$. Therefore,
+    \begin{equation}
+    \label{eq: cost_2}
+    \resizebox{0.92\linewidth}{!}{$
+    \displaystyle
+        \Cost(r,c_0,S_0) \leq \frac{\w'\big(R^*_{\{\{r\}\}\cup Q, r}\big)}{|Q|} \leq \frac{2\sqrt{2(|Q|+1)}\w\big(T^*_{\{\{r\}\}\cup Q}\big)}{|Q|} \,,
+    $}
+    \end{equation}
+    \noindent where the second inequality follows from Lemma~\ref{lem: 2star_appr}, so
+    \begin{equation}
+    \begin{aligned}
+    \label{eq: cost_2_extended}
+        |S_0|\Cost(r,c_0,S_0) & \leq 2\sqrt{2}\w\big(T^*_{\{\{r\}\}\cup Q}\big)\frac{\sqrt{|Q|+1}}{|Q|}|S_0| \\
+        & \leq 2\sqrt{2}\w\big(T^*_{\{\{r\}\}\cup Q}\big)\sum_{i=|Q|-|S_0|+1}^{|Q|}{\frac{\sqrt{i+1}}{i}} \,.
+    \end{aligned}
+    \end{equation}
+    
+    Expanding the recurrence of Equation~(\ref{eq: basic_rec}) and substituting Equation~(\ref{eq: cost_2_extended}) into it, we obtain
+    \begin{equation}
+    \resizebox{0.92\linewidth}{!}{$
+    \displaystyle
+    \label{eq: appr_4}
+    \w'\big(R_{\{\{r\}\}\cup Q}\big) \leq 2\sqrt{2}\w\big(T^*_{\{\{r\}\}\cup Q}\big)\sum_{i=1}^{|Q|}{\frac{\sqrt{i+1}}{i}} \leq 4\w\big(T^*_{\{\{r\}\}\cup Q}\big)
+    \sum_{i=1}^{|Q|} i^{-\frac{1}{2}} \,.
+    $}
+    \end{equation}
+\end{proof}
+
+\begin{theorem}
+\label{the: basic-ratio}
+    \Basic has an approximation ratio $O(\sqrt{g})$.
+\end{theorem}
+\begin{proof}
+    Let~$R'_Q$ be the smallest-weight 2-star found in \Basic. Since \Basic can be viewed as solving $|K_1|$~reduced versions of the problem, each taking a distinct $r \in K_1$, with $\{\{r\}\}\cup( Q\setminus \{K_1\})$ as its own~$Q$ and~$\{r\}$ as its own~$K_1$, we have
+    \begin{gather}
+    \label{the: basic-ratio-1}
+        \w'(R'_Q) = \min_{r\in K_1}\w'(R_{\{\{r\}\}\cup( Q\setminus \{K_1\})}) \,.
+    \end{gather}
+
+    Let~$T'_Q$ be the GST converted from~$R'_Q$. We have
+    \begin{gather}
+    \label{the: basic-ratio-2}
+        \w(T_{Q}) \leq \w(T'_{Q}) \leq \w'(R'_Q) \,.
+    \end{gather}
+
+    Combining Equations~(\ref{the: basic-ratio-2})(\ref{the: basic-ratio-1}) and Lemma~\ref{lem: basic_appr}, we obtain
+    \begin{equation}
+    \resizebox{0.92\linewidth}{!}{$
+    \displaystyle
+    \begin{aligned}
+    \label{eq: appr_5}
+         \frac{\w(T_{Q})}{\w(T^*_Q)} \leq \frac{\displaystyle\min_{r\in K_1}{4\Bigg(\sum_{i=1}^{g-1}i^{-\frac 1 2}\Bigg) \w(T^*_{\{\{r\}\}\cup( Q\setminus \{K_1\})})}}{\displaystyle\min_{r\in K_1}{\w(T^*_{\{\{r\}\}\cup( Q\setminus \{K_1\})})}} = 4\Bigg(\sum_{i=1}^{g-1}i^{-\frac 1 2}\Bigg) \in O(\sqrt{g}) \,.
+    \end{aligned}
+    $}
+    \end{equation}
+\end{proof}
+
+\subsubsection{Time Complexity}
+\label{subsubsec: basic-time}
+
+Let $|K_1| = n_1$. There are $(g-1+n_1)$ SSSP computations (lines~2, 10), each taking $O(m+n\log{n})$ time using Dijkstra's algorithm with a Fibonacci heap. The construction and sorting of~$GI_c$ for all $c \in V$ (lines~3--6) takes $O(ng\log{g})$ time. $\Cost$ (line~16) is calculated $O(n_1gng)$~times, each taking a constant time calculated incrementally using distances from SSSP. The construction of~$T_r$ for all $r \in K_1$ (lines~19--21) takes $O(n_1ng)$ time.
+
+Overall, the time complexity of \Basic is in $O((m+n\log{n})(g+n_1)+nn_1g^2)$. Since~$n_1$ and~$g$ are often very small in practical applications, \Basic scales almost linear in graph size. When~$n_1$ is close to~$n$, the time complexity becomes $O(n(m+ng^2+n\log n))$.
+
+% % Respond Reviewer #5 R6: Since GSTP-style workloads may arise in multi-query scenarios, the revision should discuss whether any intermediate computation or data structure (e.g., SSSP-related results or (D^{\mathrm{Sum}})) can be reused across queries, and what the expected trade-offs would be. A brief empirical study would be ideal, but at minimum the paper should clarify this limitation and the potential for reuse.
+\dew{Note that in multi-query scenarios, intermediate results such as shortest-path trees computed by SSSP can be cached and reused to reduce the time cost of subsequent queries.}

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(GST_Framework CXX)
 
+find_package(Threads REQUIRED)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -44,6 +46,8 @@ set(GST_COMMON_SOURCES
     methods/Release/release_v2.cpp
     methods/Release/release_v3.cpp
     methods/Release/release_v4.cpp
+    methods/Release/release_v5.cpp
+    methods/Release/release_v6.cpp
     methods/Common/anchor_junction_upper.cpp
     methods/Test/test16.cpp
     methods/Test/test17.cpp
@@ -75,6 +79,12 @@ target_compile_definitions(gst_release_v3_main PRIVATE GST_DEFAULT_METHOD="Relea
 add_executable(gst_release_v4_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_release_v4_main PRIVATE GST_DEFAULT_METHOD="ReleaseV4")
 
+add_executable(gst_release_v5_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_release_v5_main PRIVATE GST_DEFAULT_METHOD="ReleaseV5")
+
+add_executable(gst_release_v6_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_release_v6_main PRIVATE GST_DEFAULT_METHOD="ReleaseV6")
+
 add_executable(gst_test16_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_test16_main PRIVATE GST_DEFAULT_METHOD="Test16")
 
@@ -93,24 +103,391 @@ target_compile_definitions(gst_test21_main PRIVATE GST_DEFAULT_METHOD="Test21")
 add_executable(gst_test80_main ${GST_COMMON_SOURCES})
 target_compile_definitions(gst_test80_main PRIVATE GST_DEFAULT_METHOD="Test80")
 
-if(WIN32)
-    foreach(target_name
-            gst_dpbf_main
-            gst_half_dpbf_main
-            gst_pruned_dp_main
-            gst_release_v1_main
-            gst_release_v2_main
-            gst_release_v3_main
-            gst_release_v4_main
-            gst_test16_main
-            gst_test17_main
-            gst_test18_main
-            gst_test19_main
-            gst_test21_main
-            gst_test80_main)
+add_executable(gst_test80_progress_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_progress_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1)
+
+add_executable(gst_test80_d1_probe_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_d1_probe_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D1_PROBE=1)
+
+add_executable(gst_test80_d2_probe_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_d2_probe_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D2_PROBE=1)
+
+add_executable(gst_test80_d3_probe_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_d3_probe_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1)
+
+add_executable(gst_test80_anchor_facility_probe_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_anchor_facility_probe_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY_PROBE=1)
+
+add_executable(gst_test80_anchor_facility_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_anchor_facility_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_ANCHOR_FACILITY=1)
+
+add_executable(gst_test80_anchor_facility_d3_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_anchor_facility_d3_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY=1)
+
+add_executable(gst_test80_anchor_facility_d4_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_anchor_facility_d4_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D4_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY=1)
+
+add_executable(gst_test80_anchor_tree_probe_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_anchor_tree_probe_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY_PROBE=1
+    GST_TEST80_ANCHOR_TREE_FACILITY_PROBE=1)
+
+add_executable(gst_test80_anchor_tree_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_anchor_tree_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1)
+
+add_executable(gst_test80_anchor_tree_d3_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test80_anchor_tree_d3_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1)
+
+add_executable(gst_test142_adjoint_anchor_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test142_adjoint_anchor_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1)
+
+add_executable(gst_test142_adjoint_anchor_progress_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test142_adjoint_anchor_progress_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1)
+
+add_executable(gst_test144_adjoint_eager_boundary_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test144_adjoint_eager_boundary_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1)
+
+add_executable(gst_test145_transposed_terminal_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test145_transposed_terminal_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+# Prefix profilers use exactly the Test145 configuration, then stop at a
+# natural ordinary-D layer boundary. They are diagnostics, not solver variants.
+add_executable(gst_test145_d2_profile_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test145_d2_profile_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D2_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test145_d3_profile_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test145_d3_profile_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test145_no_tree_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test145_no_tree_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test145_no_tree_d3_profile_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test145_no_tree_d3_profile_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test146_amortized_anchor_tree_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test146_amortized_anchor_tree_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test146_amortized_anchor_tree_d3_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test146_amortized_anchor_tree_d3_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test146_amortized_anchor_tree_d2_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test146_amortized_anchor_tree_d2_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D2_PROBE=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test145_no_dual_d2_profile_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test145_no_dual_d2_profile_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D2_PROBE=1
+    GST_TEST80_NO_DUAL_CUT=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+# Online dual construction in one-group units. Every prefix is already a
+# feasible lower bound; accumulated search work pays for later prefixes.
+add_executable(gst_test152_progressive_dual_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test152_progressive_dual_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESSIVE_DUAL=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test149_changed_arc_dual_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test149_changed_arc_dual_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_DUAL_CHANGED_ARC_SEEDS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test149_changed_arc_dual_d2_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test149_changed_arc_dual_d2_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D2_PROBE=1
+    GST_DUAL_CHANGED_ARC_SEEDS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test149_changed_arc_dual_d3_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test149_changed_arc_dual_d3_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST80_PROGRESS=1
+    GST_TEST80_D3_PROBE=1
+    GST_DUAL_CHANGED_ARC_SEEDS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+# Test157 uses one solver source and one-difference compile-time stages. M0 is
+# the Iwata-style global half-state reference; M1-M3 isolate the paper-core
+# evaluation changes; M4-M5 add production pruning and dual scheduling.
+add_executable(gst_test157_m0_iwata_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test157_m0_iwata_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST157_ABLATION_STAGE=0
+    GST_TEST157_IWATA_M0=1)
+
+add_executable(gst_test157_m1_full_a_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test157_m1_full_a_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST157_ABLATION_STAGE=1)
+
+add_executable(gst_test157_m2_adjoint_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test157_m2_adjoint_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST157_ABLATION_STAGE=2
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1)
+
+add_executable(gst_test157_m3_transpose_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test157_m3_transpose_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST157_ABLATION_STAGE=3
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test157_m4_pruning_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test157_m4_pruning_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST157_ABLATION_STAGE=4
+    GST_DUAL_CHANGED_ARC_SEEDS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+add_executable(gst_test157_m5_progressive_dual_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test157_m5_progressive_dual_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST157_ABLATION_STAGE=5
+    GST_TEST80_PROGRESSIVE_DUAL=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+# Test158 isolates the strict root-irreducible branch basis. It keeps the
+# frozen M5 algorithm but publishes every stored ordinary value as a branch.
+add_executable(gst_test158_all_branches_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test158_all_branches_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST157_ABLATION_STAGE=5
+    GST_TEST158_ALL_BRANCHES=1
+    GST_TEST80_PROGRESSIVE_DUAL=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+# Same algorithm as the frozen M5 candidate, with representation invariants
+# checked after every ordinary, anchored, and backward row is stored.
+add_executable(gst_test157_production_audit_main ${GST_COMMON_SOURCES})
+target_compile_definitions(gst_test157_production_audit_main PRIVATE
+    GST_DEFAULT_METHOD="Test80"
+    GST_TEST157_ABLATION_STAGE=5
+    GST_TEST157_VALIDATE_ROWS=1
+    GST_TEST80_PROGRESSIVE_DUAL=1
+    GST_DUAL_CHANGED_ARC_SEEDS=1
+    GST_TEST80_ANCHOR_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_FACILITY=1
+    GST_TEST80_ANCHOR_TREE_AMORTIZED=1
+    GST_TEST80_ADJOINT_ANCHOR=1
+    GST_TEST80_ADJOINT_EAGER_BOUNDARY=1
+    GST_TEST80_ADJOINT_TRANSPOSED_TERMINAL=1)
+
+foreach(target_name
+        gst_dpbf_main
+        gst_half_dpbf_main
+        gst_pruned_dp_main
+        gst_release_v1_main
+        gst_release_v2_main
+        gst_release_v3_main
+        gst_release_v4_main
+        gst_release_v5_main
+        gst_release_v6_main
+        gst_test16_main
+        gst_test17_main
+        gst_test18_main
+        gst_test19_main
+        gst_test21_main
+        gst_test80_main
+        gst_test80_progress_main
+        gst_test80_d1_probe_main
+        gst_test80_d2_probe_main
+        gst_test80_d3_probe_main
+        gst_test80_anchor_facility_probe_main
+        gst_test80_anchor_facility_main
+        gst_test80_anchor_facility_d3_main
+        gst_test80_anchor_facility_d4_main
+        gst_test80_anchor_tree_probe_main
+        gst_test80_anchor_tree_main
+        gst_test80_anchor_tree_d3_main
+        gst_test142_adjoint_anchor_main
+        gst_test142_adjoint_anchor_progress_main
+        gst_test144_adjoint_eager_boundary_main
+        gst_test145_transposed_terminal_main
+        gst_test145_d2_profile_main
+        gst_test145_d3_profile_main
+        gst_test145_no_tree_main
+        gst_test145_no_tree_d3_profile_main
+        gst_test146_amortized_anchor_tree_main
+        gst_test146_amortized_anchor_tree_d2_main
+        gst_test146_amortized_anchor_tree_d3_main
+        gst_test145_no_dual_d2_profile_main
+        gst_test152_progressive_dual_main
+        gst_test149_changed_arc_dual_main
+        gst_test149_changed_arc_dual_d2_main
+        gst_test149_changed_arc_dual_d3_main
+        gst_test157_m0_iwata_main
+        gst_test157_m1_full_a_main
+        gst_test157_m2_adjoint_main
+        gst_test157_m3_transpose_main
+        gst_test157_m4_pruning_main
+        gst_test157_m5_progressive_dual_main
+        gst_test158_all_branches_main
+        gst_test157_production_audit_main)
+    target_link_libraries(${target_name} PRIVATE Threads::Threads)
+    if(WIN32)
         target_link_libraries(${target_name} PRIVATE psapi)
-    endforeach()
-endif()
+    endif()
+endforeach()
 
 add_subdirectory(tools/random_compare)
 add_subdirectory(tools/snapshot_benchmark)
@@ -128,3 +505,6 @@ add_subdirectory(tools/paid_half_state_probe)
 add_subdirectory(tools/paid_pair_profile_probe)
 add_subdirectory(tools/paid_block_completion_probe)
 add_subdirectory(tools/paid_core_growth_probe)
+add_subdirectory(tools/adjoint_anchor_probe)
+add_subdirectory(tools/test157_core_verifier)
+add_subdirectory(tools/gpu4gst_data)

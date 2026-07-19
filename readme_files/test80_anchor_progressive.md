@@ -1,11 +1,13 @@
 # Test80：Anchor-Junction Progressive Ordered Rows
 
-更新时间：2026-07-13。Test80 是框架 A 的带研究统计综合实现，也是 ReleaseV4
+更新时间：2026-07-15。Test80 是框架 A 的带研究统计综合实现，也是 ReleaseV4
 的算法来源。它从 Test21 的
 anchor-aware 离线有序 rows 出发，合并 Test48 的 paid-anchor branch-junction
 可行上界，以及 Test57/58 的 D2-work delayed progressive residual packing。
 求解全过程仍是 `D/A ordered rows + A+D+D completion`，不调用 ReleaseV3，
 不切换到 global-label 框架 B，也不使用 Hash、数据集特判或 wall-time 阈值。
+
+本文件第 1、8 节的表格冻结为 Test80 初版与 ReleaseV4 形成时的历史口径。当前研究版随后保留 Test83、Test84、Test87、Test90 与 Test98；最新物理行表示和计时见 `test98_ranked_bitmap_rows.md`，不要用后续数据覆盖下文的阶段性对照。
 
 ## 1. 结论
 
@@ -255,6 +257,22 @@ D2 只保留 `7,756,381` values；旧 A 结构探针约为 `125.6M` pair states�
 `3870.7MiB` 降到 `2161.9MiB`，证明 ordered A 的内存优势真实存在。
 
 q1 之后的跨询问剖析按截止时间完成 19 条新 DBLP g13 询问，详见 `test80_dblp_g13_cross_query.md`。新样本表明 q1 相对容易：其 wall 与 peak 只有新询问中位数的 `32.6%/36.8%`。跨询问时 D 在 16/19 条中比 A 更耗时，D3/D4 主导行存储，而 A5 与完整化仍是重要时间热点；因此不能再从 q1 单例推断“主要瓶颈总在 A”。这些是带统计 Test80 的研究数据，不替代 ReleaseV4 的发行时间。
+
+跨询问统计随后导出 Test83：先用 `max(farthest,directed-cut)` 拒绝候选，只对仍可能改善 `best` 的候选计算完整 group-tour 下界。它保持状态、队列和答案不变，DBLP g13 q5 将 wall 从 `276.117s` 降到 `249.146s`。当前机制只进入 Test80，ReleaseV4 未改；流程、证明、复杂度和完整数据见 `test83_lazy_tour_bound.md`。
+
+Test84 进一步利用最后两层 A 的生产者—消费者依赖：A4 仍按原整数 `mask` 顺序生成，某个 A5 的全部直接子集就绪后立即消费，A4 在最后一次使用后释放。DBLP g13 q5 的 A4 流式 payload 峰值由 `1,869,060B` 降到 `1,368,192B`，wall 为 `242.886s`；fast20 为 `8.382s`。机制保持原状态和无 Hash 有序连接，最坏渐进阶不变，完整流程、证明、否决顺序和数据见 `test84_anchored_top_stream.md`。
+
+Test87 将 Test83 的 cheap 下界继续分成 `directed-cut -> farthest -> group-tour` 三个阶段：cut 已能拒绝时不再读取 group-distance rows。DBLP g13 q5 的 D/A farthest 实际求值率只有 `1.724%/1.054%`，wall 从 Test84 的 `242.886s` 降到 `186.896s`，答案、D/A values、pops 与 completion checks 全部相同。fast20 与 Toronto 基本持平，说明收益来自大图工作集下避免分散内存读取，而非改变状态或剪枝强度。完整流程、证明和数据见 `test87_cut_first_bound.md`；补集 cut 预筛选 Test88 已因 fast 退化和额外内存撤回。
+
+Test90 随后把 A0 的平衡 `D+D` completion 移到最高 D 层内部：每张 `D_h` row 与补集都就绪后立即做原有有序相交，提前得到的可行上界直接剪后续 D_h。DBLP g13 q5 的 D6 values/pops 下降 `35.37%/37.99%`，wall 为 `183.914s`，A 状态不变；原 A0 扫描不再重复。完整证明与数据见 `test90_streamed_a0_completion.md`。补集成对的 Test91 顺序因 fast 跨库退化已撤回。
+
+Test98 再把每张已完成 row 的物理表示从 sparse/dense 二选一扩展为 sparse/dense/ranked-bitmap 三选一，并严格按该行逻辑字节数取最小。后续 q25 压力长门中，Test83--98 主线相对历史 Test80 的 peak 降 `27.6%`，wall 增 `13.5%`；该比较不是 Test98 单变量对照。Test103 随后把 bitmap accumulator 与顶点域 branch bits 的相交移入独立半连接内核，fast20 solver 两次为 `6.962s/6.906s`，q5 两次为 `152.286s/151.027s`；q25 未随 Test103 重跑。完整说明见 `test98_ranked_bitmap_rows.md` 与 `test103_out_of_line_bitmap_semijoin.md`；ReleaseV4 和 DBLP q1 未更新。
+
+Test104 又把 ranked bitmap 推进到 `A+D+D` completion：每张 A row 只在首次兼容 partition 时构造 root bitmap，之后用三路 word 相交枚举共同根。fast20 completion 为 `870.788ms -> 472.844ms`，有效 checks 不变；DBLP q5/q32 均零调用，只证明回退路径稳定。Test104 当时没有单独重跑 q25，但 D3/D4 旧布局严格给出至少 `41,265` 个兼容 A4/A5 partitions；后续当前组合版 q25 实际命中 `83,048` 个 partition。实现与边界见 `test104_completion_bitmap_intersection.md`。
+
+Test105–107 随后为每张 D/A row 保存精确最小值，并把 completion 组织为“分块→根→分量”三级安全拒绝：先用三张行的最小值跳过整个分块，再用精确 A 根替换 `min A`，最后用已读取或 driver 免费提供的一个精确 D 值替换对应 `min D`。DBLP g13 q32 的 scans/checks 分别下降 `58.12%/98.37%`，completion `24.60s -> 7.05s`；q5/Toronto checks 下降 `98.40%/99.12%`。当前组合版 q25 相对 Test98 将 checks 从 `32.815B` 降到 `46.019M`、completion 从 `1211.875s` 降到 `488.765s`，wall 改善 `6.13%`、peak 基本不变；两版全部 D/A 状态逐项相同。当前保留 Test107，统一流程、证明和门槛见 `test105_completion_partition_minimum.md`；ReleaseV4 与 DBLP q1 未更新。
+
+Test115 没有增加算法机制，只给同一源码增加编译期分层进度目标。当前 Test107 完整跑通 DBLP g15 q1，得到 `16.1062710559 / 1953.203s / 3246.973MiB`；这只证明 q1 低于 10,000 秒。后续 Test116 的四档 D3 压力筛查选出 q33，其完整结果为 `8.3053688653 / 11505.101s / 19228.398MiB`，已经否定“g15 每条询问都低于 10,000 秒”。q33 的 D2/D3 平均行密度达到 `67.38%/46.15%`，D4 又产生 `781.846M` values；跨询问证据与结论边界见 `test115_dblp_g15_progress.md` 和 `test116_g15_variance_panel.md`。
 
 ## 9. 代码位置
 

@@ -1,0 +1,6 @@
+# Run started=2026-07-17 18:15:53 graph=GPU4GST_Github method=DPBF data_root=data graph_folder=data\GPU4GST_Github query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Github\DPBF\query_g4 rss_mb=38.406 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+query=1 best=0.0000000000 wall_ms=217.239 rss_before_mb=38.586 rss_after_mb=39.418 peak_rss_mb=56.273
+query=2 best=95.0000000000 wall_ms=309.264 rss_before_mb=39.453 rss_after_mb=40.031 peak_rss_mb=55.715
+query=3 best=199.0000000000 wall_ms=300.319 rss_before_mb=40.043 rss_after_mb=39.480 peak_rss_mb=56.191
+query=4 best=193.0000000000 wall_ms=302.594 rss_before_mb=39.477 rss_after_mb=39.496 peak_rss_mb=57.094
+query=5 best=390.0000000000 wall_ms=318.079 rss_before_mb=39.508 rss_after_mb=39.500 peak_rss_mb=55.258

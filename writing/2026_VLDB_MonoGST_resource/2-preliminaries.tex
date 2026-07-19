@@ -1,0 +1,27 @@
+\section{Preliminaries}
+\label{sec: preliminaries}
+
+\subsection{Notation}
+\label{subsec: GST_def}
+
+In a simple undirected graph $G = \langle V,E,w \rangle$, $V$~is a set of $n$~vertices, $E \subseteq V \times V$ is a set of $m$~edges, and $w: E \rightarrow R^{0+}$ is an edge weighting function.
+A path is an alternating sequence of vertices and edges, and its length is the total weight of its edges. The distance between two vertices~$u$ and~$v$, $\dist(u,v)$, is the length of a shortest $u$-$v$ path $\SP(u,v)$. We lightly abuse $\dist(u,K)$ to represent the distance between a vertex~$u$ and a set~$K$ of vertices, i.e.,~the minimum distance between~$u$ and any vertex in~$K$. Similarly, $\SP(u,K)$ represents any shortest path between~$u$ and any vertex in~$K$.
+
+In a query $Q = \{ K_1, K_2, \dots, K_g\}$, each $K_i \in Q$ is a set of vertices called terminals. A Group Steiner Tree (GST) corresponding to this query is a tree $T = \langle V_T,E_T \rangle$ containing at least one vertex in each~$K_i$, i.e.,~$V_T \cap K_i \neq \emptyset$ for each $K_i$. The weight of this tree is $\w(T) = \sum_{e \in E_T}{\w(e)}$. Given~$G$ and~$Q$, the Group Steiner Tree Problem (GSTP) is to find a minimum-weight GST. This optimization problem is NP-hard with an inapproximability of $O(\log^{2-\epsilon}{g})$~\cite{ProveInapproximability}.
+
+\subsection{2-star}
+\label{subsec: 2-star}
+
+A $d$-star is a tree composed of $d+1$ levels of vertices from the original graph~\cite{dstar1, dstar2}. The first level is a root vertex~$r$, the $(d+1)$-th level contains $g$~terminals from distinct groups (or~$g-1$ if $r$~is chosen from a group), and the other levels contain intermediate vertices. Each edge $(u,v)$ is weighted by $\dist(u,v)$ calculated in the original graph. The weight~$\w'(R)$ of a $d$-star~$R$ is the sum of its edge weights.
+
+A $d$-star can be converted into a GST by replacing each edge $(u,v)$ with a shortest $u$-$v$ path from the original graph. The GST converted from an optimum (i.e.,~minimum-$\w'$) $d$-star rooted in~$r$ yields a $2d(g/2)^{\frac{1}{d}}$ approximation to an optimum (i.e.,~minimum-$\w$) GST that contains~$r$~\cite{dstar2}. By computing an optimum $d$-star rooted in each vertex~$r$ in a particular (e.g.,~the smallest) group and converting all such $d$-stars into GSTs, their minimum weight has a guaranteed approximation ratio. Specifically, when $d=2$, there is only one level of intermediate vertices, and an optimum 2-star approximates an optimum GST in the ratio $O(\sqrt{g})$.
+
+\subsection{Weighted Set Cover Problem}
+\label{subsec: set covering problem}
+
+Recall the weighted set cover problem. Let $U_0=\{a_1,a_2,\dots,a_g\}$ be the universe and let $\mathcal{S}=\{S_1,S_2,\dots\}$ be a family of subsets where each $S_i\subseteq U_0$ has a nonnegative weight.
+%~$\w(S_i)$.
+A feasible solution is a subfamily $\mathcal{C}\subseteq \mathcal{S}$ whose union covers $U_0$, i.e.,~$\bigcup_{S\in\mathcal{C}} S=U_0$. An optimum solution minimizes the total weight of the subsets in~$\mathcal{C}$.
+
+A classic greedy algorithm that repeatedly chooses the subset minimizing the cost-effectiveness---the ratio of its weight to the number of uncovered elements it contains---achieves an $O(\ln g)$ approximation ratio $H_g=\sum_{k=1}^g \tfrac{1}{k}\le \ln g+1$.
+% Let $U$ denote the set of uncovered elements, initialized as $U=U_0$. At each iteration, choose a set $S\in\mathcal{S}$ that minimizes the cost-effectiveness ratio $\w(S)/|S\cap U|$, add $S$ to the solution, and remove the newly covered elements from $U$. This process repeats until $U=\emptyset$. The greedy algorithm

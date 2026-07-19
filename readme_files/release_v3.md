@@ -167,7 +167,7 @@ solver 增量空间逐 `g` 为：
 | 8 | `42.379MiB` | `~313MiB` | `7.39x` |
 | **total** | **`61.336MiB`** | **`~990MiB`** | **`16.1x`** |
 
-该口径对每个独立进程取 `peak_rss-rss_before` 后求和。g8 的主要增量来自 MovieLens 公共图上的 dual residual；它是 small 空间唯一低于 10x 的明确放宽项。
+该表是 2026-07-14 统一空间口径以前的历史结果：每个独立进程取 `peak_rss-rss_before` 后求和，不能与当前 `weights.txt` 第三列的绝对 query peak RSS 直接混比。g8 的主要增量来自 MovieLens 公共图上的 dual residual；它是该历史 small 口径下唯一低于 10x 的明确放宽项。后续运行以 `RUN.md` 的 query peak RSS 为准。
 
 `g=3..6` 是明确放宽项，`g=7..8` 接近但未达到 10x。主要底座是完整 group distances；在这些小查询上没有足够 DP 工作摊销。当前口径不要求每个低 `g` 硬达 10x，但保留逐 `g` 表，不能用 fast 总体掩盖。
 

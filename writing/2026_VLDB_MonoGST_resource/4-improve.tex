@@ -1,0 +1,460 @@
+\section{\Improved: An Improved Algorithm}
+\label{sec: improved}
+
+\subsection{Basic Idea}
+\label{sec: improved-basic-idea}
+
+Based on \Basic, our improved algorithm \Improved is designed to increase efficiency and effectiveness in three aspects.
+
+First, \Basic performs $|K_1|$~SSSP computations (line~10) using Dijkstra's algorithm.
+% particularly when the smallest group~$K_1$ is still large.
+To accelerate them, \Improved interleaves each SSSP computation with its subsequent set cover procedure through \emph{a suspendable Dijkstra's algorithm that proceeds in a lazy manner} (Section~\ref{subsec: sec_dub}), driven by the needs of the set cover stage to prune unneeded distance calculations; in each iteration of the set cover procedure, Dijkstra's algorithm is resumed and then suspended once the next distance reaches an upper bound that is dynamically derived from previous iterations, ensuring that distances exceeding this bound are not needed for the current iteration.
+
+Second, we prove that in \Basic, for each intermediate vertex~$c$ (line~13), \emph{the prefix~$p$ that minimizes $\Cost(r,c,p)$ is monotonically non-decreasing over iterations of the set cover procedure} (line~11), and \emph{in each iteration, $\Cost(r,c,p)$~has only one local optimum as $p$~increases} (Section~\ref{subsec: mono_upt}). Therefore, unlike \Basic which repeatedly enumerates all possible prefixes (line~14), \Improved prunes the prefixes and reduces time complexity by a factor of~$g$.
+
+Third, \Basic converts a 2-star into a GST as described in Section~\ref{subsec: 2-star}, replacing each edge of the 2-star with a shortest path from the original graph (lines~19--21). For overlapping paths, their total edge weight is overestimated by the weight of 2-star, leading to suboptimal path selection. To address it, \Improved \emph{connects the selected intermediate vertices to terminals through greedily re-selected paths} (Section~\ref{subsec: sec_rebuild}), which could result in a smaller total weight.
+
+\subsection{Algorithm Design}
+\label{subsec: improved-design}
+
+%Our improved algorithm \Improved is described in Algorithm \ref{alg: Improved}.
+
+\textbf{Algorithm~\ref{alg: Improved} (\Improved).}
+As in \Basic, we identify the smallest group~$K_1$ (line~1), compute SSSP (line~2), and construct a sorted list~$GI_c$ for each $c \in V$ (lines~3--6). Further, for each $1 \leq k \leq g-1$, we calculate the minimum sum~$D^{\Sum}_k$ of distances corresponding to the first $k$~entries among all such lists (lines~7--8), used to calculate the distance upper bound to suspend Dijkstra's algorithm. For each root $r \in K_1$ of a 2-star (line~9), we initialize the set~$U$ of all remaining group indices to be covered (line~10), the \emph{dynamic distance upper bound}~$\overline{d}$ (line~11), and an empty set~$CP$ of $\langle c,p \rangle$~pairs (line~11)---at most one pair for each intermediate vertex~$c$---such that $\langle c,p \rangle$~has the current smallest cost-effectiveness for~$c$ defined by Equation~(\ref{eq: defi_cost}) given the distances already calculated by the suspendable Dijkstra's algorithm.
+% $\dist(r,c)$ has been computed and the prefix set $S=\{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\}$
+We also initialize an empty set~$C_0$ of current intermediate vertices in the 2-star (line~11), used to construct a GST. Then the algorithm \emph{alternates between iterations of Dijkstra's algorithm and the set cover procedure}. Specifically, we initialize a min heap of distance-vertex pairs to support Dijkstra's algorithm (line~12). In each iteration until $U$~is covered (line~13), we call \PartialDijkstra (detailed in Section~\ref{subsec: sec_dub}) to \emph{resume Dijkstra's algorithm} to expand~$CP$ with~$CP^{\new}$, a set of $\langle c,p \rangle$~pairs where $\dist(r,c)$ is newly calculated, and possibly tighten~$\overline{d}$ (lines~14--15). After \emph{suspending Dijkstra's algorithm} by~$\overline{d}$, we greedily select the best pair $\langle c_0,p_0 \rangle \in CP$ that has the smallest cost-effectiveness~$f_0$ (lines~16--21); \emph{we will define~$\overline{d}$ in a way that unvisited vertices cannot contribute any smaller cost-effectiveness}. We add~$c_0$ to~$C_0$ and update~$U$ (lines~22--23). Since $U$~is involved in calculating the cost-effectiveness by Equation~(\ref{eq: defi_cost}) and this set has changed, to maintain the property of~$CP$, for each $\langle c,p \rangle \in CP$ we call \UpdateCandidate (detailed in Section~\ref{subsec: mono_upt}) to update~$p$ to have the current smallest cost-effectiveness~$f$ for~$c$ (lines~24--26). We use their smallest value~$f_0$ (line~27) and~$D^{\Sum}$ to possibly relax~$\overline{d}$ (line~28, detailed in Section~\ref{subsec: sec_dub}) to resume Dijkstra's algorithm in the next iteration. When $U$~is covered, we call \ConstructTree (detailed in Section~\ref{subsec: sec_rebuild}) to construct a GST with the root~$r$ and intermediate vertices~$C_0$ (line~29). After constructing $|K_1|$~GSTs using each root in~$K_1$, the algorithm outputs the minimum-weight GST among them (lines~30--31).
+
+\begin{algorithm}[t]
+    \KwIn{Graph $G = \langle V,E,\w \rangle$; Query~$Q=\{K_1,K_2,\dots,K_g\}$.}
+    \KwOut{GST $T = \langle V_T,E_T \rangle$.}
+    
+    Swap $K_1$ with the smallest $K_i \in Q$\;
+    
+    Compute a shortest-path tree from each $K_i\in \{K_2,K_3,\dots,K_g\}$\;
+    
+    \ForEach{$c \in V$}
+    {
+        \For{$i \leftarrow 2$ \KwTo $g$}
+        {
+            $GI_{c,i} \leftarrow i$\;
+        }
+        Sort $GI_c$ by $\dist(c,K_{GI_{c,i}})$ in non-decreasing order\;
+    }
+
+    \ForEach{$k\leftarrow 1$ \KwTo $g-1$}
+    {
+        \(D^{\Sum}_k \leftarrow \min_{c\in V}\sum_{i=2}^{k+1}\dist(c,K_{GI_{c,i}})\)\;
+    }
+    
+    %Compute an orderly list $D^{\Pre}$ and its associated vector $D^{\sum}$.
+    % \(D^{\Pre} \leftarrow \) a list of all the $(g-1)|V|$ distance values calculated above, sorted in non-decreasing order\;
+    % the multiset \(\{\dist(v,K_i)\mid v\in V,\ K_i\in \{K_2,K_3,\dots,K_g\}\}\)\;
+
+    \ForEach{$r \in K_1$}
+    {
+        $U \leftarrow \{2,3,\dots,g\}$\;
+        $\overline{d} \leftarrow \infty, CP \leftarrow \emptyset, C_0 \leftarrow \emptyset$\;
+        $pq \leftarrow$ a min heap with $\{\langle 0,r \rangle\} \cup \{\langle \infty,v \rangle \mid v \in (V \setminus \{r\}) \}$\;
+        
+        \While{$U \neq \emptyset$}
+        {
+            \(CP^{\new},\overline{d}\leftarrow \PartialDijkstra(pq,\overline{d},r,g,U,GI,{D^{\Sum}}) \)\;
+            \(CP \leftarrow CP \cup CP^{\new}\)\;
+            \(c_0\leftarrow null, p_0 \leftarrow 1, S_0 \leftarrow \emptyset, f_0\leftarrow \infty\)\;
+            \ForEach{$\langle c,p \rangle \in CP$}
+            {
+                $S \leftarrow \{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\}$\;
+                $f \leftarrow \Cost(r,c,p)$\;
+                \If{$f < f_0$}
+                {
+                    $c_0 \leftarrow c, p_0 \leftarrow p, S_0 \leftarrow S, f_0 \leftarrow f$\;
+                }
+            }
+            
+            \(C_0\leftarrow C_0\cup \{c_0\}, f_0 \leftarrow \infty\)\;
+            \(U \leftarrow U\setminus S_0\)\;
+            \ForEach{$\langle c,p^\text{Old} \rangle \in CP$}
+            {   
+                \(p,f\leftarrow \UpdateCandidate(c, p^\text{Old}, r, g, U, GI)\)\;
+                $CP \leftarrow (CP \setminus \{\langle c,p^\text{Old} \rangle\}) \cup \{\langle c,p \rangle\})$\;
+                \(f_0\leftarrow \min\{f_0,f\}\)\;
+                % $S \leftarrow \{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\}$\;
+                % \(f_0\leftarrow \min(f_0,\frac{\dist(r,c)+\sum_{j \in (S \cap U)}{\dist(c,K_j)}}{|S \cap U|})\)\;
+            }
+            %\overline{d} \leftarrow \UpdateUpperBound(f_0,U,D^\Pre)$\;
+            \(\overline{d} \leftarrow \max_{k=1}^{|U|}(kf_0-D^{\Sum}_k)\)\;
+        }
+        \(T_r\leftarrow \ConstructTree(r,C_0,Q)\)\;
+    }
+    $T \leftarrow \argmin_{r \in K_1}{\w(T_r)}$\;
+    
+    \KwRet{$T$}
+\caption{\Improved} 
+\label{alg: Improved}
+\end{algorithm}
+
+\textbf{Running Example.}
+\dew{Reconsider the GSTP instance in Section~\ref{subsec: basic_design}.
+% After computing the shortest-path trees, $GI$
+With $D^{\Sum}=\langle 0,0,3,6,10,19,32\rangle$, we start with $r=1\in K_1$.
+In the 1st iteration, $CP$ is expanded with $CP^{\new}=\{\langle 1,3\rangle,\langle 4,3\rangle,\langle 9,4\rangle,\langle 5,3\rangle\}$ and $\overline d$ is tightened to~4. We add $c_0=5$ to $C_0$, update $U=\{4,5,6,7,8\}$, update $CP$ to $\{\langle 1,4\rangle,\langle 4,4\rangle,\langle 9,4\rangle,\langle 5,5\rangle\}$, and relax~$\overline d$ to~12.5.
+In the 2nd iteration, $CP$ is expanded with $CP^{\new}=\{\langle 2,5\rangle,\langle 3,5\rangle,\langle 10,4\rangle,\\\langle 11,4\rangle,\langle 8,3\rangle\}$ and $\overline d$ is tightened to~8. We add $c_0=8$ to $C_0$, update $U=\{5,7,8\}$, update $CP$ to $\{\langle 1,7\rangle,\langle 4,8\rangle,\langle 9,4\rangle,\langle 5,8\rangle,\langle 2,6\rangle,\langle 3,6\rangle,\\\langle 10,4\rangle,\langle 11,4\rangle,\langle 8,7\rangle\}$, and relax~$\overline d$ to~10.5.
+In the 3rd iteration, $CP$ and $\overline d$ remain. We add $c_0=9$ to $C_0$, update $U=\{5\}$, update $CP$ to $\{\langle 1,8\rangle,\langle 4,8\rangle,\langle 9,8\rangle,\langle 5,8\rangle,\langle 2,6\rangle,\langle 3,6\rangle,\langle 10,8\rangle,\langle 11,8\rangle,\langle 8,7\rangle\}$, and update $\overline d=6$.
+In the 4th iteration, $CP$ and $\overline d$ remain. We add $c_0=1$ to $C_0$ and update $U=\emptyset$, so the set cover procedure is completed. The resulting GST is constructed with $r=1$ and $C_0=\{5,8,9,1\}$.
+}
+
+\subsection{Suspendable Dijkstra's Algorithm}
+\label{subsec: sec_dub}
+
+Dijkstra's algorithm calculates distances in non-decreasing order. In \Improved, each call to \PartialDijkstra (line~14) resumes Dijkstra's algorithm, which will be suspended once the next distance reaches~$\overline{d}$. We describe \PartialDijkstra in Algorithm~\ref{alg: Partial_Dijkstra} and will later elaborate on the definition and computation of~$\overline{d}$.
+
+\textbf{Algorithm~\ref{alg: Partial_Dijkstra} (\PartialDijkstra).}
+Building on Dijkstra's algorithm (lines~2--3, 6, 10), we suspend it when the next distance~$d$ reaches the upper bound~\(\overline{d}\) (lines~4--5). For each vertex~$c$ that is newly visited since the previous suspension, we call \UpdateCandidate (detailed in Section~\ref{subsec: mono_upt}) to find the prefix~$p$ such that $\langle c,p \rangle$ has the current smallest cost-effectiveness~$f$ for~$c$ (line~7). We return all such $\langle c,p \rangle$ pairs~$CP^\new$ (lines~1, 8, 11) and an updated~\(\overline{d}\) possibly tightened based on each~$f$ using $D^{\Sum}$ (line~9, detailed later).
+
+% Respond Reviewer #5 R3: The revision should add a small but concrete example explaining the 2-star construction and the main optimization ideas (e.g., suspendable Dijkstra/prefix pruning/path re-selection).
+\textbf{Running Example.}
+\dew{Within the execution of \Improved in Section~\ref{subsec: improved-design}, we elaborate on its first call to \PartialDijkstra with an initial~$pq$, $\overline{d}=\infty$, and $r=1$. The 1st visited vertex is $1$ with $d=0$, $p=3$, and $f=3$, tightening~$\overline{d}$ to~$6$. The 2nd visited vertex is $4$ with $d=3$, $p=3$, and $f=2.5$, tightening~$\overline{d}$ to~$5$. The 3rd visited vertex is $9$ with $d=3$, $p=4$, and $f=3$, not further tightening~$\overline{d}$. The 4th visited vertex is $5$ with $d=4$, $p=3$, and $f=2$, tightening~$\overline{d}$ to~$4$. The next vertex is~$2$ with $d=5$ exceeding the current $\overline{d}$, so Dijkstra's algorithm is suspended, returning $CP^{\new} = \{\langle 1,3 \rangle, \langle 4,3 \rangle, \langle 9,4 \rangle, \langle 5,3\rangle\}$ and $\overline{d}=4$. The vertices visited in the 2nd call to \PartialDijkstra are annotated in Figure~\ref{fig: TF}. No vertex is visited in the 3rd and 4th calls.}
+
+% \paragraph{Conventions}
+% Throughout this section, we assume a fixed root $r$ and the set of all remaining group indices $U$. Analyses and computations that depend on them are understood under this convention and will not be reiterated.
+
+\begin{algorithm}[t]
+    \KwIn{Min heap~$pq$ of distance-vertex pairs; Distance upper bound~$\overline{d}$; Root~$r$; Number~$g$ of groups; Set~$U$ of all remaining group indices; Sorted lists~$GI$ of group indices; List~$D^{\Sum}$ of sum of distances.}
+    \KwOut{Set~$CP^{\new}$ of vertex-prefix pairs; Updated distance upper bound~$\overline{d}$.}
+    \(CP^{\new} \leftarrow \emptyset\)\;
+    \While{$pq \neq \emptyset$}
+    {
+        \(\langle d,c \rangle \leftarrow pq.\texttt{top}()\)\;
+        \If{\(d\geq \overline{d}\)}
+        {
+            \Break\;
+        }
+        \(pq.\texttt{pop}()\)\;
+        \(p,f\leftarrow \UpdateCandidate(c,2,r,g,U,GI)\)\;
+        \(CP^{\new}\leftarrow CP^{\new}\cup \{\langle c,p \rangle\}\)\;
+        \(\overline{d} \leftarrow \min\{\overline{d}, \max_{k=1}^{|U|}(kf-D^{\Sum}_k)\}\)\;
+        Relax $c$'s incident edges and update $pq$\;
+    }
+    
+    \KwRet{$CP^{\new},\overline{d}$}\;
+\caption{\PartialDijkstra} 
+\label{alg: Partial_Dijkstra}
+\end{algorithm}
+
+\textbf{Definition of~$\overline{d}$.}
+In \Improved, let $\langle c_0,p_0 \rangle$ be the best pair that has the smallest cost-effectiveness~$f_0$ selected from the current~$CP$ (lines~16--21). To ensure the correctness of using the suspendable Dijkstra’s algorithm, we need to define~$\overline{d}$ such that unvisited vertices cannot contribute any smaller cost-effectiveness. In other words, \emph{every unvisited vertex~$c$ must not satisfy}:
+\begin{gather}
+\label{eq: original target}
+    \min_{\emptyset \subset S \subseteq U} \Cost(r,c,S)<f_0 \,.
+\end{gather}
+\noindent The following lemma derives a necessary condition for this.
+
+% For more specific analysis, we denote cost-effectiveness by
+% \begin{gather}
+% \label{eq: defi_cost}
+%     \Cost(r,c,p)=\frac{\dist(r,c)+\sum_{j\in S\cap U} \dist(c,K_j)}{|S\cap U|}
+% \end{gather}
+% where, for each candidate intermediate vertex \(c\) and each of its prefixes \(p\), let the corresponding prefix set be \(S=\{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\}\).
+
+\begin{lemma}
+\label{lem: dist_max}
+    A vertex $c \in V$ satisfies Equation~\eqref{eq: original target} only if
+    \begin{gather}
+    \label{eq: transfer target}
+        \dist(r,c) < \max_{D \subseteq D_{c} \text{ s.t. } |D|\leq |U|}\; \sum_{d\in D} (f_0-d) \,,
+    \end{gather}
+    \noindent where $D_{c}$~is a multiset:
+    \begin{gather}
+    \label{eq: Lcf}
+        D_{c}=\{\dist(c,K_i) \mid K_i\in\{K_2,K_3,\dots,K_g\}\} \,.
+    \end{gather}
+\end{lemma}
+\begin{proof}
+    We prove by contradiction. Suppose Equation~\eqref{eq: transfer target} does not hold for some $c \in V$ that satisfies Equation~\eqref{eq: original target}, so we choose $S' = \argmin_{\emptyset \subset S \subseteq U} \Cost(r,c,S)$ and have $\Cost(r,c,S') < f_0$. We define a multiset $D' = \{\dist(c,K_j)\mid j\in S'\}$. Therefore, we obtain
+    \begin{gather}
+    \label{eq: one_step_chain}
+    \begin{aligned}
+    \dist(r,c) & \geq \max_{\substack{D\subseteq D_{c} \text{ s.t. } |D|\leq |U|}} \sum_{d\in D}(f_0-d) \geq \sum_{d\in D'}(f_0-d)\\
+    &= \sum_{j\in S'}(f_0-\dist(c,K_j))
+    % &=\ \max_{k=1}^{|U|}\Big(k f_0-\min_{\substack{D\subseteq D_{c,f_0} \text{ s.t. } |D|=k}}\sum_{d\in D}d\Big)\\
+    = |S'|f_0-\sum_{j\in S'}\dist(c,K_j) \,.
+    \end{aligned}
+    \end{gather}
+    \noindent By manipulating this equation, we obtain
+    \begin{gather}
+    \label{eq: avg_contrad}
+    f_0 \leq \frac{\dist(r,c)+\sum_{j\in S'}\dist(c,K_j)}{|S'|} = \Cost(r,c,S') \,,
+    \end{gather}
+    which contradicts $\Cost(r,c,S') < f_0$.
+\end{proof}
+
+With this necessary condition, we define
+\begin{gather}
+    \label{eq: defi_dub}
+        \overline{d}=\max_{c\in V}\max_{D \subseteq D_{c} \text{ s.t. } |D|\leq |U|}\; \sum_{d\in D}(f_0-d) \,.
+\end{gather}
+\noindent Any unvisited vertex~$c$ satisfies $\dist(r,c) \geq \overline{d}$, so Equation~(\ref{eq: transfer target}) does not hold and Equation~(\ref{eq: original target}) is not satisfied, ensuring the correctness of using \PartialDijkstra in \Improved.
+
+\textbf{Efficient Computation of $\overline{d}$.}
+%\label{para: calc of dub}
+We need to update~$\overline d$ when $CP$~is expanded so that the current smallest cost-effectiveness~$f_0$ may change. This occurs in \Improved where $CP$~is expanded with~$CP^{\new}$ (line~15) and in \PartialDijkstra where $CP^{\new}$~is expanded (line~8) and should be incorporated into~$CP$. To calculate~$\overline d$, we transform Equation~\eqref{eq: defi_dub} into an efficiently computable form.
+
+Specifically, in \Improved, we calculate~$\overline{d}$ using~$D^{\Sum}$ (line~28). The following theorem proves that this transformation is equivalent.
+
+\begin{theorem}
+\label{the: msd2dub}
+    For any cost-effectiveness~$f_0$, we have
+    \begin{gather}
+    \label{eq: calc_dub}
+        \max_{c\in V}\max_{D \subseteq D_{c} \text{ s.t. } |D|\leq |U|}\; \sum_{d\in D}(f_0-d)=\max_{k=1}^{|U|}(kf_0-D^{\Sum}_{k}) \,.
+    \end{gather}
+\end{theorem}
+\begin{proof}
+    We enumerate all possible values of~$|D|$ and then use the definitions of~$GI$ and~$D^{\Sum}$:
+    \begin{gather}
+    \label{eq: dub_fin_1}
+    \begin{aligned}
+    &\max_{c\in V}\max_{D \subseteq D_{c} \text{ s.t. } |D|\leq |U|} \sum_{d\in D}(f_0-d)\\
+    =&\max_{k=1}^{|U|}\max_{c\in V}\max_{D \subseteq D_{c}\text{ s.t. } |D|=k} \sum_{d\in D}(f_0-d)\\
+    =&\max_{k=1}^{|U|} \Big(kf_0-\min_{c\in V}\min_{D \subseteq D_{c}\text{ s.t. } |D|=k}{\sum_{d\in D}d}\Big)\\
+    =&\max_{k=1}^{|U|} \Big(kf_0-\min_{c\in V}\sum_{i=2}^{k+1}\dist(c,K_{GI_{c,i}})\Big)
+    =\max_{k=1}^{|U|} \big(kf_0-D^{\Sum}_{k}\big) \,.
+    \end{aligned}
+    \end{gather}
+\end{proof}
+
+Note $\overline{d}$~increases monotonically in~$f_0$. In \PartialDijkstra, when we visit a new vertex~$c$ and find the current smallest cost-effectiveness~$f$ for~$c$ (line~7), $f$~may be smaller than the smallest cost-effectiveness from the current~$CP$, so we use it to possibly tighten~$\overline{d}$ (line~9) and suspend Dijkstra's algorithm earlier.
+
+%\begin{theorem}
+%\label{the: dub_prop}
+%    \label{the: unified_dub}
+%    For the current candidate set $CP$, let $F=\{\Cost(r,c,p)\mid \langle c,p \rangle \in CP\}$, we have
+%    \begin{gather}
+%    \label{eq: comp_dub}
+%        \overline{d}=\min_{f\in F}\max_{c\in V}\max_{D\subseteq D_{c} \text{ s.t. } |D|\leq |U|}\; \sum_{d\in D}(f-d).
+%    \end{gather}
+%\end{theorem}
+%\begin{proof}
+%    Let $g(f)\;=\;\max_{c\in V}\max_{D\subseteq D_{c} \text{ s.t. } |D|\leq |U|}\sum_{d\in D}(f-d)$. As $f$ increases, each $D_{c,f}$ only expands and, for any fixed $D$, the sum $\sum_{d\in D}(f-d)$ grows linearly in $f$; hence $g(\cdot)$ is non-decreasing. By Eq.~\eqref{eq: defi_dub} we have $\overline d=g(f_0)$ with $f_0=\min F$, and monotonicity immediately gives $g(f_0)=\min_{f\in F}g(f)$, which is exactly Eq.~\eqref{eq: comp_dub}.
+%\end{proof}
+
+\subsection{Prefix Pruning}
+\label{subsec: mono_upt}
+
+In \Improved (line~25) and \PartialDijkstra (line~7), each call to \UpdateCandidate finds the prefix~$p$ for a given vertex~$c$ such that $\langle c,p \rangle$ has the current smallest cost-effectiveness~$f$ for~$c$. In \UpdateCandidate, we exploit the monotonicity and unimodality of the greedy function $\Cost$ to prune the prefixes that need to be enumerated. We describe \UpdateCandidate in Algorithm~\ref{alg: UpdateCandidate} and will later prove the monotonicity and unimodality of $\Cost$.
+
+% it never moves to the left. In other words, as the uncovered set $U$ progressively shrinks, for any vertex $c$, the prefix $p$ that minimizes $\Cost(r,c,p)$ is non-decreasing. Thus, the non-decreasing move of $p$ (lines~2, 5) in \UpdateCandidate provides a more efficient implementation of the best-prefix computation in \Improved (line~25) and \PartialDijkstra (line~7).
+
+\textbf{Algorithm~\ref{alg: UpdateCandidate} (\UpdateCandidate).}
+When called in \Improved, we receive a vertex~$c$ and a prefix~$p^\text{Old}$ such that $\langle c,p^\text{Old} \rangle$ had---before $U$~changes---the smallest cost-effectiveness for~$c$; when called in \PartialDijkstra, we receive a newly visited vertex~$c$ and a trivially initialized $p^\text{Old}=2$. We will prove the \emph{monotonicity} of $\Cost$, i.e.,~\emph{the prefix~$p$ that minimizes~$\Cost(r,c,p)$ is monotonically non-decreasing over iterations of the set cover procedure}, so instead of repeatedly enumerating~$p$ from~2 as in \Basic, we enumerate from~$p^\text{Old}$ (lines~1--2, 6--7). We will also prove the \emph{unimodality} of $\Cost$, i.e.,~\emph{$\Cost(r,c,p)$~has only one local optimum as $p$~increases within each iteration of the set cover procedure}, so instead of enumerating~$p$ to~$g$ as in \Basic, we will terminate the enumeration and return the current~$p$ and the corresponding~$f$ if a larger cost-effectiveness is found for the next prefix~$p+1$ (lines~3--5, 8).
+
+% Respond Reviewer #5 R3: The revision should add a small but concrete example explaining the 2-star construction and the main optimization ideas (e.g., suspendable Dijkstra/prefix pruning/path re-selection).
+\dew{\textbf{Running Example.} Within the execution of \Improved in Section~\ref{subsec: improved-design}, consider $r=1$ and $c=5$. As $U$~shrinks over iterations from $\{2,3,4,5,6,7,8\}$ to $\{4,5,6,7,8\}$, $\{5,7,8\}$, and finally $\{5\}$, the prefix~$p$ that minimizes $\Cost(1,5,p)$ monotonically increases from~$3$ to~$5$ and finally~$8$.
+% with $f=2$, $5$, $10.33$, and~$11$, respectively.
+% Meanwhile, for each fixed $U$, the values of $\Cost(1,5,p)$ first decrease and then increase, or remain unchanged; for instance,
+When $U=\{2,3,4,5,6,7,8\}$, as $p$~increases, $f$~decreases from~4 to the local optimum~2 and then increases to~2.33.}
+% as $11, 10.5, 10.33$ when $U=\{5,7,8\}$.
+
+\begin{algorithm}[t]
+    \KwIn{Vertex~$c$; Prefix~$p^\text{Old}$ such that $\langle c,p^\text{Old} \rangle$ had the smallest cost-effectiveness for~$c$; Root~$r$; Number~$g$ of groups; Set~$U$ of all remaining group indices; Sorted lists~$GI$ of group indices.}
+    \KwOut{Updated prefix~$p$; Corresponding cost-effectiveness~$f$.}
+    \(p\leftarrow p^\text{Old}\)\;
+    $f \leftarrow \Cost(r,c,p)$\; 
+    \While{$p < g$}
+    {
+        \If{$\Cost(r,c,p + 1) > f$}
+        {
+            \Break\;
+        }
+        \(p\leftarrow p+1\)\;
+        \(f\leftarrow \Cost(r,c,p)\)\;
+    }
+    \KwRet{$p,f$}\;
+\caption{\UpdateCandidate}
+\label{alg: UpdateCandidate}
+\end{algorithm}
+
+\textbf{Unimodality of $\Cost$.}
+The following theorem proves the (weak) unimodality of~$\Cost(r,c,p)$: it has only one local optimum as $p$~increases, i.e.,~it is first monotonically non-increasing and then monotonically non-decreasing.
+
+\begin{theorem}
+\label{the: mono_l1}
+For any fixed $r,c,U$, there exists a prefix~$p^*$ such that
+    \begin{equation}
+    \label{eq: mono_1}
+    \begin{aligned}
+    &\Cost(r,c,2)\geq \Cost(r,c,3)\geq \dots \geq \Cost(r,c,p^*) \,,\\
+    &\Cost(r,c,p^*)\leq \Cost(r,c,p^*+1)\leq \dots \leq \Cost(r,c,g) \,.
+    \end{aligned}
+    \end{equation}
+\end{theorem}
+\begin{proof}
+    If $GI_{c,p+1} \notin U$, we will have $\Cost(r,c,p)=\Cost(r,c,p+1)$ by Equation~(\ref{eq: defi_cost}); the proof is trivial over such intervals. Therefore, without loss of generality, we assume $GI_{c,p}\in U$ for all $2 \leq p \leq g$.
+
+    Define $\Delta\Cost(p) = \Cost(r,c,p+1)-\Cost(r,c,p)$. It suffices to prove that $\Delta\Cost(p)$ changes sign at most once (from negative to positive) as $p$~increases from~2 to~$g-1$. In fact, with Equation~(\ref{eq: defi_cost}) and the above assumption, we obtain
+    \begin{equation}
+    \resizebox{0.9\linewidth}{!}{$
+    \displaystyle
+    \begin{aligned}
+        \Delta\Cost(p) & = \Cost(r,c,p+1)-\Cost(r,c,p) \\
+        & = \frac{\dist(r,c)+\sum_{j=2}^{p+1}{\dist(c,K_{GI_{c,j}})}}{p} - \frac{\dist(r,c)+\sum_{j=2}^{p}{\dist(c,K_{GI_{c,j}})}}{p-1} \\
+        & = \frac{\sum_{j=2}^{p}{(\dist(c,K_{GI_{c,p+1}})-\dist(c,K_{GI_{c,j}}))}-\dist(r,c)}{p(p-1)} \,.
+    \end{aligned}
+    $}
+    \end{equation}
+    \noindent The denominator is positive. By the definition of~$GI_c$, since $j<p+1$, we have $\dist(c,K_{GI_{c,p+1}}) - \dist(c,K_{GI_{c,j}}) \geq 0$, so as $p$~increases, the numerator is non-decreasing and hence changes sign at most once (from negative to positive), which completes our proof.
+\end{proof}
+
+\textbf{Monotonicity of $\Cost$.}
+Rewriting $\Cost(r,c,p)$ as $\Cost_U(r,c,p)$, we explicitly indicate the involvement of~$U$ in calculating the cost-effectiveness by Equation~(\ref{eq: defi_cost}). The following theorem proves the monotonicity of $\Cost_U(r,c,p)$: the prefix~$p$ that minimizes $\Cost_U(r,c,p)$, i.e.,~$p^*_U=\arg\min_{2\leq p\leq g}\Cost_U(r,c,p)$ with rightmost tie-breaking, is monotonically non-decreasing as $U$~shrinks.
+
+\begin{theorem}
+\label{the: rightmost-argmin}
+  For any fixed $r,c$, we have $p^*_{U'} \geq p^*_U$ for $U' \subset U$.
+\end{theorem}
+\begin{proof}
+    Define $\Delta\Cost_U(p) = \Cost_U(r,c,p+1)-\Cost_U(r,c,p)$. It suffices to prove that for all $2 \leq p < p^*_U$, $\Delta\Cost_{U'}(p) \leq 0$.
+
+    For each $2 \leq p < p^*_U$, there are two cases to consider.
+
+    Case~1: $GI_{c,p+1} \notin U$, so $GI_{c,p+1} \notin U'$. By Equation~(\ref{eq: defi_cost}), we have $\Cost_{U'}(r,c,p)=\Cost_{U'}(r,c,p+1)$, i.e.,~$\Delta\Cost_{U'}(p)=0$.
+    
+    Case~2: $GI_{c,p+1} \in U$. Let $S_{U,p} = \{GI_{c,2},\dots,GI_{c,p}\} \cap U$, so $S_{U,p+1} \neq \emptyset$. There are two sub-cases to consider.
+
+    Case~2.1: $S_{U,p} = \emptyset$, so $S_{U',p} = \emptyset$. By Equation~(\ref{eq: defi_cost}), we have $\Cost_{U'}(r,c,p) = \infty \geq \Cost_{U'}(r,c,p+1)$, so $\Delta\Cost_{U'}(p) \leq 0$.
+
+    Case~2.2: $S_{U,p} \neq \emptyset$, so $|S_{U,p+1}| \geq 2$. By Equation~(\ref{eq: defi_cost}), we have
+    \begin{equation}
+    \resizebox{0.9\linewidth}{!}{$
+    \displaystyle
+    \begin{aligned}
+        \Delta\Cost_U(p) & = \Cost_U(r,c,p+1)-\Cost_U(r,c,p) \\
+        & = \frac{\dist(r,c)+\sum_{j \in S_{U,p+1}}{\dist(c,K_j)}}{|S_{U,p+1}|} - \frac{\dist(r,c)+\sum_{j \in S_{U,p}}{\dist(c,K_j)}}{|S_{U,p}|} \\
+        & = \frac{\sum_{j \in S_{U,p+1}}{(\dist(c,K_{GI_{c,p+1}})-\dist(c,K_j))} - \dist(r,c)}{|S_{U,p+1}| (|S_{U,p+1}| - 1)} \,.
+    \end{aligned}
+    $}
+    \end{equation}
+    \noindent The denominator is positive. By the definition of~$GI_c$, we have $\dist(c,K_{GI_{c,p+1}})-\dist(c,K_j) \geq 0$, so if $\Delta\Cost_U(p) \leq 0$, we will also have $\Delta\Cost_{U'}(p) \leq 0$. Theorem~\ref{the: mono_l1} ensures $\Delta\Cost_U(p) \leq 0$.
+\end{proof}
+
+\begin{algorithm}[t]
+    \KwIn{Root~$r$; Set~$C_0$ of intermediate vertices; Query~$Q=\{K_1,K_2,\dots,K_g\}$.}
+    \KwOut{GST $T_r = \langle V_r,E_r \rangle$.}
+    $T_r = \langle V_r,E_r \rangle \leftarrow \langle \{r\},\emptyset\rangle$\;
+    \ForEach{$c_0 \in C_0$}
+    {
+        %\(T\leftarrow T\cup \SP(r,c)\)\;
+        Add the vertices and edges of \(\SP(r,c_0)\) to \(T_r\)\;
+    }   
+    \While{$Q\neq \emptyset$}
+    {
+        \(\langle v,K \rangle \leftarrow \argmin_{\langle v_j,K_i \rangle \in (V_r \times Q)} \dist(v_j,K_i)\)\;
+        % \(T\leftarrow T\cup \SP(T_v,K)\)\;
+        Add the vertices and edges of \(\SP(v,K)\) to \(T_r\)\;
+        \(Q\leftarrow Q\setminus \{K\}\)\;
+    }
+    \KwRet{$T_r$}\;
+\caption{\ConstructTree} 
+\label{alg: ConstructTree}
+\end{algorithm}
+
+\subsection{Path Re-Selection}
+\label{subsec: sec_rebuild}
+
+In \Improved, each call to \ConstructTree (line~29) constructs a GST with a given root~$r$ and intermediate vertices~$C_0$, connecting~$C_0$ to the terminals in the query~$Q$ via greedily re-selected paths.
+%We describe \ConstructTree in Algorithm~\ref{alg: ConstructTree}.
+
+\textbf{Algorithm~\ref{alg: ConstructTree} (\ConstructTree).}
+As in \Basic, we initialize a GST~$T_r$ with the root~$r$ (line~1) and add to~$T_r$ one $r$-$c_0$ shortest path for each intermediate vertex $c_0 \in C_0$ (lines~2--3). Inspired by Prim's algorithm, we iteratively grow and return~$T_r$ until it covers all groups in~$Q$ (lines~4, 8). Each iteration adds to~$T_r$ a shortest path between the current~$T_r$ and any uncovered group $K \in Q$ (line~5--7).
+
+% {\color{blue}\textbf{Running Example.} After completing the set cover procedure, \Improved invokes \ConstructTree with $c=1$ and $C_0=\{5,8,9,1\}$. It first adds four paths $1\!\!-\!\!5$, $1\!\!-\!\!5\!\!-\!\!8$, $1\!\!-\!\!9$ and $1$ to the tree to connect the root $r$ with the immediate vertices in $C_0$. It then adds four paths $5\!\!-\!\!8$, $9\!\!-\!\!10$, $9\!\!-\!\!11$ and $8\!\!-\!\!7$, in order of their distances to the current tree. The resulting tree has total edge weight $20$, which is exactly the optimum for the task.}
+
+% \begin{theorem}
+%     \label{the: rebuildtree}
+%     For any query $Q=\{K_1,K_2,\dots,K_g\}$, if a $2$-star $R$ has root $r\in K_1$, intermediate vertex set $C$, and a terminal set that intersects each of $K_2,K_3,\dots,K_g$, then $\ConstructTree(r,C,Q)$ returns a GST whose weight is no greater than the weight of $R$, i.e., $\w'(R)$.
+% \end{theorem}
+
+% \begin{proof}
+%     Use greedy. See Appendix~\ref{app: rebuildtree_proof} for the complete proof.
+% \end{proof}
+
+% Theorem~\ref{the: rebuildtree} directly provides an upper bound on the weight of GST returned by \ConstructTree, which will be used in Section~\ref{subsec: algo_ana} for the approximation-ratio proof of \Improved.
+
+\subsection{Algorithm Analysis}
+\label{subsec: algo_ana}
+
+We analyze \Improved's approximation ratio and time complexity.
+
+\subsubsection{Approximation Ratio}
+\Improved differs from \Basic in the following aspects: pruning the distances to be calculated, pruning the prefixes to be enumerated, and re-selecting paths to convert a 2-star into a GST. Our analysis in Sections~\ref{subsec: sec_dub} and~\ref{subsec: mono_upt} ensures that the two pruning methods maintain the optimality of the greedy choice in solving the weighted set cover problem to approximate an optimum 2-star. To prove that \Improved has the same approximation ratio as \Basic, we only need to show that the path re-selection in Section~\ref{subsec: sec_rebuild} maintains the weight of the GST constructed.
+
+Following the notation in Section~\ref{subsec: basic analysis}, let $R_{\{\{r\}\}\cup(Q \setminus K_1)}$ be the 2-star rooted in $r \in K_1$ found in \Improved. Let $T_{\{\{r\}\}\cup (Q \setminus K_1)}$ be the GST rooted in~$r$ returned by \ConstructTree in \Improved. The following lemma bounds the weight of~$T_{\{\{r\}\}\cup (Q \setminus K_1)}$.
+
+\begin{lemma}
+    \label{lem: rebuildtree}
+    $\w(T_{\{\{r\}\}\cup (Q \setminus K_1)}) \leq \w'(R_{\{\{r\}\}\cup(Q \setminus K_1)})$\,.
+\end{lemma}
+\begin{proof}
+    Let~$C_0$ be the set of intermediate vertices of~$R_{\{\{r\}\}\cup(Q \setminus K_1)}$. We separately consider the connections between~$r$ and~$C_0$ and the connections between~$C_0$ and the terminals in~$Q$.
+
+    Between~$r$ and~$C_0$, \ConstructTree adds to~$T_{\{\{r\}\}\cup (Q \setminus K_1)}$ one $r$-$c_0$ shortest path for each intermediate vertex $c_0 \in C_0$ (lines~2--3). The total length of these paths is not greater than the total weight of their corresponding $(r,c_0)$ edges in~$R_{\{\{r\}\}\cup(Q \setminus K_1)}$.
+
+    Between~$C_0$ and~$Q$, \ConstructTree adds to~$T_{\{\{r\}\}\cup (Q \setminus K_1)}$ one shortest path between the current~$T_{\{\{r\}\}\cup (Q \setminus K_1)}$ and each group $K \in Q$ (lines~5--6). The length of such a path is not greater than the weight of the corresponding edge in~$R_{\{\{r\}\}\cup(Q \setminus K_1)}$ which represents the length of a shortest path between a particular intermediate vertex in~$C_0$ and~$K$.
+\end{proof}
+
+\begin{theorem}
+\label{the: impro_app}
+\Improved has an approximation ratio $O(\sqrt{g})$.
+\end{theorem}
+
+\begin{proof}
+    This proof resembles our proof of Theorem~\ref{the: basic-ratio}.
+    
+    Specifically, let~$T_Q$ be the GST returned by \Improved. We have
+    \begin{gather}
+    \label{eq: TlessR}
+    \w(T_Q) = \min_{r\in K_1} \w(T_{\{\{r\}\}\cup (Q \setminus K_1)}) \leq \min_{r\in K_1} \w'(R_{\{\{r\}\}\cup(Q \setminus K_1)}) \,,
+    \end{gather}
+    \noindent where the last inequality follows from Lemma~\ref{lem: rebuildtree}.
+
+    Combining Equation~\eqref{eq: TlessR} and Lemma~\ref{lem: basic_appr}, we obtain Equation~(\ref{eq: appr_5}).
+\end{proof}
+
+\subsubsection{Time Complexity}
+\label{sec:improve-time}
+
+Let $|K_1| = n_1$. There are $(g-1+n_1)$ SSSP computations (lines~2, 14), each taking $O(m+n\log{n})$ time. However, since \PartialDijkstra is often terminated early in practical applications, the actual running time of the $n_1$~SSSP computations is almost negligible. The construction and sorting of~$GI_c$ for all $c \in V$ (lines~3--6) takes $O(ng\log{g})$ time, and $D^{\Sum}$~is calculated in $O(ng)$ time (lines~7--8).
+Since $|CP| \leq n$, $\Cost$ is calculated $O(n_1gn)$ times (line~19), and indirectly (within \UpdateCandidate) calculated $O(n_1gn)$ times (lines~14, 25) thanks to its monotonicity, reduced by a factor of~$g$ compared to \Basic, each taking a constant time.
+% We cache, for every $c$, the numerator and denominator under current $p$ so that each evaluation is $O(1)$. When the remaining group index set $U$ shrinks (line~23), we determine whether each removed group index lies in $\{GI_{c,2},\dots,GI_{c,p}\}$ by preprocessing, for every $c$, the rank of each group in $GI_c$; we then adjust the cached numerator and denominator accordingly. When $p$ increases by one (Algorithm~\ref{alg: UpdateCandidate}, lines~3--5), we update these two quantities to obtain the new \Cost.
+The distance upper bound~$\overline{d}$ is updated $O(n_1g)$ times (line~28), and indirectly (within \PartialDijkstra) updated $O(n_1n)$ times (line~14), each taking $O(g)$ time.
+The construction of~$T_r$ for all $r \in K_1$ (line~29) takes $O(n_1(n+g)g)$ time by maintaining the distance between the current~$T_r$ and each group in \ConstructTree.
+
+Overall, \Improved has a time complexity of $O((m+n\log{n})(g+n_1)+ng\log g+nn_1g+n_1g^2)$.
+% $O((m+n\log n+ng)(g+n_1))$
+Since~$n_1$ and~$g$ are often very small in practical applications, \Improved scales almost linear in graph size. When~$n_1$ is close to~$n$, the time complexity becomes $O(n(m+(n+g)g+n\log n))$, outperforming \Basic by a factor of~$g$ or~$n$.
+
+% \paragraph{Computation of \Cost.}
+% Recalling Eq.~\eqref{eq: defi_cost}, a direct evaluation according to this definition takes $O(g)$ time. We optimize it by calculating the numerator and denominator incrementally. When the set of all remaining group indices $U$ shrinks, for each $(c,p)$, we can determine whether the index of each removed group lies in $\{GI_{c,2},GI_{c,3},\dots,GI_{c,p}\}$ if we preprocess the rank of each group in $GI_c$ for each vertex $c$. If it does, we simply reduce its corresponding contribution from the numerator and denominator. Consequently, we can read the current numerator and denominator to obtain \(\Cost\) (Algorithm \ref{alg: Improved}, line 18; Algorithm \ref{alg: UpdateCandidate}, lines 1 and 6) and, whenever \(p\) increases by 1, update these two quantities to attain the new \(\Cost\) (Algorithm \ref{alg: UpdateCandidate}, lines 3--5), thereby ensuring that each evaluation of \(\Cost\) is \(O(1)\).
+
+% \paragraph{Worst-Case Analysis.}
+%     We perform a top-down analysis for \Improved.
+    
+%     Before enumerating $r\in K_1$ as roots (lines~1--7), we run $g-1$ times a shortest path algorithm that yields $g-1$ ordered lists$\{\dist(v,K_i)\mid v\in V\}$, which costs $O(g(m+n\log n))$ time; performing a $g$-way merge over these lists to obtain $D^\Pre$ takes $O(ng^2)$ time, and recursively computing $D^{\sum}$ also takes $O(ng^2)$. For matrix $GI$, we run $n$ times a sorting for $g$ elements that costs $O(ng\log g)$ time. Therefore, the total preprocessing time is $O(g(m+n\log n)+ng^2)$.
+    
+%     The main part of the algorithm enumerates each vertex in $K_1$ as the root (line~8). We now analyze the time complex of each loop for a fixed root $r$.
+    
+%     For the shortest paths from $r$, \PartialDijkstra (line~14) ensures that each vertex is visited at most once through all while loops (line 13), resulting in $O(m+n\log n)$ time.
+
+%     For a set \(CP\), each execution of the inner loop (line~13) traverses it twice. The first traversal (lines~17--20) identifies the pair \((c_0,p_0)\) with the minimum cost-effectiveness. The second traversal (lines~24--26) invokes \UpdateCandidate to update the pairs in \(CP\) and likewise obtains the minimum cost-effectiveness among them. Since the inner loop executes at most \(g-1\) times and \(|CP|\leq n\), ignoring the time of \UpdateCandidate, this component costs \(O(ng)\) time. As for \UpdateCandidate, it only attempts to increase \(p\) for each vertex \(c\) and never decreases it; therefore, its total time complexity is also \(O(ng)\).
+    
+%     % For computing the best $p$ for each possible vertex $c$, the total number of moves in \UpdateCandidate is $O(ng)$ and each move takes $O(1)$ time.
+    
+%     % For a set $CP$,  updating the pairs in it and finding the minimum among them (lines~23--26) occurs as many times as the inner loop (line~13), namely $O(g)$ times. Since $CP$ has the size of $O(n)$, this part costs $O(ng)$ in total.
+    
+%     For the computation of $\overline{d}$ (line~27), $\UpdateUpperBound(f,U,D^\Pre)$ is performed in $O(\log(n g) + g)$ time, including finding the largest index $i$ such that $D^\Pre_i<f$ through the binary search and computing $\max_{k=1}^{|U|}(k f - D^{\sum}_{i,k})$. Moreover, $\UpdateUpperBound(f,U,D^\Pre)$ is used only when each candidate pair $(c,p)$ is first inserted (Algorithm \ref{alg: Partial_Dijkstra}, line~8) and when the entire set $CP$ is updated (line~27), for a total of $O(n+g)$ times. Thus, this part costs $O((n+g)(\log n+g))$.
+    
+%     For \ConstructTree (line~28), we consider two aspects. First, the construction cost: since the necessary shortest-path information has been preprocessed and the GST has size $O(n)$, once the shortest paths are determined, tree construction takes $O(n)$ time. Second, when selecting at each step the group $K$ closest to the current GST to connect, we do not re-enumerate vertices of the GST each time; instead, we continuously maintain the current distance from the GST to each group, updating it whenever a vertex is added to it. Consequently, finding the nearest group reduces to taking the minimum over the $O(g)$ groups, and the total time complexity for this part is $O((n+g)g)$.
+    
+%     In summary, the total running time is $O(n(m+(n+g)g+n\log n))$.
+
+% \paragraph{Actual Cases.} It is worth emphasizing that this theoretical worst case rarely occurs in practice. In real-world scenarios, we typically visit only a negligible fraction of the vertices as candidate intermediate vertices due to \PartialDijkstra, and $|K|_{\min}$ rarely approaches $n$. Consequently, the running time observed in practice is usually well below this upper bound, and the algorithm exhibits strong practical efficiency as we will see in the experiments.

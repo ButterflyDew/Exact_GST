@@ -1,0 +1,148 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{7}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Bjorklund, Husfeldt, Kaski, and
+  Koivisto}{Bjorklund et~al\mbox{.}}{2007}]%
+        {bjorklund2007}
+\bibfield{author}{\bibinfo{person}{Andreas Bjorklund}, \bibinfo{person}{Thore
+  Husfeldt}, \bibinfo{person}{Petteri Kaski}, {and} \bibinfo{person}{Mikko
+  Koivisto}.} \bibinfo{year}{2007}\natexlab{}.
+\newblock \showarticletitle{Fourier Meets Mobius: Fast Subset Convolution}. In
+  \bibinfo{booktitle}{\emph{Proceedings of the 39th Annual ACM Symposium on
+  Theory of Computing}}. \bibinfo{publisher}{ACM}, \bibinfo{address}{New York,
+  NY, USA}, \bibinfo{pages}{67--74}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1145/1250790.1250801}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Dreyfus and Wagner}{Dreyfus and
+  Wagner}{1971}]%
+        {dreyfus1971}
+\bibfield{author}{\bibinfo{person}{Stuart~E. Dreyfus} {and}
+  \bibinfo{person}{Robert~A. Wagner}.} \bibinfo{year}{1971}\natexlab{}.
+\newblock \showarticletitle{The Steiner Problem in Graphs}.
+\newblock \bibinfo{journal}{\emph{Networks}} \bibinfo{volume}{1},
+  \bibinfo{number}{3} (\bibinfo{year}{1971}), \bibinfo{pages}{195--207}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1002/net.3230010302}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Gildea}{Gildea}{2020}]%
+        {gildea2020}
+\bibfield{author}{\bibinfo{person}{Daniel Gildea}.}
+  \bibinfo{year}{2020}\natexlab{}.
+\newblock \showarticletitle{Efficient Outside Computation}.
+\newblock \bibinfo{journal}{\emph{Computational Linguistics}}
+  \bibinfo{volume}{46}, \bibinfo{number}{4} (\bibinfo{year}{2020}),
+  \bibinfo{pages}{745--762}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1162/coli_a_00386}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Iwata and Shigemura}{Iwata and
+  Shigemura}{2019}]%
+        {iwata2019}
+\bibfield{author}{\bibinfo{person}{Yoichi Iwata} {and} \bibinfo{person}{Takuto
+  Shigemura}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Separator-Based Pruned Dynamic Programming for
+  Steiner Tree}. In \bibinfo{booktitle}{\emph{Proceedings of the AAAI
+  Conference on Artificial Intelligence}}. \bibinfo{publisher}{AAAI Press},
+  \bibinfo{address}{Palo Alto, CA, USA}, \bibinfo{pages}{1520--1527}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1609/aaai.v33i01.33011520}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Li, Sun, Ma, Chen, Hu, Zhang, and Li}{Li
+  et~al\mbox{.}}{2025}]%
+        {gpu4gst}
+\bibfield{author}{\bibinfo{person}{Jiayu Li}, \bibinfo{person}{Yahui Sun},
+  \bibinfo{person}{Bojing Ma}, \bibinfo{person}{Libang Chen},
+  \bibinfo{person}{Mengxi Hu}, \bibinfo{person}{Feng Zhang}, {and}
+  \bibinfo{person}{Rong-Hua Li}.} \bibinfo{year}{2025}\natexlab{}.
+\newblock \showarticletitle{Fast Optimal Group Steiner Tree Search using
+  {GPU}s}.
+\newblock \bibinfo{journal}{\emph{Proceedings of the ACM on Management of
+  Data}} \bibinfo{volume}{3}, \bibinfo{number}{6}, Article
+  \bibinfo{articleno}{327} (\bibinfo{year}{2025}),
+  \bibinfo{numpages}{27}~pages.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1145/3769792}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Li, Qin, Yu, and Mao}{Li
+  et~al\mbox{.}}{2016}]%
+        {pruneddp}
+\bibfield{author}{\bibinfo{person}{Rong-Hua Li}, \bibinfo{person}{Lu Qin},
+  \bibinfo{person}{Jeffrey~Xu Yu}, {and} \bibinfo{person}{Rui Mao}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Efficient and Progressive Group Steiner Tree
+  Search}. In \bibinfo{booktitle}{\emph{Proceedings of the 2016 International
+  Conference on Management of Data}}. \bibinfo{publisher}{ACM},
+  \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{91--106}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1145/2882903.2915217}
+\showDOI{\tempurl}
+
+
+\bibitem[\protect\citeauthoryear{Wong}{Wong}{1984}]%
+        {wong1984}
+\bibfield{author}{\bibinfo{person}{Richard~T. Wong}.}
+  \bibinfo{year}{1984}\natexlab{}.
+\newblock \showarticletitle{A Dual Ascent Approach for Steiner Tree Problems on
+  a Directed Graph}.
+\newblock \bibinfo{journal}{\emph{Mathematical Programming}}
+  \bibinfo{volume}{28} (\bibinfo{year}{1984}), \bibinfo{pages}{271--287}.
+\newblock
+\urldef\tempurl%
+\url{https://doi.org/10.1007/BF02612335}
+\showDOI{\tempurl}
+
+
+\end{thebibliography}

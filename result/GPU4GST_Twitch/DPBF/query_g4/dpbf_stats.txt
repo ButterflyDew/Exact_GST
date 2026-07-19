@@ -1,0 +1,10 @@
+# Run started=2026-07-17 18:10:55 graph=GPU4GST_Twitch method=DPBF data_root=data graph_folder=data\GPU4GST_Twitch query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=1 query_count=1 result_dir=result\GPU4GST_Twitch\DPBF\query_g4 rss_mb=40.250 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+query=1 best=293.0000000000 wall_ms=282.479 rss_before_mb=40.688 rss_after_mb=41.637 peak_rss_mb=56.266
+
+
+# Run started=2026-07-17 18:15:46 graph=GPU4GST_Twitch method=DPBF data_root=data graph_folder=data\GPU4GST_Twitch query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Twitch\DPBF\query_g4 rss_mb=40.535 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+query=1 best=293.0000000000 wall_ms=277.514 rss_before_mb=40.715 rss_after_mb=41.875 peak_rss_mb=56.266
+query=2 best=183.0000000000 wall_ms=323.463 rss_before_mb=41.902 rss_after_mb=41.402 peak_rss_mb=56.359
+query=3 best=191.0000000000 wall_ms=213.174 rss_before_mb=41.410 rss_after_mb=41.668 peak_rss_mb=56.496
+query=4 best=180.0000000000 wall_ms=295.084 rss_before_mb=41.676 rss_after_mb=41.680 peak_rss_mb=56.387
+query=5 best=95.0000000000 wall_ms=201.212 rss_before_mb=41.688 rss_after_mb=42.457 peak_rss_mb=56.555

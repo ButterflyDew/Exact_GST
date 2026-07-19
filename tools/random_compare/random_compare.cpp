@@ -121,10 +121,15 @@ bool ReadLastWeight(const fs::path& file, double& weight)
     return found;
 }
 
-int RunMain(const fs::path& exe, const fs::path& data_root, const fs::path& result_root)
+int RunMain(const fs::path& exe,
+            const fs::path& data_root,
+            const fs::path& result_root,
+            const std::vector<std::string>& extra_arguments = {})
 {
     std::string cmd = Quote(exe) + " random " + Quote(result_root) +
                       " query.txt " + Quote(data_root) + " 1 1";
+    for (const std::string& argument : extra_arguments)
+        cmd += " \"" + argument + "\"";
 #if defined(_WIN32)
     cmd += " > NUL 2> NUL";
     cmd = "\"" + cmd + "\"";
@@ -155,7 +160,8 @@ int Usage()
         << "Usage:\n"
         << "  gst_random_compare <method_exe> <dpbf_exe> <method_name>"
         << " [seed=1] [iterations=1000] [min_n=4] [max_n=10]"
-        << " [min_g=2] [max_g=8] [work_root=.random_compare_tmp] [keep=0]\n";
+        << " [min_g=2] [max_g=8] [work_root=.random_compare_tmp] [keep=0]"
+        << " [method_extra_args...]\n";
     return 2;
 }
 }  // namespace
@@ -176,6 +182,9 @@ int main(int argc, char** argv)
     int max_g = argc > 9 ? std::atoi(argv[9]) : 8;
     fs::path work_root = fs::absolute(argc > 10 ? fs::path(argv[10]) : fs::path(".random_compare_tmp"));
     bool keep = argc > 11 && std::atoi(argv[11]) != 0;
+    std::vector<std::string> method_arguments;
+    for (int index = 12; index < argc; ++index)
+        method_arguments.emplace_back(argv[index]);
 
     if (min_n > max_n || min_g > max_g || iterations < 0)
         return Usage();
@@ -198,7 +207,7 @@ int main(int argc, char** argv)
         WriteInstance(data_root, inst);
 
         int dpbf_code = RunMain(dpbf_exe, data_root, dpbf_root);
-        int method_code = RunMain(method_exe, data_root, method_root);
+        int method_code = RunMain(method_exe, data_root, method_root, method_arguments);
         if (dpbf_code != 0 || method_code != 0)
         {
             std::cout << "RUN_FAILED seed=" << seed << " iteration=" << it

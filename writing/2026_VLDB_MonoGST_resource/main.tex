@@ -1,0 +1,134 @@
+
+% VLDB template version of 2020-08-03 enhances the ACM template, version 1.7.0:
+% https://www.acm.org/publications/proceedings-template
+% The ACM Latex guide provides further information about the ACM template
+
+\documentclass[sigconf, nonacm, pdfa]{acmart}
+
+%% The following content must be adapted for the final version
+% paper-specific
+\newcommand\vldbdoi{10.14778/3828612.3828620}
+\newcommand\vldbpages{2630 - 2642}
+% issue-specific
+\newcommand\vldbvolume{19}
+\newcommand\vldbissue{10}
+\newcommand\vldbyear{2026}
+% should be fine as it is
+\newcommand\vldbauthors{\authors}
+\newcommand\vldbtitle{\shorttitle} 
+% leave empty if no availability url should be set
+\newcommand\vldbavailabilityurl{https://github.com/nju-websoft/MonoGST}
+% whether page numbers should be shown or not, use 'plain' for review versions, 'empty' for camera ready
+\newcommand\vldbpagestyle{empty} 
+\usepackage[a-2b]{pdfx}
+\input{0-head}
+
+\begin{document}
+
+% ==================== Response to Revision ====================
+% \twocolumn[]
+% \input{response}
+% \clearpage
+% \setcounter{page}{1}
+% ==================== Response to Revision ====================
+
+\title{A Practical Sublinear Approximation for Group Steiner Tree}
+
+%%
+%% The "author" command and its associated commands are used to define the authors and their affiliations.
+\author{Yuxuan Yang}
+\affiliation{%
+  \institution{Nanjing University}
+  \department{State Key Laboratory of Novel Software Technology}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{yxyang@smail.nju.edu.cn}
+
+\author{Sirui Chen}
+\affiliation{%
+  \institution{Nanjing University}
+  \department{State Key Laboratory of Novel Software Technology}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{siruichen@smail.nju.edu.cn}
+
+\author{Zhuolin He}
+\affiliation{%
+  \institution{Nanjing University}
+  \department{State Key Laboratory of Novel Software Technology}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{zhuolin.he@smail.nju.edu.cn}
+
+\author{Gong Cheng}
+\authornote{Corresponding author.}
+\affiliation{%
+  \institution{Nanjing University}
+  \department{State Key Laboratory of Novel Software Technology}
+  \city{Nanjing}
+  \state{Jiangsu}
+  \country{China}
+}
+\email{gcheng@nju.edu.cn}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article.
+\begin{abstract}
+The Group Steiner Tree Problem (GSTP) is widely used in graph data management and mining, yet existing algorithms trade off practical efficiency against approximation quality: efficient methods offer only linear guarantees, while those with sublinear guarantees fail to scale to large graphs. In this paper, we present \Improved, a novel algorithm for GSTP that breaks this trade‑off by achieving a sublinear approximation while matching the running time of state‑of‑the‑art linear‑approximation solvers. Our approach extends a 2‑star‑based reduction to weighted set cover with a suspendable search and a monotonicity‑ and unimodality‑aware pruning strategy to eliminate redundant computation. Experiments on multiple real‑world datasets demonstrate the effectiveness and efficiency of \Improved, providing a practical, high‑quality solution for GSTP applications.
+\end{abstract}
+
+\maketitle
+
+%%% do not modify the following VLDB block %%
+%%% VLDB block start %%%
+\pagestyle{\vldbpagestyle}
+\begingroup\small\noindent\raggedright\textbf{PVLDB Reference Format:}\\
+\vldbauthors. \vldbtitle. PVLDB, \vldbvolume(\vldbissue): \vldbpages, \vldbyear.\\
+\href{https://doi.org/\vldbdoi}{doi:\vldbdoi}
+\endgroup
+\begingroup
+\renewcommand\thefootnote{}\footnote{\noindent
+This work is licensed under the Creative Commons BY-NC-ND 4.0 International License. Visit \url{https://creativecommons.org/licenses/by-nc-nd/4.0/} to view a copy of this license. For any use beyond those covered by this license, obtain permission by emailing \href{mailto:info@vldb.org}{info@vldb.org}. Copyright is held by the owner/author(s). Publication rights licensed to the VLDB Endowment. \\
+\raggedright Proceedings of the VLDB Endowment, Vol. \vldbvolume, No. \vldbissue\ %
+ISSN 2150-8097. \\
+\href{https://doi.org/\vldbdoi}{doi:\vldbdoi} \\
+}\addtocounter{footnote}{-1}\endgroup
+%%% VLDB block end %%%
+
+%%% do not modify the following VLDB block %%
+%%% VLDB block start %%%
+\ifdefempty{\vldbavailabilityurl}{}{
+\vspace{.3cm}
+\begingroup\small\noindent\raggedright\textbf{PVLDB Artifact Availability:}\\
+The source code, data, and/or other artifacts have been made available at \url{\vldbavailabilityurl}.
+\endgroup
+}
+%%% VLDB block end %%%
+
+\input{1-introduction}
+\input{2-preliminaries}
+\input{3-basic}
+\input{4-improve}
+\input{5-experiments}
+\input{6-relatedwork}
+\input{7-conclusion}
+
+\begin{acks}
+This work was supported by the Noncommunicable Chronic Diseases-National Science and Technology Major Project (2025ZD0544900), the Fundamental Research Funds for the Central Universities (No. 2026300429), the Fundamental and Interdisciplinary Disciplines Breakthrough Plan of the Ministry of Education of China (No. JYB2025XDXM118), and the ``111 Center'' (No. B26023).
+\end{acks}
+
+\clearpage
+
+\bibliographystyle{ACM-Reference-Format}
+\balance
+\bibliography{main}
+
+\end{document}
+\endinput

@@ -1,0 +1,84 @@
+\thispagestyle{plain}
+
+\begin{center}
+    {\LARGE\bfseries Authors' Response to Reviews\par}
+    \vspace{1em}
+\end{center}
+
+\noindent\textbf{Dear Reviewers,}
+
+\noindent We thank you for your careful reading of our manuscript and for your valuable feedback. In response to the meta-review and the reviewers' comments, we have revised the manuscript extensively. Below we provide a point-by-point response to the concerns raised.
+
+\section*{Meta-Reviewer}
+The reviewers think that the problem is interesting. However, they also demand \uline{improvements to the content writing and experimentation details}. Please improve according to their comments.
+
+\textbf{Response:} We have carefully revised the manuscript according to the reviewers' comments. In particular, we \textbf{added the requested experiments}. We also polished the manuscript throughout by \textbf{redefining the running example and related explanations}, making the presentation smoother and easier to follow.
+
+\section*{Reviewer \#2}
+
+\textbf{O1:} In the experiments, the values of g are set to $[5, 8]$ which are too small. This setting is not super meaningful to me. To see this, according to Table 1, if $g$ is such a small constant, the running time of ImprovAPP is bounded by $O(m + n^2)$ which is better than the one of \Improved $O(nm + n^2)$. Moreover, in this case, the approximation ratios of both these algorithms are considered $O(1)$. These assertions are also evidenced by the experimental results. In Table 3, the running time of ImprovAPP is faster than \Improved in most of datasets (except for LinkedMDB) and its average NWeight is competitive to that of \Improved, where both of them are very close to 1. Therefore, from these experimental results, the effectiveness of \Improved is less significant. \uline{The authors should conduct experiments on these datasets with large values of $g$.}
+
+\textbf{Response:} Following this request for larger-$g$ experiments, we conducted additional experiments with $g$ ranging from 5 to 50. We added a new \textbf{Robustness Analysis} in \textbf{Section~\ref{subsec: sensitivity}} to evaluate how the algorithms perform as $g$~increases. The new results in \textbf{Figure~\ref{fig: sens_gf} (left)} show that for larger values of~$g$, \ImprovPTS robustly delivers high-quality solutions and outperforms ImprovAPP, and its running time is empirically linear in~$g$.
+
+\textbf{O2:} The dedicated experimental study on impact of the average group sizes $f$ is missing. It is unclear that why $f$ is set to $\{200, 400, 800, 1600\}$. \uline{Experiments on $f$ is needed.} The impact of a large $g$ with small $f$ is unclear from the current experimental results.
+
+\textbf{Response:} Following this request for experiments on~$f$, we conducted additional experiments with $f$ ranging from~200 to~2000. We added a new \textbf{Robustness Analysis} in \textbf{Section~\ref{subsec: sensitivity}} to evaluate how the algorithms perform as $f$~increases. The new results in \textbf{Figure~\ref{fig: sens_gf} (right)} show that for larger values of~$f$, \ImprovPTS robustly delivers high-quality solutions and outperforms ImprovAPP, and its running time is empirically linear in~$f$.
+
+\textbf{O3:} As mentioned in O1, the practical performance of \Improved seems not substantially better than the existing SOTA ImprovAPP. \uline{The authors need to design experiments to show the superiority of their algorithm.}
+
+\textbf{Response:} Following this request for experiments that demonstrate the superiority of \ImprovPTS over ImprovAPP, we strengthened the evaluation from both the worst-case quality and the quality in varying settings. In \textbf{Section~\ref{subsubsec: main-exper-results}}, the \textbf{Effectiveness Results (NWeight)}, the maximum NWeight reached by ImprovAPP is consistently larger than that of \ImprovPTS, with their gap more pronounced on larger graphs, up to $40\%$ on DBpedia; this is followed by a \textbf{case study} related to \textbf{Figure~\ref{fig:TF}}. We added a new \textbf{Scalability Analysis} in \textbf{Section~\ref{subsec: scalability}}, where on almost all graphs, \Improved outputs better results than ImprovAPP; we also added a new \textbf{Robustness Analysis} in \textbf{Section~\ref{subsec: sensitivity}}, where the mean weight ratio of ImprovAPP to \ImprovPTS is kept between~1.108 and~1.146. All these results demonstrate the superiority of \ImprovPTS over ImprovAPP.
+
+\section*{Reviewer \#4}
+
+\textbf{D1:} While the holistic analysis is a significant contribution, the current proof for the $O(\sqrt{g})$ approximation ratio is presented in an overly dense manner, making the high-level intuition behind the removal of the logarithmic factor difficult to grasp. \uline{The authors should provide a more intuitive conceptual summary or a high-level roadmap of the proof} to help readers clearly follow the logic of how the 2-star greedy process tightens the standard bound.
+
+\textbf{Response:} Following this request for a clearer proof roadmap, we added a high-level explanation in \textbf{Section~\ref{subsubsec: Appr_prove}}. The added paragraph explains why the well-known bound $O(\sqrt{g}\ln g)$ is loose and highlights the key idea of our tighter analysis, namely to charge each iteration recursively with a decreased number of uncovered groups (i.e.,~$i$ in the following analysis).
+
+\textbf{D2:} While the authors state that existing methods do not scale to large graphs and claim that \Improved scales linearly with graph size, they provide no direct experimental evidence to support this claim. Thus, \uline{the authors are suggested to conduct a scalability study varying the number of vertices and comparing \Improved with selected existing methods}.
+
+\textbf{Response:} Following this request for scalability experiments, we added a new \textbf{Scalability Analysis} in \textbf{Section~\ref{subsec: scalability}} based on a family of subgraphs with increasing numbers of vertices. The new results \textbf{in Figure~\ref{fig: subgraph} (top left)} show that the running time of \Improved increases slowly with~$n$, while several other algorithms show scalability limitations and their curves terminate early.
+
+\textbf{D3:} Although the authors vary the number of groups ($g$) and the average group size ($f$), Table 3 presents only aggregate results, failing to show how these parameters affect algorithm performance independently. \uline{The authors should include detailed sensitivity analyses, such as plots of runtime and NWeight against varying $g$ and $f$}, to demonstrate the algorithm's robustness across different query configurations.
+
+\textbf{Response:} Following this request for sensitivity analyses of $g$ and $f$, we added a new \textbf{Robustness Analysis} in \textbf{Section~\ref{subsec: sensitivity}}. \textbf{Figure~\ref{fig: sens_gf}} plots the distributions of running time and NWeight of \ImprovPTS over all GSTP instances in each setting of~$g$ or~$f$, demonstrating its robustness across different query configurations.
+
+\textbf{D4:} While the paper focuses on execution time, it omits experimental results regarding memory consumption. Given that scalability to large graphs is a core claim, \uline{the authors should provide a comparative analysis of memory usage} to demonstrate the resource efficiency of \Improved relative to other index-free and index-based methods.
+
+\textbf{Response:} Following this request for memory-consumption experiments, we added comparative results of memory use in the \textbf{Scalability Analysis} in \textbf{Section~\ref{subsec: scalability}}. The new results in \textbf{Figure~\ref{fig: subgraph} (top right)} show that \ImprovPTS has the lowest memory use and its space increases slowly with~$n$.
+
+\textbf{D5:} The descriptions of the suspendable Dijkstra search and monotonicity-aware pruning could be supplemented with figures to facilitate a more intuitive understanding of these core technical contributions. \uline{The authors are encouraged to include illustrative examples of these processes} to visualize how the dynamic bounding mechanism and the search space reduction function operate in practice.
+
+\textbf{Response:} Following this request for illustrative examples of the suspendable Dijkstra search and monotonicity-aware pruning, we strengthened our running example. For the suspendable Dijkstra search, we annotated \textbf{Figure~\ref{fig: TF}} with the vertices visited in different calls of \PartialDijkstra and illustrated the dynamic bounding mechanism in the \textbf{Running Example} in \textbf{Section \ref{subsec: sec_dub}}. For monotonicity-aware pruning, we added a \textbf{Running Example} in \textbf{Section~\ref{subsec: mono_upt}} to illustrate how the prefix extends over iterations.
+
+\section*{Reviewer \#5}
+
+\textbf{R1:} \uline{The revision should analyze how performance changes with the number of groups ($g$), quantify the benefit of early termination in suspendable Dijkstra (e.g., visited nodes/work saved versus full SSSP), and evaluate the effect of prefix pruning.}
+
+\textbf{Response:} Following this request to analyze the effects of $g$, suspendable Dijkstra, and prefix pruning, we extended our experiments in three aspects.
+First, we added a dedicated \textbf{Robustness Analysis} in \textbf{Section~\ref{subsec: sensitivity}}. The results in \textbf{Figure~\ref{fig: sens_gf} (left)} show that as $g$~increases, \ImprovPTS robustly delivers high-quality solutions and outperforms ImprovAPP, and its running time is empirically linear in~$g$.
+Second, in the \textbf{Efficiency Results (Running Time)} in \textbf{Section~\ref{subsubsec: abl_result}}, we quantified the benefit of early termination by reporting that on different datasets, only an average of 0.02\%--20\% of all vertices are visited when Dijkstra's algorithm is terminated.
+Third, also in that section, we added an evaluation of the effect of prefix pruning, reporting an increase in speedup from~21\% to~42\% as $g$~increases from~5 to~8.
+
+\textbf{R2:} \uline{The paper should include an analysis of how choosing the root from the smallest group affects runtime and solution quality}, especially when group sizes are imbalanced.
+
+\textbf{Response:} Following this request for root-selection analysis, we added an ablation study to compare three root-selection strategies in \textbf{Section~\ref{subsec: able}}: the default smallest-group strategy, compared with the median group and the largest group. The new results in \textbf{Table~\ref{table: abl}} show that switching from the smallest group to the median or largest group leads to consistent increases in running time, while it has little effect on solution quality, demonstrating the cost-effectiveness of the smallest-group strategy.
+
+\textbf{R3:} \uline{The revision should add a small but concrete example explaining the 2-star construction and the main optimization ideas} (e.g., suspendable Dijkstra/prefix pruning/path re-selection).
+
+\textbf{Response:} Following this request for a concrete example of our approach, we strengthened our running example. We revised \textbf{Figure~\ref{fig: TF}} and revised the \textbf{Running Example} in \textbf{Section~\ref{subsec: basic_design}} and \textbf{Section~\ref{subsec: improved-design}} to illustrate the 2-star construction, added a concrete \textbf{Running Example} in \textbf{Section~\ref{subsec: sec_dub}} for suspendable Dijkstra, and added a \textbf{Running Example} in \textbf{Section~\ref{subsec: mono_upt}} for prefix pruning. The effect of path re-selection is illustrated by different trees shown in \textbf{Figure~\ref{fig: TF}}, and this case study is included at the end of the \textbf{Efficiency Results (Running Time)} in \textbf{Section~\ref{subsubsec: main-exper-results}}.
+
+\textbf{R4:} \uline{The paper should include at least one small-graph visualization or case study comparing the trees returned by \Improved, \Basic, and one representative baseline.}
+
+\textbf{Response:} Following this request for a small-graph visualization and case study, we extended \textbf{Figure~\ref{fig: TF}}, which now compares the trees returned by ImprovAPP, \Basic, and \Improved. We also added a corresponding case study at the end of the \textbf{Efficiency Results (Running Time)} in \textbf{Section~\ref{subsubsec: main-exper-results}}.
+
+\textbf{R5:} In particular, \uline{the authors should clarify how timeout cases are handled in quality comparisons, and report whether the conclusions change under an evaluation that includes all instances} (for example, by treating timeout cases conservatively). In addition, if polylogarithmic-approximation methods are too expensive for the full datasets, they should be evaluated on smaller graphs/subgraphs or otherwise \uline{discussed more explicitly to better position the proposed method}.
+
+\textbf{Response:} Following this request to clarify the handling of timeouts, we revised the description of the evaluation metrics in \textbf{Section~\ref{subsubsec: eva-metrics}} to explain how timeout cases are handled in quality comparisons. We also added a \textbf{Scalability Analysis} in \textbf{Section~\ref{subsec: scalability}}, where all baselines are practical on the smallest subgraph and can be compared directly. The new results in \textbf{Figure~\ref{fig: subgraph}} show how the more expensive methods fail as the graph expands, contextualizing quality comparisons in the presence of timeouts. We further clarified about polylogarithmic-approximation methods in \textbf{Section~\ref{subsec: sub-alg}}, explaining that as noted in their papers, they incur large hidden constants and accumulated polylogarithmic factors, hard to perform efficiently in practice (and even hard to implement); they are more oriented towards theoretical analysis than practical deployment.
+
+\textbf{R6:} Since GSTP-style workloads may arise in multi-query scenarios, \uline{the revision should discuss whether any intermediate computation or data structure (e.g., SSSP-related results or ($D^{\mathtt{Sum}})$) can be reused across queries, and what the expected trade-offs would be.} A brief empirical study would be ideal, but at minimum the paper should clarify this limitation and the potential for reuse.
+
+\textbf{Response:} Following this request to discuss reuse across queries, we added a brief discussion in \textbf{Section~\ref{subsubsec: basic-time}}, explaining that in multi-query scenarios, intermediate results such as shortest-path trees computed by SSSP can be cached and reused to reduce the time cost of subsequent queries.
+
+\textbf{R7:} \uline{Address minor presentation issues and typos.} The noted wording/grammar issues should be corrected in the revision.
+
+\textbf{Response:} Following this request to address presentation issues and typos, we revised the manuscript to correct all the noted wording and grammar issues, including but not limited to the punctuation in \textbf{Section~\ref{sec: introduction}} and the phrasing in \textbf{Section~\ref{subsec: line-alg}}.

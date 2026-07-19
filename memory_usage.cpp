@@ -1,5 +1,7 @@
 #include "memory_usage.h"
 
+#include <chrono>
+
 #if defined(_WIN32)
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -51,6 +53,50 @@ ProcessMemoryUsage GetProcessMemoryUsage()
 double BytesToMiB(std::uint64_t bytes)
 {
     return static_cast<double>(bytes) / 1048576.0;
+}
+
+QueryPeakRssSampler::QueryPeakRssSampler()
+{
+    Sample();
+    worker_ = std::thread([this]
+    {
+        while (!stop_.load(std::memory_order_acquire))
+        {
+            Sample();
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(kQueryRssSampleIntervalMs));
+        }
+        Sample();
+    });
+}
+
+QueryPeakRssSampler::~QueryPeakRssSampler()
+{
+    Stop();
+}
+
+std::uint64_t QueryPeakRssSampler::Stop()
+{
+    if (!stopped_)
+    {
+        stop_.store(true, std::memory_order_release);
+        if (worker_.joinable())
+            worker_.join();
+        Sample();
+        stopped_ = true;
+    }
+    return peak_rss_bytes_.load(std::memory_order_relaxed);
+}
+
+void QueryPeakRssSampler::Sample()
+{
+    const std::uint64_t current = GetProcessMemoryUsage().current_rss_bytes;
+    std::uint64_t observed = peak_rss_bytes_.load(std::memory_order_relaxed);
+    while (current > observed &&
+           !peak_rss_bytes_.compare_exchange_weak(
+               observed, current, std::memory_order_relaxed))
+    {
+    }
 }
 
 }  // namespace gst

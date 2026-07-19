@@ -1,0 +1,4 @@
+# Run started=2026-07-17 18:16:40 graph=GPU4GST_Youtube method=DPBF data_root=data graph_folder=data\GPU4GST_Youtube query_file=query_g4.txt run_subdir=query_g4 original_query_count=300 query_begin=1 query_limit=3 query_count=3 result_dir=result\GPU4GST_Youtube\DPBF\query_g4 rss_mb=222.367 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+16.340398 2.0000000000 685.633
+16.229806 10.0000000000 685.871
+16.418202 0.0000000000 687.812

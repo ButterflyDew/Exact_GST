@@ -1,0 +1,6 @@
+# Run started=2026-07-17 20:59:45 graph=GPU4GST_Twitch method=ReleaseV5 data_root=data graph_folder=data\GPU4GST_Twitch query_file=query_g5.txt run_subdir=query_g5 original_query_count=300 query_begin=1 query_limit=5 query_count=5 result_dir=result\GPU4GST_Twitch\ReleaseV5\query_g5 rss_mb=43.586 memory_metric=query_peak_rss_mb rss_sample_interval_ms=1
+0.167914 369.0000000000 55.867
+0.251418 369.0000000000 56.715
+0.241223 178.0000000000 56.863
+0.167079 198.0000000000 55.965
+0.162494 293.0000000000 55.906
